@@ -65,3 +65,10 @@ export function init() {
 	globalThis.__retwepoPurgeStart = setTimeout(runPurge, 60 * 1000); // 1 menit setelah server menyala
 	globalThis.__retwepoPurgeTimer = setInterval(runPurge, DAY_MS);
 }
+
+// ---- Error tak terduga: catat di log server dengan kode referensi yang juga ditampilkan ke user
+export function handleError({ error, event, status }) {
+	const id = crypto.randomUUID().slice(0, 8).toUpperCase();
+	if (status !== 404) console.error(`[error ${id}] ${event.request.method} ${event.url.pathname}`, error);
+	return { message: status === 404 ? 'Not Found' : 'Internal Error', id };
+}

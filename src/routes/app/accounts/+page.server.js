@@ -3,6 +3,7 @@ import { and, eq, ne, sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
 import { socialAccounts } from '#lib/server/db/schema.js';
 import { parseAccounts, findTaken, takenMessage, isUniqueViolation } from '#lib/server/accounts.js';
+import { checkLimits, waitText } from '#lib/server/ratelimit.js';
 
 export async function load({ locals }) {
 	const accounts = await db.execute(sql`
@@ -18,6 +19,8 @@ export const actions = {
 		const { accounts, error } = parseAccounts(await request.formData());
 		if (error) return fail(400, { error });
 		if (!accounts.length) return fail(400, { error: 'Isi username akun' });
+		const limit = checkLimits([[`account-add:${locals.user.id}`, 10, 60 * 60 * 1000]]);
+		if (!limit.ok) return fail(429, { error: `Terlalu banyak pengajuan akun. Coba lagi dalam ${waitText(limit.retryAfter)}.` });
 
 		try {
 			await db.transaction(async (tx) => {

@@ -39,6 +39,7 @@ export async function parseRecapForm(form, user, { hasExistingShot = false } = {
 	if (!['post', 'reply'].includes(type)) return { error: 'Pilih tipe rekap' };
 	if (url === undefined) return { error: 'URL postingan tidak valid' };
 	if (targetUrl === undefined) return { error: 'URL postingan yang dibalas tidak valid' };
+	if (type === 'reply' && !file && !hasExistingShot) return { error: 'Rekap panel wajib menyertakan screenshot' };
 	if (!url && !file && !hasExistingShot) return { error: 'Isi minimal URL atau screenshot' };
 
 	let postedAt = new Date();

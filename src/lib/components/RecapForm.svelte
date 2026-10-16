@@ -70,7 +70,9 @@
 	}
 
 	const shownExisting = $derived(Boolean(initial.screenshotPath) && !removeShot && !preview);
-	const hasEvidence = $derived(Boolean(url.trim() || preview || shownExisting));
+	const hasShot = $derived(Boolean(preview || shownExisting));
+	// panel (reply, like, retweet, share) wajib screenshot; postingan cukup URL atau screenshot
+	const hasEvidence = $derived(type === 'reply' ? hasShot : Boolean(url.trim()) || hasShot);
 
 	function setFile(file) {
 		if (!file) return;
@@ -233,7 +235,7 @@
 	<div class="space-y-6 xl:col-span-2">
 		<section class="card p-0 xl:sticky xl:top-24">
 			<div class="card-header">
-				<div class="card-title">3. Screenshot <span class="font-normal text-slate-400">· opsional</span></div>
+				<div class="card-title">3. Screenshot {#if type === 'reply'}<span class="font-normal text-rose-500">· wajib</span>{:else}<span class="font-normal text-slate-400">· opsional</span>{/if}</div>
 				{#if preview || shownExisting}
 					<button type="button" class="btn btn-soft-danger btn-sm btn-icon" onclick={removeAnyShot} aria-label="Hapus screenshot" title="Hapus screenshot"><Trash2 /></button>
 				{/if}
@@ -305,7 +307,7 @@
 				{/if}
 				<p class="flex items-start gap-2 text-xs {hasEvidence ? 'text-emerald-700' : 'text-slate-500'}">
 					{#if hasEvidence}<Check class="mt-px size-3.5 shrink-0" />{:else}<Info class="mt-px size-3.5 shrink-0" />{/if}
-					Minimal salah satu wajib diisi: <b>URL</b> atau <b>screenshot</b>.
+					{#if type === 'reply'}Tipe panel wajib menyertakan <b>screenshot</b>.{:else}Minimal salah satu wajib diisi: <b>URL</b> atau <b>screenshot</b>.{/if}
 				</p>
 				{#if allowDup}<input type="hidden" name="allowDuplicate" value="1" />{/if}
 				{#if serverDup && !allowDup}

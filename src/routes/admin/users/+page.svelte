@@ -1,5 +1,5 @@
 <script>
-	import { UserPlus, Inbox, Wallet, CalendarClock, Eye } from '@lucide/svelte';
+	import { UserPlus, Inbox, Wallet, CalendarClock, Eye, BadgeCheck, CircleOff } from '@lucide/svelte';
 	import { ACCOUNT_STATUS, fmtDate } from '#lib/constants.js';
 	import Badge from '#lib/components/Badge.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
@@ -66,6 +66,8 @@
 							{#if u.ewallet_number}
 								<div class="flex items-center gap-1.5 text-xs text-slate-500"><Wallet class="size-3.5" />{u.ewallet_provider}</div>
 								<div class="font-mono text-sm">{u.ewallet_number}</div>
+								{#if u.ewallet_check === 'found'}<div class="mt-0.5 flex items-center gap-1 text-xs font-medium text-emerald-700"><BadgeCheck class="size-3.5" />a.n. {u.ewallet_holder}</div>
+								{:else if u.ewallet_check === 'not_found'}<div class="mt-0.5 flex items-center gap-1 text-xs font-medium text-rose-600"><CircleOff class="size-3.5" />Tidak ditemukan</div>{/if}
 							{:else}<span class="text-slate-300">—</span>{/if}
 						</td>
 						<td data-label="Akun sosmed">

@@ -38,7 +38,9 @@ export async function listUsers(url, { statuses, defaultStatus = null, defaultSo
 	const [rows, [{ total }], counts] = await Promise.all([
 		db.execute(sql`
 			SELECT u.id, u.email, u.nickname, u.avatar_url, u.role, u.status, u.status_note,
-				u.ewallet_provider, u.ewallet_number, u.registered_at, u.created_at, u.reviewed_at,
+				u.ewallet_provider, u.ewallet_number,
+				CASE WHEN u.ewallet_check_key = lower(u.ewallet_provider || ':' || u.ewallet_number) THEN u.ewallet_check_status END AS ewallet_check,
+				u.ewallet_holder, u.registered_at, u.created_at, u.reviewed_at,
 				(SELECT json_agg(json_build_object('platform', s.platform, 'username', s.username, 'status', s.status) ORDER BY s.created_at)
 					FROM social_accounts s WHERE s.user_id = u.id) AS accounts,
 				coalesce(r.total, 0)::int AS total, coalesce(r.month, 0)::int AS month, r.last_at

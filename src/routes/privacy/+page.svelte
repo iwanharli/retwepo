@@ -43,7 +43,9 @@
 		<p>
 			Data Anda hanya dapat dilihat oleh Anda sendiri dan admin Retwepo yang bertugas memverifikasi pendaftaran, memantau
 			rekap, dan memproses pembayaran. Screenshot rekap hanya dapat dibuka oleh pemiliknya dan admin. Kami tidak membagikan
-			data kepada pihak ketiga, kecuali bila diwajibkan oleh hukum.
+			data kepada pihak ketiga, kecuali bila diwajibkan oleh hukum dan satu pengecualian berikut: untuk mencegah salah
+			transfer, nama penyedia dan nomor e-wallet Anda dapat dikirim ke layanan pengecekan nama pemilik akun. Layanan ini
+			hanya menerima kedua data tersebut, tanpa nama, email, atau data rekap Anda.
 		</p>
 	</section>
 

@@ -43,6 +43,13 @@
       "when": 1792164765217,
       "tag": "0005_solid_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792169581633,
+      "tag": "0006_ewallet_check",
+      "breakpoints": true
     }
   ]
 }

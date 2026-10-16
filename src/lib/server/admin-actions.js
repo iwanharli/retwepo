@@ -5,6 +5,7 @@ import { users, socialAccounts } from './db/schema.js';
 import { invalidateUserSessions } from './auth.js';
 import { isUniqueViolation, parseAccounts, findTaken, takenMessage } from './accounts.js';
 import { logAdmin } from './audit.js';
+import { checkAndStore } from './ewallet-check.js';
 import { notify, retractNotifications } from './notify.js';
 import { PLATFORMS, EWALLETS } from '#lib/constants.js';
 
@@ -212,7 +213,19 @@ export const userActions = {
 				tx
 			);
 		});
+		if (changed.some((k) => k.startsWith('ewallet'))) checkAndStore({ ...u, ...after });
 		return { success: `Profil ${nickname} diperbarui` };
+	},
+
+	// cek ulang nama pemilik e-wallet (menunggu hasil, maks. ~8 detik)
+	checkEwallet: async ({ request, locals }) => {
+		const { u, err } = await target(await request.formData(), locals.user);
+		if (err) return err;
+		if (!u.ewalletNumber) return fail(400, { error: 'User belum mengisi nomor e-wallet' });
+		const r = await checkAndStore(u);
+		if (r?.status === 'found') return { success: `Nama pemilik: ${r.name}` };
+		if (r?.status === 'not_found') return { success: 'Nomor tidak ditemukan di mesin cek — cocokkan manual saat transfer' };
+		return fail(503, { error: `Pengecekan tidak tersedia${r?.reason ? ` (${r.reason})` : ''}. Cocokkan nama secara manual saat transfer.` });
 	},
 
 	toggleAdmin: async ({ request, locals }) => {

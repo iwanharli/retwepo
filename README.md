@@ -1,6 +1,6 @@
-# Retwepo — Rekap Postingan & Reply Media Sosial
+# Retwepo — Rekap Postingan & Panel Media Sosial
 
-Aplikasi web untuk mencatat (merekap) postingan dan reply yang dibuat user di akun media sosial mereka
+Aplikasi web untuk mencatat (merekap) postingan dan panel yang dibuat user di akun media sosial mereka
 (X/Twitter, Instagram, Threads, YouTube, Facebook), lengkap dengan bukti URL/screenshot, verifikasi admin,
 statistik, dan export untuk keperluan pembayaran.
 
@@ -13,8 +13,8 @@ Bits UI · Lucide · ECharts · Sharp
 
 ### User
 - Masuk dengan Google, isi form pendaftaran (nama panggilan, e-wallet + konfirmasi nomor, akun sosmed) → menunggu verifikasi admin
-- Dashboard: ringkasan rekap, grafik 30 hari, komposisi post/reply, performa per akun, peringatan bila belum bisa merekap
-- Tambah rekap: pilih akun, tipe post/reply, URL dan/atau screenshot (tempel langsung dengan Ctrl/⌘+V), waktu posting, catatan
+- Dashboard: ringkasan rekap, grafik 30 hari, komposisi postingan/panel, performa per akun, peringatan bila belum bisa merekap
+- Tambah rekap: pilih akun, tipe postingan/panel (reply, like, retweet, share), URL dan/atau screenshot (tempel langsung dengan Ctrl/⌘+V), waktu posting, catatan
 - Riwayat rekap: default 7 hari terakhir, infinite scroll, tampilan grid/tabel, filter & urutkan kolom
 - Detail rekap dengan lightbox screenshot; **edit** rekap wajib menyertakan alasan dan tersimpan sebagai riwayat perubahan
 - Akun sosmed: ajukan akun baru (diverifikasi admin)

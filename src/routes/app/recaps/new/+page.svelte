@@ -10,7 +10,7 @@
 
 <svelte:head><title>Tambah Rekap · Retwepo</title></svelte:head>
 
-<PageHeader title="Tambah Rekap" description="Catat postingan atau reply yang sudah Anda buat di media sosial." icon={SquarePlus} />
+<PageHeader title="Tambah Rekap" description="Catat postingan atau panel (reply, like, retweet, share) yang sudah Anda buat di media sosial." icon={SquarePlus} />
 
 {#if data.missingProfile.length}
 	<EmptyState

@@ -61,7 +61,7 @@
 					<section>
 						<h3 class="label">Jenis laporan</h3>
 						<div class="grid gap-3 sm:grid-cols-2">
-							{#each [['detail', 'Detail rekap', 'Satu baris per rekap, lengkap dengan URL & screenshot', ListChecks], ['summary', 'Ringkasan per user', 'Total postingan/reply per user + e-wallet, cocok untuk pembayaran', UsersRound]] as [val, lbl, desc, Icon]}
+							{#each [['detail', 'Detail rekap', 'Satu baris per rekap, lengkap dengan URL & screenshot', ListChecks], ['summary', 'Ringkasan per user', 'Total postingan/panel per user + e-wallet, cocok untuk pembayaran', UsersRound]] as [val, lbl, desc, Icon]}
 								<label
 									class="flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition {mode === val
 										? 'border-brand-500 bg-brand-50/50 ring-4 ring-brand-500/10'
@@ -105,9 +105,9 @@
 								{#each PLATFORM_KEYS as k}<option value={k}>{PLATFORMS[k].label}</option>{/each}
 							</select>
 							<select class="input" name="type" bind:value={type}>
-								<option value="">Postingan & reply</option>
+								<option value="">Postingan & panel</option>
 								<option value="post">Postingan saja</option>
-								<option value="reply">Reply saja</option>
+								<option value="reply">Panel saja</option>
 							</select>
 						</div>
 						<!-- filter lain dari halaman ikut terbawa -->

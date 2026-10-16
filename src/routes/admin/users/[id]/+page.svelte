@@ -58,7 +58,7 @@
 		yAxis: { type: 'value', minInterval: 1 },
 		series: [
 			{ name: 'Postingan', type: 'bar', stack: 't', data: st.series.post, itemStyle: { color: '#6366f1' } },
-			{ name: 'Reply', type: 'bar', stack: 't', data: st.series.reply, itemStyle: { color: '#38bdf8' } }
+			{ name: 'Panel', type: 'bar', stack: 't', data: st.series.reply, itemStyle: { color: '#38bdf8' } }
 		]
 	});
 </script>
@@ -176,7 +176,7 @@
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
 	<Stat label="Rekap periode" value={st.summary.in_range} />
 	<Stat label="Postingan" value={st.summary.posts} />
-	<Stat label="Reply" value={st.summary.replies} />
+	<Stat label="Panel" value={st.summary.replies} />
 	<Stat label="Hari aktif" value="{st.summary.active_days} / {data.range.days}" />
 	<Stat label="Total semua" value={st.summary.total} hint="pertama {fmtDate(st.summary.first_at)}" />
 </div>

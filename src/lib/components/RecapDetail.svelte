@@ -113,7 +113,7 @@
 					<dd class="font-medium">{fmtDate(r.postedAt, true)} WIB</dd>
 				</div>
 				<div class="flex gap-3 px-5 py-3.5">
-					<dt class="flex w-36 shrink-0 items-center gap-2 text-slate-500"><Link2 class="size-4" /> URL {r.type === 'reply' ? 'reply' : 'postingan'}</dt>
+					<dt class="flex w-36 shrink-0 items-center gap-2 text-slate-500"><Link2 class="size-4" /> URL {r.type === 'reply' ? 'panel' : 'postingan'}</dt>
 					<dd class="min-w-0">
 						{#if r.url}
 							<a href={r.url} target="_blank" rel="noopener noreferrer" class="inline-flex max-w-full items-center gap-1.5 text-brand-600 hover:underline">
@@ -124,7 +124,7 @@
 				</div>
 				{#if r.type === 'reply'}
 					<div class="flex gap-3 px-5 py-3.5">
-						<dt class="flex w-36 shrink-0 items-center gap-2 text-slate-500"><CornerDownRight class="size-4" /> Membalas</dt>
+						<dt class="flex w-36 shrink-0 items-center gap-2 text-slate-500"><CornerDownRight class="size-4" /> Postingan target</dt>
 						<dd class="min-w-0">
 							{#if r.targetUrl}
 								<a href={r.targetUrl} target="_blank" rel="noopener noreferrer" class="inline-flex max-w-full items-center gap-1.5 text-brand-600 hover:underline">

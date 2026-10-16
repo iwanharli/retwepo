@@ -44,7 +44,7 @@
 		yAxis: { type: 'value', minInterval: 1, splitLine: { lineStyle: { color: '#f1f5f9' } }, axisLabel: { color: '#94a3b8' } },
 		series: [
 			{ name: 'Postingan', type: 'bar', stack: 't', barMaxWidth: 22, data: data.series.post, itemStyle: { color: '#6366f1' } },
-			{ name: 'Reply', type: 'bar', stack: 't', barMaxWidth: 22, data: data.series.reply, itemStyle: { color: '#38bdf8', borderRadius: [4, 4, 0, 0] } }
+			{ name: 'Panel', type: 'bar', stack: 't', barMaxWidth: 22, data: data.series.reply, itemStyle: { color: '#38bdf8', borderRadius: [4, 4, 0, 0] } }
 		]
 	});
 	const ACC_PRESETS = ['Username tidak ditemukan', 'Akun bukan milik user ini', 'Akun sudah tidak dipakai', 'Melanggar ketentuan'];
@@ -118,7 +118,7 @@
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-5 lg:gap-6">
 	<Stat label="Rekap periode" value={s.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />
 	<Stat label="Postingan" value={s.posts} icon={FileText} tone="violet" />
-	<Stat label="Reply" value={s.replies} icon={Reply} tone="sky" />
+	<Stat label="Panel" value={s.replies} icon={Reply} tone="sky" />
 	<Stat label="Hari aktif" value="{s.active_days} / {data.range.days}" icon={Clock} tone="emerald" />
 	<Stat label="Total semua" value={s.total} icon={Layers} tone="amber" hint={s.deleted ? `${s.deleted} dihapus admin (tidak dihitung)` : `sejak ${fmtDate(s.first_at)}`} />
 </div>

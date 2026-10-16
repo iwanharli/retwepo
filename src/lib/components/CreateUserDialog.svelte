@@ -68,7 +68,7 @@
 						<section>
 							<span class="label">Peran</span>
 							<div class="grid grid-cols-2 gap-3">
-								{#each [['user', 'User', 'Membuat rekap postingan & reply', UserRound], ['admin', 'Admin', 'Akses penuh panel admin', ShieldCheck]] as [val, lbl, desc, Icon]}
+								{#each [['user', 'User', 'Membuat rekap postingan & panel', UserRound], ['admin', 'Admin', 'Akses penuh panel admin', ShieldCheck]] as [val, lbl, desc, Icon]}
 									<label
 										class="flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition {role === val
 											? 'border-brand-500 bg-brand-50/50 ring-4 ring-brand-500/10'

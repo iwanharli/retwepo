@@ -10,7 +10,7 @@
 
 <LegalPage title="Kebijakan Privasi" updated="16 Oktober 2026">
 	<p>
-		Retwepo ("kami") adalah aplikasi untuk mencatat (merekap) postingan dan reply yang dibuat pengguna di akun media sosial
+		Retwepo ("kami") adalah aplikasi untuk mencatat (merekap) postingan dan panel yang dibuat pengguna di akun media sosial
 		mereka, untuk keperluan pemantauan aktivitas dan pembayaran. Kebijakan ini menjelaskan data apa yang kami kumpulkan,
 		bagaimana data tersebut digunakan, dan hak Anda atas data tersebut.
 	</p>
@@ -21,7 +21,7 @@
 			<li><b>Data akun Google</b> saat Anda masuk: alamat email, nama, foto profil, dan ID akun Google. Kami tidak menerima maupun menyimpan password Google Anda.</li>
 			<li><b>Data pendaftaran</b>: nama panggilan, penyedia dan nomor e-wallet.</li>
 			<li><b>Akun media sosial</b> yang Anda daftarkan: platform dan username.</li>
-			<li><b>Rekap</b> yang Anda buat: URL postingan/reply, screenshot, catatan, waktu posting, serta riwayat perubahannya.</li>
+			<li><b>Rekap</b> yang Anda buat: URL postingan/panel, screenshot, catatan, waktu posting, serta riwayat perubahannya.</li>
 			<li><b>Data teknis</b>: cookie sesi untuk menjaga Anda tetap masuk, dan alamat IP yang dipakai sementara untuk membatasi percobaan masuk berlebihan (tidak disimpan permanen).</li>
 		</ul>
 	</section>

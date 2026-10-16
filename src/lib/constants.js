@@ -10,7 +10,7 @@ export const PLATFORM_KEYS = Object.keys(PLATFORMS);
 
 export const EWALLETS = ['DANA', 'OVO', 'GoPay', 'ShopeePay', 'LinkAja'];
 
-export const RECAP_TYPES = { post: 'Postingan', reply: 'Reply' };
+export const RECAP_TYPES = { post: 'Postingan', reply: 'Panel' };
 
 export const USER_STATUS = {
 	incomplete: { label: 'Belum daftar', cls: 'bg-slate-100 text-slate-600' },
@@ -77,7 +77,7 @@ export const EXPORT_COLUMNS = [
 	{ key: 'ewallet', label: 'E-wallet & nomor', default: false },
 	{ key: 'platform', label: 'Platform', default: true },
 	{ key: 'username', label: 'Username sosmed', default: true },
-	{ key: 'type', label: 'Tipe (post/reply)', default: true },
+	{ key: 'type', label: 'Tipe (postingan/panel)', default: true },
 	{ key: 'url', label: 'URL', default: true },
 	{ key: 'target_url', label: 'URL yang dibalas', default: false },
 	{ key: 'screenshot', label: 'Link screenshot', default: true },
@@ -102,7 +102,7 @@ export const USER_EXPORT_COLUMNS = [
 	{ key: 'accounts', label: 'Akun sosmed', default: true },
 	{ key: 'total', label: 'Jumlah rekap', default: true },
 	{ key: 'posts', label: 'Postingan', default: true },
-	{ key: 'replies', label: 'Reply', default: true },
+	{ key: 'replies', label: 'Panel', default: true },
 	{ key: 'active_days', label: 'Hari aktif', default: false },
 	{ key: 'last_at', label: 'Rekap terakhir', default: true },
 	{ key: 'registered_at', label: 'Tanggal daftar', default: false },
@@ -121,7 +121,7 @@ export const ACCOUNT_EXPORT_COLUMNS = [
 	{ key: 'status_note', label: 'Alasan ditolak/dicabut', default: false },
 	{ key: 'total', label: 'Jumlah rekap', default: true },
 	{ key: 'posts', label: 'Postingan', default: false },
-	{ key: 'replies', label: 'Reply', default: false },
+	{ key: 'replies', label: 'Panel', default: false },
 	{ key: 'last_at', label: 'Rekap terakhir', default: true },
 	{ key: 'created_at', label: 'Tanggal diajukan', default: false },
 	{ key: 'reviewed_at', label: 'Tanggal ditinjau', default: false },

@@ -24,7 +24,7 @@
 	<section>
 		<h2>2. Rekap</h2>
 		<ul>
-			<li>Setiap rekap wajib menyertakan bukti berupa URL dan/atau screenshot yang asli dan sesuai dengan postingan atau reply yang Anda buat.</li>
+			<li>Setiap rekap wajib menyertakan bukti berupa URL dan/atau screenshot yang asli dan sesuai dengan postingan atau panel yang Anda buat.</li>
 			<li>Perubahan rekap wajib disertai alasan dan tercatat dalam riwayat yang dapat dilihat admin.</li>
 			<li>Rekap duplikat, palsu, atau tidak sesuai bukti dapat dihapus admin dan tidak dihitung.</li>
 		</ul>

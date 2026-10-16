@@ -44,7 +44,7 @@ export async function GET({ url }) {
 		status_note: [['Alasan ditolak/dicabut'], (r) => [r.status_note]],
 		total: [['Jumlah rekap'], (r) => [r.total]],
 		posts: [['Postingan'], (r) => [r.posts]],
-		replies: [['Reply'], (r) => [r.replies]],
+		replies: [['Panel'], (r) => [r.replies]],
 		last_at: [['Rekap terakhir (WIB)'], (r) => [wib(r.last_at)]],
 		created_at: [['Diajukan (WIB)'], (r) => [wib(r.created_at)]],
 		reviewed_at: [['Ditinjau (WIB)'], (r) => [wib(r.reviewed_at)]]

@@ -1,0 +1,143 @@
+<script>
+	import {
+		ScrollText,
+		Search,
+		SlidersHorizontal,
+		Inbox,
+		UserCheck,
+		UserX,
+		Ban,
+		RotateCcw,
+		ShieldCheck,
+		ShieldOff,
+		BadgeCheck,
+		ShieldX,
+		Trash2,
+		Undo2,
+		MessageSquareQuote,
+		Eraser,
+		Bot,
+		UserPlus
+	} from '@lucide/svelte';
+	import { fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
+	import PageHeader from '#lib/components/PageHeader.svelte';
+	import EmptyState from '#lib/components/EmptyState.svelte';
+	import Pagination from '#lib/components/Pagination.svelte';
+	import RangeFilter from '#lib/components/RangeFilter.svelte';
+	import Avatar from '#lib/components/Avatar.svelte';
+
+	let { data } = $props();
+
+	// ikon & warna per jenis aksi
+	const STYLE = {
+		approveUser: [UserCheck, 'bg-emerald-50 text-emerald-600 ring-emerald-200'],
+		rejectUser: [UserX, 'bg-rose-50 text-rose-600 ring-rose-200'],
+		suspendUser: [Ban, 'bg-amber-50 text-amber-600 ring-amber-200'],
+		reactivateUser: [RotateCcw, 'bg-emerald-50 text-emerald-600 ring-emerald-200'],
+		grantAdmin: [ShieldCheck, 'bg-brand-50 text-brand-600 ring-brand-200'],
+		revokeAdmin: [ShieldOff, 'bg-rose-50 text-rose-600 ring-rose-200'],
+		approveAccount: [BadgeCheck, 'bg-emerald-50 text-emerald-600 ring-emerald-200'],
+		rejectAccount: [ShieldX, 'bg-rose-50 text-rose-600 ring-rose-200'],
+		revokeAccount: [ShieldOff, 'bg-rose-50 text-rose-600 ring-rose-200'],
+		deleteRecap: [Trash2, 'bg-rose-50 text-rose-600 ring-rose-200'],
+		undoApproveUser: [Undo2, 'bg-slate-100 text-slate-600 ring-slate-200'],
+		undoApproveAccount: [Undo2, 'bg-slate-100 text-slate-600 ring-slate-200'],
+		restoreRecap: [RotateCcw, 'bg-emerald-50 text-emerald-600 ring-emerald-200'],
+		purgeRecaps: [Eraser, 'bg-slate-100 text-slate-600 ring-slate-200'],
+		createUser: [UserPlus, 'bg-brand-50 text-brand-600 ring-brand-200'],
+		addAccount: [BadgeCheck, 'bg-emerald-50 text-emerald-600 ring-emerald-200']
+	};
+	// aksi yang belum punya gaya khusus tetap tampil dengan ikon umum
+	const styleOf = (k) => STYLE[k] ?? [ScrollText, 'bg-slate-100 text-slate-600 ring-slate-200'];
+
+	const targetHref = (l) => (l.target_type === 'user' && l.target_user_status ? adminUserHref(l.target_id, l.target_user_status) : null);
+	const actionHref = (a) => {
+		const u = new URLSearchParams({ from: data.f.from, to: data.f.to });
+		if (a) u.set('action', a);
+		if (data.f.q) u.set('q', data.f.q);
+		return '?' + u;
+	};
+</script>
+
+<svelte:head><title>Log Aktivitas · Admin Retwepo</title></svelte:head>
+
+<PageHeader title="Log Aktivitas" description="Catatan setiap aksi admin: siapa, kapan, terhadap apa, dan alasannya." icon={ScrollText}>
+	{#snippet actions()}<RangeFilter from={data.f.from} to={data.f.to} />{/snippet}
+</PageHeader>
+
+<div class="mb-5 flex flex-wrap gap-1.5">
+	<a
+		href={actionHref(null)}
+		class="inline-flex h-8 items-center gap-2 rounded-full px-3.5 text-xs font-medium transition {!data.f.action
+			? 'bg-slate-900 text-white'
+			: 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}">Semua aksi</a
+	>
+	{#each Object.entries(data.actions).filter(([k]) => data.counts[k]) as [k, label]}
+		{@const [Icon] = styleOf(k)}
+		<a
+			href={actionHref(k)}
+			class="inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-xs font-medium transition {data.f.action === k
+				? 'bg-slate-900 text-white'
+				: 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}"
+		>
+			<Icon class="size-3.5" />{label}<span class="opacity-60">{data.counts[k]}</span>
+		</a>
+	{/each}
+</div>
+
+<form method="GET" class="card mb-6 grid grid-cols-2 gap-3 p-4 md:grid-cols-12 lg:p-5">
+	<input type="hidden" name="from" value={data.f.from} />
+	<input type="hidden" name="to" value={data.f.to} />
+	{#if data.f.action}<input type="hidden" name="action" value={data.f.action} />{/if}
+	<div class="relative col-span-2 md:col-span-10">
+		<Search class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+		<input class="input pl-9" name="q" value={data.f.q} placeholder="Cari nama admin, target (user / akun / rekap), atau alasan…" aria-label="Cari log" />
+	</div>
+	<button class="btn btn-primary col-span-2 h-10 md:col-span-2"><SlidersHorizontal /> Terapkan</button>
+</form>
+
+{#if data.rows.length}
+	<div class="card p-0">
+		<ol class="divide-y divide-slate-100">
+			{#each data.rows as l (l.id)}
+				{@const [Icon, cls] = styleOf(l.action)}
+				{@const href = targetHref(l)}
+				<li class="flex gap-4 px-5 py-4">
+					<span class="flex size-9 shrink-0 items-center justify-center rounded-full ring-1 {cls}"><Icon class="size-4" /></span>
+					<div class="min-w-0 flex-1">
+						<div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+							<p class="text-sm">
+								<span class="inline-flex items-center gap-1.5 align-middle font-medium text-slate-900">
+									{#if l.admin_id}
+										<Avatar user={{ nickname: l.admin_nickname, email: l.admin_email, avatarUrl: l.admin_avatar }} size={18} />
+										{l.admin_nickname ?? l.admin_email ?? 'Admin terhapus'}
+									{:else}
+										<span class="flex size-[18px] items-center justify-center rounded-full bg-slate-200 text-slate-600"><Bot class="size-3" /></span> Sistem
+									{/if}
+								</span>
+								<span class="text-slate-500">{(data.actions[l.action] ?? l.action).toLowerCase()}</span>
+								{#if href}
+									<a {href} class="font-medium text-brand-700 hover:underline">{l.target_label}</a>
+								{:else}
+									<span class="font-medium text-slate-800">{l.target_label}</span>
+								{/if}
+							</p>
+							<time class="shrink-0 text-xs text-slate-500">{fmtDate(l.created_at, true)}</time>
+						</div>
+						{#if l.note}
+							<p class="mt-2 flex gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-100">
+								<MessageSquareQuote class="mt-0.5 size-4 shrink-0 text-slate-400" />{l.note}
+							</p>
+						{/if}
+						{#if l.action === 'deleteRecap' && l.meta?.url}
+							<p class="mt-1.5 truncate text-xs text-slate-500">URL rekap: {l.meta.url}</p>
+						{/if}
+					</div>
+				</li>
+			{/each}
+		</ol>
+	</div>
+	<Pagination current={data.page} total={data.total} perPage={data.perPage} />
+{:else}
+	<EmptyState icon={Inbox} title="Belum ada aktivitas" description="Tidak ada aksi admin yang tercatat pada rentang dan filter ini." />
+{/if}

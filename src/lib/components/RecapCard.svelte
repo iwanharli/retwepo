@@ -5,6 +5,7 @@
 	import TypeBadge from './TypeBadge.svelte';
 	import EditedBadge from './EditedBadge.svelte';
 	import DeletedNotice from './DeletedNotice.svelte';
+	import DuplicateBadge from './DuplicateBadge.svelte';
 	/** href: link ke halaman detail rekap */
 	let { r, owner = null, href = null, children = null } = $props();
 	const shot = $derived(r.screenshotPath ?? r.screenshot_path);
@@ -37,10 +38,11 @@
 			<TypeBadge type={r.type} />
 		</div>
 		{#if r.deletedAt}<DeletedNotice {r} compact />{/if}
-		{#if owner || edited}
+		{#if owner || edited || r.dupCount}
 			<div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
 				{#if owner}<span>oleh <b class="text-slate-700">{owner}</b></span>{/if}
 				<EditedBadge at={edited} />
+				<DuplicateBadge count={r.dupCount} />
 			</div>
 		{/if}
 		{#if r.url}

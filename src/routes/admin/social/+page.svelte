@@ -72,7 +72,7 @@
 
 {#if data.rows.length}
 	<div class="card overflow-x-auto p-0">
-		<table class="table">
+		<table class="table table-cards">
 			<thead>
 				<tr>
 					<SortTh key="account" label="Akun" sort={data.f.sort} />
@@ -88,17 +88,17 @@
 				{#each data.rows as a (a.id)}
 					{@const days = idle(a.last_at)}
 					<tr class="hover:bg-slate-50/70">
-						<td><PlatformTag platform={a.platform} username={a.username} link size={28} /></td>
-						<td>
+						<td data-label=""><a href="/admin/social/{a.id}" class="hover:underline"><PlatformTag platform={a.platform} username={a.username} size={28} /></a></td>
+						<td data-label="Pemilik">
 							<a href={adminUserHref(a.user_id, a.user_status)} class="font-medium hover:underline">{a.nickname ?? a.email}</a>
 							<div class="flex items-center gap-1.5 text-xs text-slate-500">
 								{a.email}
 								{#if a.user_status !== 'approved'}<Badge cls={USER_STATUS[a.user_status].cls}>user {USER_STATUS[a.user_status].label.toLowerCase()}</Badge>{/if}
 							</div>
 						</td>
-						<td class="text-right text-base font-semibold">{fmtNum(a.month)}</td>
-						<td class="text-right text-slate-500">{fmtNum(a.total)}</td>
-						<td class="whitespace-nowrap">
+						<td class="text-right text-base font-semibold" data-label="Rekap 30 hari">{fmtNum(a.month)}</td>
+						<td class="text-right text-slate-500" data-label="Total">{fmtNum(a.total)}</td>
+						<td class="whitespace-nowrap" data-label="Terakhir dipakai">
 							{#if days === null}
 								<span class="text-xs text-rose-600">Belum pernah</span>
 							{:else}
@@ -106,8 +106,8 @@
 								<div class="text-xs {days >= 7 ? 'text-rose-600' : 'text-slate-400'}">{days === 0 ? 'hari ini' : `${days} hari lalu`}</div>
 							{/if}
 						</td>
-						<td class="whitespace-nowrap text-slate-500">{fmtDate(a.reviewed_at ?? a.created_at)}</td>
-						<td>
+						<td class="whitespace-nowrap text-slate-500" data-label="Disetujui">{fmtDate(a.reviewed_at ?? a.created_at)}</td>
+						<td data-cell="actions">
 							<div class="flex justify-end gap-1.5">
 								<a href="/admin/recaps?q={encodeURIComponent(a.username)}&from=&to=" class="btn btn-soft-brand btn-sm" title="Lihat rekap akun ini"><Images /> Rekap</a>
 								<ActionDialog

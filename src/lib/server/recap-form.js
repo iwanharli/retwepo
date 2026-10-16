@@ -1,6 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from './db/index.js';
 import { socialAccounts } from './db/schema.js';
+import { urlKey } from '#lib/constants.js';
 
 function cleanUrl(v) {
 	const s = String(v ?? '').trim();
@@ -46,5 +47,5 @@ export async function parseRecapForm(form, user, { hasExistingShot = false } = {
 		if (postedAt.getTime() > Date.now() + 5 * 60000) return { error: 'Tanggal posting tidak boleh di masa depan' };
 	}
 
-	return { values: { socialAccountId: account.id, type, url, targetUrl, note, postedAt }, file, account };
+	return { values: { socialAccountId: account.id, type, url, urlKey: urlKey(url), targetUrl, note, postedAt }, file, account };
 }

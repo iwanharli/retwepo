@@ -127,3 +127,49 @@ export const ACCOUNT_EXPORT_COLUMNS = [
 	{ key: 'reviewed_at', label: 'Tanggal ditinjau', default: false },
 	{ key: 'id', label: 'ID akun', default: false }
 ];
+
+/**
+ * Kunci URL untuk mendeteksi rekap duplikat: link berbeda bentuk yang menunjuk ke postingan
+ * yang sama menghasilkan kunci yang sama (twitter.com = x.com, tanpa ?s=…, tanpa "/" akhir, dsb.).
+ * @returns {string|null}
+ */
+export function urlKey(raw) {
+	if (!raw) return null;
+	let u;
+	try {
+		u = new URL(String(raw).trim());
+	} catch {
+		return null;
+	}
+	let host = u.hostname.toLowerCase().replace(/^(www\.|m\.|mobile\.|mbasic\.|web\.)/, '');
+	const parts = u.pathname.split('/').filter(Boolean);
+	const v = (k) => u.searchParams.get(k);
+
+	if (host === 'twitter.com' || host === 'x.com') {
+		// ID status unik secara global → abaikan username
+		const i = parts.findIndex((p) => p === 'status' || p === 'statuses');
+		if (i >= 0 && parts[i + 1]) return `x.com/status/${parts[i + 1]}`;
+		host = 'x.com';
+	}
+	if (host === 'instagram.com') {
+		const i = parts.findIndex((p) => ['p', 'reel', 'reels', 'tv'].includes(p));
+		if (i >= 0 && parts[i + 1]) return `instagram.com/p/${parts[i + 1]}`;
+	}
+	if (host === 'threads.net' || host === 'threads.com') {
+		const i = parts.indexOf('post');
+		if (i >= 0 && parts[i + 1]) return `threads.net/post/${parts[i + 1]}`;
+		host = 'threads.net';
+	}
+	if (host === 'youtu.be' && parts[0]) return `youtube.com/v/${parts[0]}`;
+	if (host === 'youtube.com') {
+		if (v('v')) return `youtube.com/v/${v('v')}${v('lc') ? `/c/${v('lc')}` : ''}`;
+		if (parts[0] === 'shorts' && parts[1]) return `youtube.com/v/${parts[1]}`;
+	}
+	if (host === 'facebook.com' || host === 'fb.com') {
+		host = 'facebook.com';
+		const id = v('story_fbid') || v('fbid') || v('v');
+		if (id) return `facebook.com/${id}${v('comment_id') ? `/c/${v('comment_id')}` : ''}`;
+	}
+	// umum: host + path (tanpa query, hash, dan "/" akhir); path dibiarkan peka huruf besar/kecil
+	return `${host}/${parts.join('/')}`;
+}

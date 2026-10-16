@@ -112,7 +112,7 @@
 	{/if}
 
 	<div class="card overflow-x-auto p-0">
-		<table class="table">
+		<table class="table table-cards">
 			<thead>
 				<tr>
 					{#if pending}
@@ -135,15 +135,15 @@
 			<tbody>
 				{#each data.rows as a (a.id)}
 					<tr class="hover:bg-slate-50/70">
-						{#if pending}<td><input type="checkbox" class="size-4 accent-brand-600" value={a.id} bind:group={selected} /></td>{/if}
-						<td><PlatformTag platform={a.platform} username={a.username} link size={28} /></td>
-						<td>
+						{#if pending}<td data-label="Pilih"><input type="checkbox" class="size-4 accent-brand-600" value={a.id} bind:group={selected} /></td>{/if}
+						<td data-label=""><a href="/admin/social/{a.id}" class="hover:underline"><PlatformTag platform={a.platform} username={a.username} size={28} /></a></td>
+						<td data-label="Pemilik">
 							<a href={adminUserHref(a.user_id, a.user_status)} class="font-medium hover:underline">{a.nickname ?? a.email}</a>
 							<div class="text-xs text-slate-500">{a.email}</div>
 						</td>
-						<td class="whitespace-nowrap text-slate-500"><span class="flex items-center gap-1.5"><CalendarClock class="size-3.5" />{fmtDate(a.created_at, true)}</span></td>
-						{#if !pending}<td class="max-w-64 text-sm text-slate-600">{a.status_note ?? '—'}</td>{/if}
-						<td>
+						<td class="whitespace-nowrap text-slate-500" data-label="Diajukan"><span class="flex items-center gap-1.5"><CalendarClock class="size-3.5" />{fmtDate(a.created_at, true)}</span></td>
+						{#if !pending}<td class="max-w-64 text-sm text-slate-600" data-label="Alasan penolakan">{a.status_note ?? '—'}</td>{/if}
+						<td data-cell="actions">
 							<div class="flex justify-end gap-1.5">
 								<form method="POST" action="?/approveAccount" use:enhance={approved}>
 									<input type="hidden" name="id" value={a.id} /><button class="btn btn-success btn-sm"><Check /> Setujui</button>

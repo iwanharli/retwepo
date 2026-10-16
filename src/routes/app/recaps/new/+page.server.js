@@ -6,6 +6,7 @@ import { saveScreenshot, deleteScreenshot } from '#lib/server/uploads.js';
 import { missingProfile } from '#lib/server/profile.js';
 import { parseRecapForm } from '#lib/server/recap-form.js';
 import { checkLimits, waitText } from '#lib/server/ratelimit.js';
+import { findDuplicates } from '#lib/server/duplicates.js';
 
 export async function load({ locals, url }) {
 	const accounts = await db
@@ -32,6 +33,12 @@ export const actions = {
 
 		const parsed = await parseRecapForm(form, locals.user);
 		if (parsed.error) return fail(400, { error: parsed.error, keep });
+
+		// URL sama sudah pernah direkap: minta konfirmasi dulu (bukan diblokir)
+		if (form.get('allowDuplicate') !== '1') {
+			const dup = await findDuplicates(parsed.values.urlKey, locals.user.id, null);
+			if (dup.count) return fail(409, { duplicate: dup, keep });
+		}
 
 		let screenshotPath = null;
 		if (parsed.file) {

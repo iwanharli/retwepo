@@ -33,6 +33,11 @@
 		<p><b class="text-slate-800">Belum punya akun?</b> Cukup masuk dengan Google, lalu lengkapi form pendaftaran. Admin akan memverifikasi akun Anda.</p>
 	</div>
 
+	<p class="mt-6 text-center text-xs text-slate-500">
+		Dengan masuk, Anda menyetujui <a href="/terms" class="text-brand-600 hover:underline">Syarat Penggunaan</a> dan
+		<a href="/privacy" class="text-brand-600 hover:underline">Kebijakan Privasi</a>.
+	</p>
+
 	{#if data.dev}
 		<div class="mt-8 rounded-xl border border-dashed border-amber-300 bg-amber-50/60 p-4">
 			<p class="mb-3 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-amber-700 uppercase"><FlaskConical class="size-3.5" /> Login dev — hanya mode development</p>

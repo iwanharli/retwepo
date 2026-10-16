@@ -5,7 +5,8 @@ import { uploadRoot } from '#lib/server/uploads.js';
 import { purgeDeletedRecaps } from '#lib/server/purge-core.js';
 import { DELETED_RETENTION_DAYS } from '#lib/constants.js';
 
-const PUBLIC = ['/login', '/auth/'];
+// halaman yang bisa dibuka tanpa login
+const PUBLIC = ['/login', '/auth/', '/privacy', '/terms'];
 
 export async function handle({ event, resolve }) {
 	const token = event.cookies.get(SESSION_COOKIE);

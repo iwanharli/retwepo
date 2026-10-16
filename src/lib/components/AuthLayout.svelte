@@ -36,7 +36,10 @@
 			</div>
 		</div>
 
-		<p class="relative text-xs text-slate-500">© {new Date().getFullYear()} Retwepo</p>
+		<p class="relative text-xs text-slate-500">
+			© {new Date().getFullYear()} Retwepo · <a href="/privacy" class="hover:text-slate-300">Kebijakan Privasi</a> ·
+			<a href="/terms" class="hover:text-slate-300">Syarat Penggunaan</a>
+		</p>
 	</aside>
 
 	<!-- konten -->

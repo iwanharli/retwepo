@@ -10,7 +10,8 @@
 		ImageOff,
 		Maximize2,
 		Wallet,
-		Download
+		Download,
+		Eye
 	} from '@lucide/svelte';
 	import { PLATFORMS, ACCOUNT_STATUS, fmtDate } from '#lib/constants.js';
 	import PlatformIcon from './PlatformIcon.svelte';
@@ -153,7 +154,7 @@
 			<!-- Pemilik (admin) -->
 			<section class="card p-0">
 				<div class="card-header"><div class="card-title">Pemilik rekap</div></div>
-				<a href={ownerHref} class="flex items-center gap-3 p-5 transition hover:bg-slate-50">
+				<div class="flex flex-wrap items-center gap-3 p-5">
 					<Avatar user={{ nickname: r.nickname, email: r.email, avatarUrl: r.avatarUrl }} size={44} />
 					<div class="min-w-0 flex-1">
 						<div class="font-medium">{r.nickname ?? '—'}</div>
@@ -165,7 +166,8 @@
 							<div class="font-mono text-sm text-slate-700">{r.ewalletNumber}</div>
 						</div>
 					{/if}
-				</a>
+				</div>
+				<div class="border-t border-slate-100 px-5 py-3"><a href={ownerHref} class="btn btn-soft-brand btn-sm shrink-0 w-full justify-center" title="Lihat detail"><Eye /> Detail user</a></div>
 			</section>
 		{/if}
 	</aside>

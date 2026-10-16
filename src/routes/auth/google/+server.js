@@ -17,5 +17,6 @@ export function GET(event) {
 	event.cookies.set('google_oauth_state', state, opts);
 	event.cookies.set('google_code_verifier', codeVerifier, opts);
 
-	redirect(302, url.toString());
+	// SvelteKit 3 menolak redirect ke domain luar kecuali diizinkan eksplisit
+	redirect(302, url.toString(), { external: ['https://accounts.google.com'] });
 }

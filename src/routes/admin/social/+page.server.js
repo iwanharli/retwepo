@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
-import { listAccounts } from '#lib/server/social.js';
+import { listAccountsByUser } from '#lib/server/social.js';
 import { accountActions } from '#lib/server/admin-actions.js';
 import { PLATFORMS } from '#lib/constants.js';
 
@@ -12,14 +12,9 @@ export async function load({ url }) {
 	const owner = OWNERS.includes(url.searchParams.get('owner')) ? url.searchParams.get('owner') : 'approved';
 	const platform = PLATFORMS[url.searchParams.get('platform')] ? url.searchParams.get('platform') : null;
 	const [list, ownerCounts] = await Promise.all([
-		listAccounts(url, {
-			statuses: ['approved'],
-			defaultStatus: 'approved',
-			defaultSort: { key: 'month', dir: 'desc' },
-			ownerStatus: owner === 'all' ? null : owner
-		}),
+		listAccountsByUser(url, { ownerStatus: owner === 'all' ? null : owner }),
 		db.execute(sql`
-			SELECT u.status, count(*)::int AS n FROM social_accounts a JOIN users u ON u.id = a.user_id
+			SELECT u.status, count(DISTINCT u.id)::int AS n FROM social_accounts a JOIN users u ON u.id = a.user_id
 			WHERE a.status = 'approved' AND (${platform}::text IS NULL OR a.platform::text = ${platform})
 			GROUP BY u.status`)
 	]);

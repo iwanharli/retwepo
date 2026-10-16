@@ -4,6 +4,7 @@ import { db } from '#lib/server/db/index.js';
 import { users, socialAccounts } from '#lib/server/db/schema.js';
 import { parseAccounts, findTaken, takenMessage, isUniqueViolation } from '#lib/server/accounts.js';
 import { EWALLETS } from '#lib/constants.js';
+import { checkAndStore } from '#lib/server/ewallet-check.js';
 
 export async function load({ locals }) {
 	const u = locals.user;
@@ -67,6 +68,8 @@ export const actions = {
 			throw e;
 		}
 
+		// cek nama pemilik e-wallet di latar belakang (tidak menahan pendaftaran bila mesin cek mati)
+		checkAndStore({ ...locals.user, ...values });
 		redirect(303, '/pending');
 	}
 };

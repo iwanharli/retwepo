@@ -16,6 +16,7 @@
 	import ActionDialog from '#lib/components/ActionDialog.svelte';
 	import AddAccountDialog from '#lib/components/AddAccountDialog.svelte';
 	import EditUserDialog from '#lib/components/EditUserDialog.svelte';
+	import EwalletCheck from '#lib/components/EwalletCheck.svelte';
 	import AccountSummary from '#lib/components/AccountSummary.svelte';
 	import { Check, X, ShieldX, CalendarDays, FileText, Reply, Clock, Layers } from '@lucide/svelte';
 
@@ -90,6 +91,7 @@
 			<div class="text-sm text-slate-500">
 				{u.ewalletProvider ?? '-'} · <span class="font-mono">{u.ewalletNumber ?? '-'}</span>
 			</div>
+			<EwalletCheck {u} check={data.ewalletCheck} engine={data.ewalletEngine} canRecheck={u.id !== data.meId} />
 		</div>
 	</div>
 	<div class="flex flex-wrap items-center gap-1.5">

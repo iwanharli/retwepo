@@ -47,6 +47,11 @@ export const users = pgTable(
 		nickname: varchar('nickname', { length: 50 }),
 		ewalletProvider: varchar('ewallet_provider', { length: 30 }),
 		ewalletNumber: varchar('ewallet_number', { length: 30 }),
+		// hasil cek nama pemilik e-wallet (lihat ewallet-check.js); berlaku selama ewallet_check_key = provider:nomor saat ini
+		ewalletHolder: varchar('ewallet_holder', { length: 120 }),
+		ewalletCheckStatus: varchar('ewallet_check_status', { length: 20 }), // found | not_found | unavailable
+		ewalletCheckKey: varchar('ewallet_check_key', { length: 64 }),
+		ewalletCheckedAt: timestamp('ewallet_checked_at', { withTimezone: true }),
 		role: roleEnum('role').notNull().default('user'),
 		status: userStatusEnum('status').notNull().default('incomplete'),
 		statusNote: text('status_note'),

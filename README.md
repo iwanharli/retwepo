@@ -200,6 +200,22 @@ Backup sudah diuji bisa dipulihkan dengan `./run.sh restore`.
 - **Error tak terduga** tampil dengan kode referensi; kode yang sama tercatat di log server (`[error KODE] …`).
 - Zona waktu tampilan & statistik: **WIB (Asia/Jakarta)**.
 
+### Cek nama pemilik e-wallet (opsional)
+
+Belum ada API resmi gratis dari DANA/OVO/GoPay/ShopeePay/LinkAja, jadi pengecekan memakai endpoint pihak ketiga
+yang bisa diganti kapan saja lewat `.env`:
+
+| Variabel | Keterangan |
+|---|---|
+| `EWALLET_CHECK_URL` | mis. `https://api.contoh.com/cek?ewallet={provider}&nomor={number}` — placeholder `{provider}` (dana, ovo, …), `{number}` (08…), `{number62}` (628…) |
+| `EWALLET_CHECK_TOKEN` | opsional, dikirim sebagai `Authorization: Bearer …` |
+| `EWALLET_CHECK_NAME_PATH` | opsional, lokasi nama di JSON (mis. `data.account_name`); bila kosong dicari otomatis |
+
+- Dicek otomatis saat user mendaftar, mengganti e-wallet, atau saat admin membuka detail user yang belum dicek; admin bisa *Cek ulang*.
+- **Aplikasi tetap berjalan bila mesin cek mati / belum diatur:** batas waktu 8 detik, setelah 3 kegagalan beruntun
+  pengecekan dijeda 10 menit, hasil lama tidak ditimpa, dan admin melihat label *"cocokkan manual saat transfer"*.
+- Nomor e-wallet dikirim ke pihak ketiga tersebut — pakai hanya penyedia yang dipercaya.
+
 ### Struktur singkat
 
 ```

@@ -4,6 +4,7 @@ import { sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
 import { users } from '#lib/server/db/schema.js';
 import { EWALLETS } from '#lib/constants.js';
+import { checkAndStore } from '#lib/server/ewallet-check.js';
 
 export async function load({ locals }) {
 	const { email, nickname, avatarUrl, role, ewalletProvider, ewalletNumber, registeredAt, reviewedAt } = locals.user;
@@ -30,6 +31,7 @@ export const actions = {
 		if (changed && ewalletConfirm !== ewalletNumber) return fail(400, { error: 'Konfirmasi nomor e-wallet tidak cocok' });
 
 		await db.update(users).set({ nickname, ewalletProvider, ewalletNumber }).where(eq(users.id, locals.user.id));
+		if (changed) checkAndStore({ ...locals.user, ewalletProvider, ewalletNumber });
 		return { success: changed ? 'Profil & e-wallet baru disimpan' : 'Profil disimpan' };
 	}
 };

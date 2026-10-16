@@ -6,11 +6,15 @@ import { parseRange } from '#lib/server/dates.js';
 import { userStats } from '#lib/server/stats.js';
 import { recapFilters, listRecaps, pageNum } from '#lib/server/recaps.js';
 import { userActions, accountActions } from '#lib/server/admin-actions.js';
+import { currentCheck, engineStatus, checkAndStore } from '#lib/server/ewallet-check.js';
 
 export async function load({ params, url, locals }) {
 	const id = Number(params.id);
 	const [u] = await db.select().from(users).where(eq(users.id, id));
 	if (!u) error(404, 'User tidak ditemukan');
+
+	// belum pernah dicek untuk nomor ini → cek di latar belakang (hasil tampil saat halaman dimuat ulang)
+	if (u.ewalletNumber && !currentCheck(u) && engineStatus().ok) checkAndStore(u);
 
 	const range = parseRange(url);
 	const { where } = recapFilters(new URL('http://x/'), { userId: id });
@@ -22,6 +26,8 @@ export async function load({ params, url, locals }) {
 	return {
 		u: { ...u, googleId: undefined },
 		meId: locals.user.id,
+		ewalletCheck: currentCheck(u),
+		ewalletEngine: engineStatus(),
 		reviewer: reviewer?.nickname ?? null,
 		range: { from: range.from, to: range.to, days: range.days },
 		stats,

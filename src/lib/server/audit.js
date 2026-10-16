@@ -15,6 +15,7 @@ export async function logAdmin(admin, entries, tx = db) {
 export const LOG_ACTIONS = {
 	approveUser: 'Menyetujui user',
 	createUser: 'Membuat user',
+	editUserProfile: 'Mengubah profil user',
 	rejectUser: 'Menolak pendaftaran',
 	suspendUser: 'Menangguhkan user',
 	reactivateUser: 'Mengaktifkan kembali user',

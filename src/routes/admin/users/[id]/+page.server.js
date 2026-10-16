@@ -7,7 +7,7 @@ import { userStats } from '#lib/server/stats.js';
 import { recapFilters, listRecaps, pageNum } from '#lib/server/recaps.js';
 import { userActions, accountActions } from '#lib/server/admin-actions.js';
 
-export async function load({ params, url }) {
+export async function load({ params, url, locals }) {
 	const id = Number(params.id);
 	const [u] = await db.select().from(users).where(eq(users.id, id));
 	if (!u) error(404, 'User tidak ditemukan');
@@ -21,6 +21,7 @@ export async function load({ params, url }) {
 
 	return {
 		u: { ...u, googleId: undefined },
+		meId: locals.user.id,
 		reviewer: reviewer?.nickname ?? null,
 		range: { from: range.from, to: range.to, days: range.days },
 		stats,

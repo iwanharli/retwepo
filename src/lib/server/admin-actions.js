@@ -174,6 +174,47 @@ export const userActions = {
 		return { success: `${u.nickname ?? u.email} diaktifkan kembali` };
 	},
 
+	// admin memperbarui nama panggilan & e-wallet user
+	editUserProfile: async ({ request, locals }) => {
+		const { u, form, err } = await target(await request.formData(), locals.user);
+		if (err) return err;
+		const nickname = String(form.get('nickname') ?? '').trim();
+		const ewalletProvider = String(form.get('ewalletProvider') ?? '') || null;
+		const ewalletNumber = String(form.get('ewalletNumber') ?? '').replace(/[\s-]/g, '') || null;
+		const ewalletConfirm = String(form.get('ewalletConfirm') ?? '').replace(/[\s-]/g, '');
+		const reason = String(form.get('note') ?? '').trim().slice(0, 500) || null;
+
+		if (nickname.length < 2 || nickname.length > 50) return fail(400, { error: 'Nama panggilan 2–50 karakter' });
+		if (ewalletNumber || u.role === 'user') {
+			if (!EWALLETS.includes(ewalletProvider)) return fail(400, { error: 'Pilih penyedia e-wallet' });
+			if (!/^(\+62|62|0)8\d{7,12}$/.test(ewalletNumber ?? '')) return fail(400, { error: 'Nomor e-wallet tidak valid (contoh: 081234567890)' });
+		}
+		const ewalletChanged = ewalletNumber !== u.ewalletNumber || (ewalletNumber && ewalletProvider !== u.ewalletProvider);
+		if (ewalletChanged && ewalletNumber && ewalletConfirm !== ewalletNumber) return fail(400, { error: 'Ketik ulang nomor e-wallet baru dengan benar' });
+
+		const before = { nickname: u.nickname, ewalletProvider: u.ewalletProvider, ewalletNumber: u.ewalletNumber };
+		const after = { nickname, ewalletProvider: ewalletNumber ? ewalletProvider : null, ewalletNumber };
+		const changed = Object.keys(after).filter((k) => (before[k] ?? null) !== (after[k] ?? null));
+		if (!changed.length) return fail(400, { error: 'Tidak ada perubahan' });
+
+		await db.transaction(async (tx) => {
+			await tx.update(users).set(after).where(eq(users.id, u.id));
+			await logAdmin(locals.user, { action: 'editUserProfile', targetType: 'user', targetId: u.id, targetLabel: userLabel({ ...u, nickname }), note: reason, meta: { before, after, changed } }, tx);
+			const LABEL = { nickname: 'nama panggilan', ewalletProvider: 'penyedia e-wallet', ewalletNumber: 'nomor e-wallet' };
+			await notify(
+				{
+					userId: u.id,
+					type: 'profile_edited',
+					title: 'Admin memperbarui data profil Anda',
+					body: `Diubah: ${changed.map((k) => LABEL[k]).join(', ')}.${reason ? ` Alasan: ${reason}` : ''} Periksa kembali di halaman Profil.`,
+					link: '/app/profile'
+				},
+				tx
+			);
+		});
+		return { success: `Profil ${nickname} diperbarui` };
+	},
+
 	toggleAdmin: async ({ request, locals }) => {
 		const { u, form, err } = await target(await request.formData(), locals.user);
 		if (err) return err;

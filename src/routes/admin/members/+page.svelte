@@ -1,5 +1,5 @@
 <script>
-	import { Users, Download, SearchX, Wallet } from '@lucide/svelte';
+	import { Users, Download, SearchX, Wallet, Eye } from '@lucide/svelte';
 	import { USER_STATUS, fmtDate, fmtNum } from '#lib/constants.js';
 	import Badge from '#lib/components/Badge.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
@@ -64,16 +64,16 @@
 					{@const days = idle(u.last_at)}
 					<tr class="hover:bg-slate-50/70">
 						<td data-label="">
-							<a href="/admin/members/{u.id}" class="flex items-center gap-3">
+							<div class="flex items-center gap-3">
 								<Avatar user={{ nickname: u.nickname, email: u.email, avatarUrl: u.avatar_url }} size={36} />
 								<span class="min-w-0">
-									<span class="flex items-center gap-1.5 font-medium hover:underline">
+									<span class="flex items-center gap-1.5 font-medium">
 										{u.nickname ?? '—'}
 										{#if u.role === 'admin'}<Badge cls="bg-brand-100 text-brand-700">admin</Badge>{/if}
 									</span>
 									<span class="block truncate text-xs text-slate-500">{u.email}</span>
 								</span>
-							</a>
+							</div>
 						</td>
 						<td class="whitespace-nowrap" data-label="E-wallet">
 							{#if u.ewallet_number}
@@ -102,7 +102,7 @@
 							<Badge cls={USER_STATUS[u.status].cls} dot>{u.status === 'approved' ? 'Aktif' : USER_STATUS[u.status].label}</Badge>
 							{#if u.status_note}<div class="mt-1 max-w-48 text-xs text-slate-500">{u.status_note}</div>{/if}
 						</td>
-						<td data-cell="actions"><UserActions {u} compact /></td>
+						<td data-cell="actions"><div class="flex justify-end gap-1.5"><a href="/admin/members/{u.id}" class="btn btn-soft-brand btn-sm" title="Lihat detail user"><Eye /> Detail</a><UserActions {u} compact /></div></td>
 					</tr>
 				{/each}
 			</tbody>

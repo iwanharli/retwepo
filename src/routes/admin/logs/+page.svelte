@@ -17,7 +17,8 @@
 		MessageSquareQuote,
 		Eraser,
 		Bot,
-		UserPlus
+		UserPlus,
+		UserPen
 	} from '@lucide/svelte';
 	import { fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 	import PageHeader from '#lib/components/PageHeader.svelte';
@@ -45,7 +46,8 @@
 		restoreRecap: [RotateCcw, 'bg-emerald-50 text-emerald-600 ring-emerald-200'],
 		purgeRecaps: [Eraser, 'bg-slate-100 text-slate-600 ring-slate-200'],
 		createUser: [UserPlus, 'bg-brand-50 text-brand-600 ring-brand-200'],
-		addAccount: [BadgeCheck, 'bg-emerald-50 text-emerald-600 ring-emerald-200']
+		addAccount: [BadgeCheck, 'bg-emerald-50 text-emerald-600 ring-emerald-200'],
+		editUserProfile: [UserPen, 'bg-brand-50 text-brand-600 ring-brand-200']
 	};
 	// aksi yang belum punya gaya khusus tetap tampil dengan ikon umum
 	const styleOf = (k) => STYLE[k] ?? [ScrollText, 'bg-slate-100 text-slate-600 ring-slate-200'];
@@ -128,6 +130,13 @@
 							<p class="mt-2 flex gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-100">
 								<MessageSquareQuote class="mt-0.5 size-4 shrink-0 text-slate-400" />{l.note}
 							</p>
+						{/if}
+						{#if l.action === 'editUserProfile' && l.meta?.changed}
+							<ul class="mt-1.5 space-y-0.5 text-xs text-slate-600">
+								{#each l.meta.changed as k}
+									<li><span class="text-slate-400">{({ nickname: 'Nama', ewalletProvider: 'E-wallet', ewalletNumber: 'Nomor' })[k]}:</span> <span class="line-through opacity-60">{l.meta.before[k] ?? '—'}</span> → <b>{l.meta.after[k] ?? '—'}</b></li>
+								{/each}
+							</ul>
 						{/if}
 						{#if l.action === 'deleteRecap' && l.meta?.url}
 							<p class="mt-1.5 truncate text-xs text-slate-500">URL rekap: {l.meta.url}</p>

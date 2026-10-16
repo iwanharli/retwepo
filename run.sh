@@ -8,6 +8,7 @@
 #   ./run.sh purge    → bersihkan permanen rekap yang dihapus admin > 90 hari (--dry-run untuk simulasi)
 #   ./run.sh backup   → backup database + screenshot ke ./backups (simpan 7 hari)
 #   ./run.sh restore <db.dump> [uploads.tar.gz] → pulihkan dari backup
+# Deploy ke server: ./deploy.sh (lihat README)
 set -euo pipefail
 cd "$(dirname "$0")"
 

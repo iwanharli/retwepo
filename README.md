@@ -27,6 +27,7 @@ Bits UI · Lucide · ECharts · Sharp
 - **Pengguna:** User Terverifikasi (tambah user/admin langsung terverifikasi), Akun Terverifikasi (tambah akun langsung terverifikasi, cabut verifikasi)
 - **Verifikasi:** Pendaftaran User & Pengajuan Akun (setujui dengan tombol *Batalkan*, tolak wajib beralasan)
 - Hapus rekap = *soft delete*: user melihat label & alasan, rekap bisa dipulihkan, dibersihkan permanen otomatis setelah 90 hari
+- Edit profil user (nama & e-wallet, nomor baru wajib diketik ulang); user mendapat notifikasi
 - Log Aktivitas: semua aksi admin (siapa, kapan, target, alasan)
 - Semua tabel bisa diurutkan dengan klik judul kolom; export CSV user & akun sosmed dengan pengaturan
 - **URL duplikat**: user diperingatkan saat mengisi URL yang sudah pernah direkap (link berbeda bentuk dikenali sama, mis. twitter.com = x.com); admin melihat label *Duplikat* dan filter "URL duplikat"
@@ -98,6 +99,23 @@ User yang dibuat admin (menu *Tambah user*) cukup login Google dengan email yang
 ---
 
 ## Deploy produksi
+
+### Update cepat: `./deploy.sh`
+
+Setelah perubahan di-commit, satu perintah ini push ke GitHub lalu memperbarui server:
+
+```bash
+./deploy.sh --dry-run   # lihat commit yang akan dikirim & langkah yang dibutuhkan
+./deploy.sh             # deploy
+```
+
+Urutannya: cek working tree bersih & branch `main` → push → (backup DB bila ada migrasi) → `git pull` →
+`npm ci` bila dependency berubah → migrasi bila `drizzle/` berubah → build → `pm2 restart` → health check.
+Bila health check gagal, server otomatis dikembalikan ke commit sebelumnya.
+
+Konfigurasi di `.deploy.env` (tidak ikut git): `DEPLOY_HOST`, `DEPLOY_DIR`, `DEPLOY_PM2`, `DEPLOY_URL`,
+dan opsional `DEPLOY_SSHPASS` (bila belum memakai SSH key).
+
 
 ### 1. Environment (`.env`)
 

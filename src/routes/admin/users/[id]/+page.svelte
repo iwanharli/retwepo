@@ -15,6 +15,7 @@
 	import SortTh from '#lib/components/SortTh.svelte';
 	import ActionDialog from '#lib/components/ActionDialog.svelte';
 	import AddAccountDialog from '#lib/components/AddAccountDialog.svelte';
+	import EditUserDialog from '#lib/components/EditUserDialog.svelte';
 	import AccountSummary from '#lib/components/AccountSummary.svelte';
 	import { Check, X, ShieldX } from '@lucide/svelte';
 
@@ -91,7 +92,10 @@
 			</div>
 		</div>
 	</div>
-	<UserActions {u} />
+	<div class="flex flex-wrap items-center gap-1.5">
+		{#if u.status !== 'incomplete' && u.id !== data.meId}<EditUserDialog {u} />{/if}
+		<UserActions {u} />
+	</div>
 </div>
 
 <Flash {form} />

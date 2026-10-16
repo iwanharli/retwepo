@@ -4,7 +4,7 @@
 	import RangeFilter from '#lib/components/RangeFilter.svelte';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
-	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper, Eye } from '@lucide/svelte';
+	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper, Eye, Layers, FileText, Reply, UserCheck, CalendarDays, Gauge, Users, Activity, AtSign, Image, Link2 } from '@lucide/svelte';
 	import { PLATFORMS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 
 	let { data } = $props();
@@ -160,31 +160,22 @@
 	</div>
 {/if}
 
-<div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-	<Stat label="Total rekap" value={k.total} prev={data.stats.prev.total} />
-	<Stat label="Postingan" value={k.posts} prev={data.stats.prev.posts} />
-	<Stat label="Panel" value={k.replies} prev={data.stats.prev.replies} />
-	<Stat label="User aktif" value={k.active_users} prev={data.stats.prev.active_users} />
-	<Stat label="Rata-rata / hari" value={Math.round((k.total / data.range.days) * 10) / 10} hint="rekap per hari" />
-	<Stat
-		label="Rata-rata / user aktif"
-		value={k.active_users ? Math.round((k.total / k.active_users) * 10) / 10 : 0}
-		hint="rekap per user"
-	/>
+<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+	<Stat label="Total rekap" value={k.total} prev={data.stats.prev.total} icon={Layers} tone="brand" />
+	<Stat label="Postingan" value={k.posts} prev={data.stats.prev.posts} icon={FileText} tone="violet" />
+	<Stat label="Panel" value={k.replies} prev={data.stats.prev.replies} icon={Reply} tone="sky" />
+	<Stat label="User aktif" value={k.active_users} prev={data.stats.prev.active_users} icon={UserCheck} tone="emerald" />
 </div>
 
-<div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-	<Stat label="User disetujui" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar di periode ini" />
-	<Stat
-		label="Partisipasi"
-		value="{pct(k.active_users, s.totals.approved_users)}%"
-		hint="user aktif / user disetujui"
-		accent="text-indigo-600"
-	/>
-	<Stat label="Tidak aktif 7 hari" value={s.totals.inactive_users} accent="text-rose-600" hint="user disetujui" />
-	<Stat label="Akun sosmed aktif" value={k.active_accounts} hint="dari {fmtNum(s.totals.approved_accounts)} disetujui" />
-	<Stat label="Dengan screenshot" value="{pct(k.with_shot, k.total)}%" hint="{fmtNum(k.with_shot)} rekap" />
-	<Stat label="Dengan URL" value="{pct(k.with_url, k.total)}%" hint="{fmtNum(k.with_url)} rekap" />
+<div class="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+	<Stat label="Rata-rata / hari" value={Math.round((k.total / data.range.days) * 10) / 10} hint="rekap per hari" icon={CalendarDays} tone="brand" />
+	<Stat label="Rata-rata / user" value={k.active_users ? Math.round((k.total / k.active_users) * 10) / 10 : 0} hint="per user aktif" icon={Gauge} tone="violet" />
+	<Stat label="User disetujui" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar periode ini" icon={Users} tone="sky" />
+	<Stat label="Partisipasi" value="{pct(k.active_users, s.totals.approved_users)}%" hint="aktif / disetujui" icon={Activity} tone="emerald" />
+	<Stat label="Tidak aktif 7 hari" value={s.totals.inactive_users} accent="text-rose-600" hint="user disetujui" icon={MoonStar} tone="rose" />
+	<Stat label="Akun aktif" value={k.active_accounts} hint="dari {fmtNum(s.totals.approved_accounts)} disetujui" icon={AtSign} tone="amber" />
+	<Stat label="Dengan screenshot" value="{pct(k.with_shot, k.total)}%" hint="{fmtNum(k.with_shot)} rekap" icon={Image} tone="sky" />
+	<Stat label="Dengan URL" value="{pct(k.with_url, k.total)}%" hint="{fmtNum(k.with_url)} rekap" icon={Link2} tone="violet" />
 </div>
 
 {#snippet head(Icon, title, sub = '', link = null, tone = 'bg-brand-50 text-brand-600')}

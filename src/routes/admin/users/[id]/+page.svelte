@@ -17,7 +17,7 @@
 	import AddAccountDialog from '#lib/components/AddAccountDialog.svelte';
 	import EditUserDialog from '#lib/components/EditUserDialog.svelte';
 	import AccountSummary from '#lib/components/AccountSummary.svelte';
-	import { Check, X, ShieldX } from '@lucide/svelte';
+	import { Check, X, ShieldX, CalendarDays, FileText, Reply, Clock, Layers } from '@lucide/svelte';
 
 	let { data, form } = $props();
 	const u = $derived(data.u);
@@ -174,11 +174,11 @@
 </div>
 
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
-	<Stat label="Rekap periode" value={st.summary.in_range} />
-	<Stat label="Postingan" value={st.summary.posts} />
-	<Stat label="Panel" value={st.summary.replies} />
-	<Stat label="Hari aktif" value="{st.summary.active_days} / {data.range.days}" />
-	<Stat label="Total semua" value={st.summary.total} hint="pertama {fmtDate(st.summary.first_at)}" />
+	<Stat label="Rekap periode" value={st.summary.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />
+	<Stat label="Postingan" value={st.summary.posts} icon={FileText} tone="violet" />
+	<Stat label="Panel" value={st.summary.replies} icon={Reply} tone="sky" />
+	<Stat label="Hari aktif" value="{st.summary.active_days} / {data.range.days}" icon={Clock} tone="emerald" />
+	<Stat label="Total semua" value={st.summary.total} hint="pertama {fmtDate(st.summary.first_at)}" icon={Layers} tone="amber" />
 </div>
 
 <div class="card mt-6">

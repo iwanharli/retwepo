@@ -19,7 +19,7 @@
 		legend: { top: 0, type: 'scroll' },
 		grid: { left: 40, right: 16, top: 36, bottom: 50 },
 		dataZoom: s.days.length > 45 ? [{ type: 'slider', height: 16, bottom: 8 }] : [],
-		xAxis: { type: 'category', data: s.days.map(label), boundaryGap: false },
+		xAxis: { type: 'category', data: s.hourly ? s.days.map((h) => `${h}:00`) : s.days.map(label), boundaryGap: false },
 		yAxis: { type: 'value', minInterval: 1 },
 		series: [
 			...Object.entries(s.dailyPlatform).map(([p, data]) => ({
@@ -201,7 +201,7 @@
 {/snippet}
 
 <div class="card mt-6 p-0">
-	{@render head(ChartLine, 'Tren rekap harian per platform', 'Jumlah rekap per hari pada periode terpilih')}
+	{@render head(ChartLine, s.hourly ? 'Tren rekap per jam per platform' : 'Tren rekap harian per platform', s.hourly ? `Jumlah rekap per jam (WIB) · ${fmtDate(data.range.from)}` : 'Jumlah rekap per hari pada periode terpilih')}
 	<div class="p-5"><Chart option={trendOption} height="340px" /></div>
 </div>
 

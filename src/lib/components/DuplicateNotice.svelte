@@ -17,6 +17,6 @@
 			{/each}
 			{#if dup.others}<li>Oleh {dup.others} user lain</li>{/if}
 		</ul>
-		<p class="mt-1.5 text-xs text-orange-700">Rekap duplikat akan ditandai untuk admin. Pastikan ini memang postingan/reply yang berbeda.</p>
+		<p class="mt-1.5 text-xs text-orange-700">Rekap duplikat akan ditandai untuk admin. Pastikan ini memang postingan/panel yang berbeda.</p>
 	</div>
 {/if}

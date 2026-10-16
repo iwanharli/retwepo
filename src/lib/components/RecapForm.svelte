@@ -170,7 +170,7 @@
 				<div>
 					<span class="label">Tipe</span>
 					<div class="grid grid-cols-2 gap-3">
-						{#each [['post', 'Postingan', 'Konten yang Anda unggah sendiri', FileText], ['reply', 'Reply', 'Balasan / komentar di postingan lain', Reply]] as [val, lbl, desc, Icon]}
+						{#each [['post', 'Postingan', 'Konten yang Anda unggah sendiri', FileText], ['reply', 'Panel', 'Reply, Like, Retweet, Share', Reply]] as [val, lbl, desc, Icon]}
 							<label
 								class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition {type === val
 									? 'border-brand-500 bg-brand-50/50 ring-4 ring-brand-500/10'
@@ -190,7 +190,7 @@
 				</div>
 
 				<div>
-					<label class="label" for="url">URL {type === 'reply' ? 'reply' : 'postingan'} <span class="font-normal text-slate-400">· opsional</span></label>
+					<label class="label" for="url">URL {type === 'reply' ? 'panel' : 'postingan'} <span class="font-normal text-slate-400">· opsional</span></label>
 					<div class="relative">
 						<Link2 class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
 						<input class="input pl-9" id="url" name="url" type="url" placeholder="https://x.com/username/status/…" bind:value={url} />
@@ -200,7 +200,7 @@
 
 				{#if type === 'reply'}
 					<div>
-						<label class="label" for="turl">URL postingan yang dibalas <span class="font-normal text-slate-400">· opsional</span></label>
+						<label class="label" for="turl">URL postingan target <span class="font-normal text-slate-400">· opsional</span></label>
 						<div class="relative">
 							<CornerDownRight class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
 							<input class="input pl-9" id="turl" name="targetUrl" type="url" placeholder="https://…" value={initial.targetUrl ?? ''} />
@@ -279,7 +279,7 @@
 					<div>
 						<label class="label" for="edit-reason">Alasan perubahan</label>
 						<div class="mb-2 flex flex-wrap gap-1.5">
-							{#each ['Salah pilih akun', 'URL salah / berubah', 'Ganti screenshot yang lebih jelas', 'Salah tanggal posting', 'Salah tipe (post/reply)'] as preset}
+							{#each ['Salah pilih akun', 'URL salah / berubah', 'Ganti screenshot yang lebih jelas', 'Salah tanggal posting', 'Salah tipe (postingan/panel)'] as preset}
 								<button
 									type="button"
 									onclick={() => (editReason = preset)}

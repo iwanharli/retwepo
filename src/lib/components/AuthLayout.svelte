@@ -4,7 +4,7 @@
 	import PlatformIcon from './PlatformIcon.svelte';
 	/** Kerangka halaman sebelum masuk aplikasi (login, pendaftaran, status) */
 	let { children, wide = false } = $props();
-	const points = ['Catat postingan & reply dari semua akun sosmed Anda', 'Bukti URL atau screenshot tersimpan rapi', 'Pantau aktivitas rekap harian Anda'];
+	const points = ['Catat postingan & panel dari semua akun sosmed Anda', 'Bukti URL atau screenshot tersimpan rapi', 'Pantau aktivitas rekap harian Anda'];
 </script>
 
 <div class="flex min-h-screen">
@@ -25,7 +25,7 @@
 		</div>
 
 		<div class="relative">
-			<h2 class="text-3xl leading-tight font-semibold tracking-tight">Semua rekap postingan & reply Anda, di satu tempat.</h2>
+			<h2 class="text-3xl leading-tight font-semibold tracking-tight">Semua rekap postingan & panel Anda, di satu tempat.</h2>
 			<ul class="mt-8 space-y-3.5">
 				{#each points as t}
 					<li class="flex items-start gap-3 text-slate-300"><CircleCheck class="mt-0.5 size-5 shrink-0 text-emerald-400" />{t}</li>

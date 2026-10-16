@@ -89,7 +89,7 @@
 		<select class="input md:col-span-2" name="type" value={f.type ?? ''} aria-label="Tipe">
 			<option value="">Semua tipe</option>
 			<option value="post">Postingan</option>
-			<option value="reply">Reply</option>
+			<option value="reply">Panel</option>
 		</select>
 		<select class="input md:col-span-2" name="evidence" value={f.evidence ?? ''} aria-label="Bukti">
 			<option value="">Semua bukti</option>

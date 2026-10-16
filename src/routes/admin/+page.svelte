@@ -91,7 +91,7 @@
 			yAxis: { type: 'category', data: ps.map((p) => PLATFORMS[p].label), inverse: true },
 			series: [
 				{ name: 'Postingan', type: 'bar', stack: 't', data: ps.map((p) => get(p, 'post')), itemStyle: { color: '#6366f1' } },
-				{ name: 'Reply', type: 'bar', stack: 't', data: ps.map((p) => get(p, 'reply')), itemStyle: { color: '#38bdf8' } }
+				{ name: 'Panel', type: 'bar', stack: 't', data: ps.map((p) => get(p, 'reply')), itemStyle: { color: '#38bdf8' } }
 			]
 		};
 	});
@@ -163,7 +163,7 @@
 <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
 	<Stat label="Total rekap" value={k.total} prev={data.stats.prev.total} />
 	<Stat label="Postingan" value={k.posts} prev={data.stats.prev.posts} />
-	<Stat label="Reply" value={k.replies} prev={data.stats.prev.replies} />
+	<Stat label="Panel" value={k.replies} prev={data.stats.prev.replies} />
 	<Stat label="User aktif" value={k.active_users} prev={data.stats.prev.active_users} />
 	<Stat label="Rata-rata / hari" value={Math.round((k.total / data.range.days) * 10) / 10} hint="rekap per hari" />
 	<Stat
@@ -232,7 +232,7 @@
 		{/if}
 	</div>
 	<div class="card p-0 lg:col-span-2">
-		{@render head(ChartBarStacked, 'Postingan vs reply per platform', 'Komposisi tipe rekap di tiap platform', null, 'bg-sky-50 text-sky-600')}
+		{@render head(ChartBarStacked, 'Postingan vs panel per platform', 'Komposisi tipe rekap di tiap platform', null, 'bg-sky-50 text-sky-600')}
 		<div class="p-5"><Chart option={typeByPlatformOption} height="420px" /></div>
 	</div>
 </div>
@@ -262,7 +262,7 @@
 							</div>
 							<div class="mt-1 flex gap-3 text-xs text-slate-500">
 								<span><span class="mr-1 inline-block size-1.5 rounded-full bg-brand-500 align-middle"></span>{u.posts} post</span>
-								<span><span class="mr-1 inline-block size-1.5 rounded-full bg-sky-400 align-middle"></span>{u.replies} reply</span>
+								<span><span class="mr-1 inline-block size-1.5 rounded-full bg-sky-400 align-middle"></span>{u.replies} panel</span>
 								<span class="ml-auto">{u.active_days} hari aktif</span>
 							</div>
 						</div>
@@ -302,7 +302,7 @@
 							<div class="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
 								<Avatar user={{ nickname: a.nickname, email: a.email, avatarUrl: a.avatar_url }} size={16} />
 								<span class="truncate">{a.nickname ?? a.email}</span>
-								<span class="ml-auto shrink-0">{a.posts} post · {a.replies} reply</span>
+								<span class="ml-auto shrink-0">{a.posts} post · {a.replies} panel</span>
 							</div>
 						</div>
 					</a>

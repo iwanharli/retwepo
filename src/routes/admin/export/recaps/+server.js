@@ -21,7 +21,7 @@ export async function GET({ url }) {
 		const rows = await recapSummaryByUser(where);
 		return csvResponse(
 			`ringkasan-rekap-${range}.csv`,
-			['Nickname', 'Email', 'E-wallet', 'Nomor e-wallet', 'Total rekap', 'Postingan', 'Reply', 'Akun dipakai', 'Hari aktif', 'Rekap pertama (WIB)', 'Rekap terakhir (WIB)'],
+			['Nickname', 'Email', 'E-wallet', 'Nomor e-wallet', 'Total rekap', 'Postingan', 'Panel', 'Akun dipakai', 'Hari aktif', 'Rekap pertama (WIB)', 'Rekap terakhir (WIB)'],
 			rows.map((r) => [r.nickname, r.email, r.ewalletProvider, r.ewalletNumber, r.total, r.posts, r.replies, r.accounts, r.activeDays, wib(r.firstAt), wib(r.lastAt)]),
 			sep
 		);
@@ -40,7 +40,7 @@ export async function GET({ url }) {
 		ewallet: [['E-wallet', 'Nomor e-wallet'], (r) => [r.ewalletProvider, r.ewalletNumber]],
 		platform: [['Platform'], (r) => [PLATFORMS[r.platform].label]],
 		username: [['Username'], (r) => [r.username]],
-		type: [['Tipe'], (r) => [r.type === 'post' ? 'Postingan' : 'Reply']],
+		type: [['Tipe'], (r) => [r.type === 'post' ? 'Postingan' : 'Panel']],
 		url: [['URL'], (r) => [r.url]],
 		target_url: [['URL dibalas'], (r) => [r.targetUrl]],
 		screenshot: [['Screenshot'], (r) => [r.screenshotPath ? `${url.origin}/uploads/${r.screenshotPath}` : '']],

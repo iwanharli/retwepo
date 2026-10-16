@@ -31,7 +31,7 @@
 
 	const trend = $derived({
 		tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-		legend: { data: ['Postingan', 'Reply'], top: 0, right: 0, icon: 'roundRect', itemWidth: 10, itemHeight: 10 },
+		legend: { data: ['Postingan', 'Panel'], top: 0, right: 0, icon: 'roundRect', itemWidth: 10, itemHeight: 10 },
 		grid: { left: 8, right: 8, top: 36, bottom: 4, containLabel: true },
 		xAxis: {
 			type: 'category',
@@ -43,7 +43,7 @@
 		yAxis: { type: 'value', minInterval: 1, splitLine: { lineStyle: { color: '#f1f5f9' } }, axisLabel: { color: '#94a3b8' } },
 		series: [
 			{ name: 'Postingan', type: 'bar', stack: 't', barMaxWidth: 22, data: data.series.post, itemStyle: { color: '#6366f1' } },
-			{ name: 'Reply', type: 'bar', stack: 't', barMaxWidth: 22, data: data.series.reply, itemStyle: { color: '#38bdf8', borderRadius: [4, 4, 0, 0] } }
+			{ name: 'Panel', type: 'bar', stack: 't', barMaxWidth: 22, data: data.series.reply, itemStyle: { color: '#38bdf8', borderRadius: [4, 4, 0, 0] } }
 		]
 	});
 
@@ -71,7 +71,7 @@
 				emphasis: { scale: true, scaleSize: 6 },
 				data: [
 					{ name: 'Postingan', value: c.posts, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 1, colorStops: [{ offset: 0, color: '#818cf8' }, { offset: 1, color: '#4f46e5' }] } } },
-					{ name: 'Reply', value: c.replies, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 1, colorStops: [{ offset: 0, color: '#7dd3fc' }, { offset: 1, color: '#0ea5e9' }] } } }
+					{ name: 'Panel', value: c.replies, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 1, colorStops: [{ offset: 0, color: '#7dd3fc' }, { offset: 1, color: '#0ea5e9' }] } } }
 				]
 			}
 		]
@@ -109,7 +109,7 @@
 				{#if c.today > 0}
 					Hari ini Anda sudah mencatat <b class="text-white">{c.today} rekap</b>. Pertahankan!
 				{:else}
-					Belum ada rekap hari ini. Catat postingan atau reply Anda sekarang.
+					Belum ada rekap hari ini. Catat postingan atau panel Anda sekarang.
 				{/if}
 			</p>
 		</div>
@@ -139,7 +139,7 @@
 		<div class="card-header">
 			<div>
 				<div class="card-title">Aktivitas 30 hari terakhir</div>
-				<p class="mt-0.5 text-xs text-slate-500">Jumlah postingan dan reply per hari</p>
+				<p class="mt-0.5 text-xs text-slate-500">Jumlah postingan dan panel per hari</p>
 			</div>
 		</div>
 		<div class="p-5"><Chart option={trend} height="320px" /></div>
@@ -155,7 +155,7 @@
 			{#if c.total}
 				<Chart option={donut} height="240px" />
 				<div class="grid grid-cols-2 gap-3">
-					{#each [['Postingan', c.posts, postPct, 'bg-brand-500', FileText], ['Reply', c.replies, 100 - postPct, 'bg-sky-400', Reply]] as [lbl, n, pct, dot, Icon]}
+					{#each [['Postingan', c.posts, postPct, 'bg-brand-500', FileText], ['Panel', c.replies, 100 - postPct, 'bg-sky-400', Reply]] as [lbl, n, pct, dot, Icon]}
 						<div class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/60 px-3.5 py-3">
 							<span class="flex size-9 shrink-0 items-center justify-center rounded-lg {dot} text-white"><Icon class="size-4" /></span>
 							<div class="min-w-0">
@@ -222,7 +222,7 @@
 			{#each data.recent as r (r.id)}<RecapCard {r} href="/app/recaps/{r.id}" />{/each}
 		</div>
 	{:else}
-		<EmptyState icon={Inbox} title="Belum ada rekap" description="Rekap postingan atau reply pertama Anda akan muncul di sini.">
+		<EmptyState icon={Inbox} title="Belum ada rekap" description="Rekap postingan atau panel pertama Anda akan muncul di sini.">
 			<a href="/app/recaps/new" class="btn btn-primary"><Plus /> Buat rekap pertama</a>
 		</EmptyState>
 	{/if}

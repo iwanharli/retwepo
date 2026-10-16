@@ -51,7 +51,7 @@ export async function GET({ url }) {
 		accounts: [['Akun sosmed'], (r) => [accLabel(r.accounts)]],
 		total: [['Jumlah rekap'], (r) => [r.total]],
 		posts: [['Postingan'], (r) => [r.posts]],
-		replies: [['Reply'], (r) => [r.replies]],
+		replies: [['Panel'], (r) => [r.replies]],
 		active_days: [['Hari aktif'], (r) => [r.active_days]],
 		last_at: [['Rekap terakhir (WIB)'], (r) => [wib(r.last_at)]],
 		registered_at: [['Tanggal daftar (WIB)'], (r) => [wib(r.registered_at)]],

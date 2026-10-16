@@ -5,6 +5,7 @@ import { recaps, socialAccounts } from '#lib/server/db/schema.js';
 import { saveScreenshot, deleteScreenshot } from '#lib/server/uploads.js';
 import { missingProfile } from '#lib/server/profile.js';
 import { parseRecapForm } from '#lib/server/recap-form.js';
+import { checkLimits, waitText } from '#lib/server/ratelimit.js';
 
 export async function load({ locals, url }) {
 	const accounts = await db
@@ -22,6 +23,12 @@ export const actions = {
 
 		if (missingProfile(locals.user).length)
 			return fail(400, { error: 'Lengkapi data profil (nama panggilan & e-wallet) sebelum membuat rekap', keep });
+
+		const limit = checkLimits([
+			[`recap:${locals.user.id}:10m`, 60, 10 * 60 * 1000],
+			[`recap:${locals.user.id}:1d`, 500, 24 * 60 * 60 * 1000]
+		]);
+		if (!limit.ok) return fail(429, { error: `Terlalu banyak rekap dalam waktu singkat. Coba lagi dalam ${waitText(limit.retryAfter)}.`, keep });
 
 		const parsed = await parseRecapForm(form, locals.user);
 		if (parsed.error) return fail(400, { error: parsed.error, keep });

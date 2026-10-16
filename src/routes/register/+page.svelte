@@ -1,35 +1,61 @@
 <script>
 	import { enhance } from '$app/forms';
+	import { untrack } from 'svelte';
+	import { UserRound, Wallet, Smartphone, Link2, Send, LoaderCircle, LogOut, CircleAlert, Check, Info } from '@lucide/svelte';
 	import { EWALLETS } from '#lib/constants.js';
 	import AccountRows from '#lib/components/AccountRows.svelte';
+	import AuthLayout from '#lib/components/AuthLayout.svelte';
+	import Avatar from '#lib/components/Avatar.svelte';
 	import Flash from '#lib/components/Flash.svelte';
 
 	let { data, form } = $props();
-	const v = $derived(form?.values ?? data.me);
 	let busy = $state(false);
-	let ewn = $state();
-	let ewMatch = $state(null);
+
+	// nilai form di state lokal (bind:value) agar tidak tertimpa saat halaman di-render ulang
+	const init = untrack(() => form?.values ?? data.me);
+	let nickname = $state(init.nickname ?? untrack(() => data.me.googleName) ?? '');
+	let ewProvider = $state(init.ewalletProvider ?? '');
+	let ewNumber = $state(init.ewalletNumber ?? '');
+	let ewConfirm = $state('');
 	const clean = (v) => String(v ?? '').replace(/[\s-]/g, '');
+	// null = belum selesai diketik, true = cocok, false = tidak sama
+	const ewMatch = $derived(
+		!ewConfirm ? null : clean(ewConfirm) === clean(ewNumber) ? true : clean(ewConfirm).length >= clean(ewNumber).length ? false : null
+	);
 </script>
 
 <svelte:head><title>Pendaftaran · Retwepo</title></svelte:head>
 
-<div class="mx-auto max-w-xl px-4 py-10">
-	<div class="mb-6 flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Lengkapi Pendaftaran</h1>
-		<form method="POST" action="/logout"><button class="text-sm text-slate-500 hover:underline">Keluar</button></form>
+{#snippet step(n, Icon, title, desc)}
+	<div class="mb-4 flex items-center gap-3">
+		<span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">{n}</span>
+		<div>
+			<h2 class="flex items-center gap-1.5 font-semibold text-slate-900"><Icon class="size-4 text-slate-400" />{title}</h2>
+			{#if desc}<p class="text-xs text-slate-500">{desc}</p>{/if}
+		</div>
+	</div>
+{/snippet}
+
+<AuthLayout wide>
+	<div class="mb-6 flex items-start justify-between gap-4">
+		<div>
+			<h1 class="text-2xl font-semibold tracking-tight text-slate-900">Lengkapi pendaftaran</h1>
+			<p class="mt-1 text-slate-500">Isi data berikut. Admin akan memverifikasi sebelum Anda bisa membuat rekap.</p>
+		</div>
+		<form method="POST" action="/logout"><button class="btn btn-ghost btn-sm shrink-0"><LogOut /> Keluar</button></form>
 	</div>
 
 	{#if data.me.status === 'rejected'}
-		<div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-			Pendaftaran sebelumnya ditolak{data.me.statusNote ? `: ${data.me.statusNote}` : ''}. Silakan perbaiki dan kirim ulang.
+		<div class="mb-5 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+			<CircleAlert class="mt-0.5 size-4 shrink-0" />
+			<div><b>Pendaftaran sebelumnya ditolak.</b>{#if data.me.statusNote} Alasan: {data.me.statusNote}.{/if} Silakan perbaiki lalu kirim ulang.</div>
 		</div>
 	{/if}
 	<Flash {form} />
 
 	<form
 		method="POST"
-		class="card space-y-5"
+		class="card space-y-8 p-6 sm:p-8"
 		use:enhance={() => {
 			busy = true;
 			return async ({ update }) => {
@@ -38,58 +64,74 @@
 			};
 		}}
 	>
-		<div>
-			<span class="label">Email (terhubung dengan Google)</span>
-			<div class="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2">
-				{#if data.me.avatarUrl}<img src={data.me.avatarUrl} alt="" class="h-8 w-8 rounded-full" referrerpolicy="no-referrer" />{/if}
-				<span class="text-sm">{data.me.email}</span>
+		<!-- akun Google -->
+		<div class="flex items-center gap-3 rounded-xl bg-slate-50 p-3.5 ring-1 ring-slate-200">
+			<Avatar user={{ nickname: data.me.googleName, email: data.me.email, avatarUrl: data.me.avatarUrl }} size={40} />
+			<div class="min-w-0">
+				<div class="truncate text-sm font-medium">{data.me.googleName ?? data.me.email}</div>
+				<div class="truncate text-xs text-slate-500">{data.me.email} · terhubung dengan Google</div>
 			</div>
 		</div>
 
-		<div>
+		<section>
+			{@render step(1, UserRound, 'Data diri')}
 			<label class="label" for="nickname">Nama panggilan</label>
-			<input class="input" id="nickname" name="nickname" value={v.nickname ?? data.me.googleName ?? ''} required maxlength="50" />
-		</div>
+			<div class="relative">
+				<UserRound class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+				<input class="input pl-9" id="nickname" name="nickname" bind:value={nickname} required maxlength="50" />
+			</div>
+		</section>
 
-		<div class="grid grid-cols-5 gap-3">
-			<div class="col-span-2">
-				<label class="label" for="ewp">E-wallet</label>
-				<select class="input" id="ewp" name="ewalletProvider" value={v.ewalletProvider ?? ''} required>
-					<option value="" disabled>Pilih…</option>
-					{#each EWALLETS as w}<option value={w}>{w}</option>{/each}
-				</select>
+		<section>
+			{@render step(2, Wallet, 'E-wallet', 'Dipakai admin untuk keperluan pembayaran — pastikan benar.')}
+			<div class="grid gap-4 sm:grid-cols-5">
+				<div class="sm:col-span-2">
+					<label class="label" for="ewp">Penyedia</label>
+					<div class="relative">
+						<Wallet class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+						<select class="input pl-9" id="ewp" name="ewalletProvider" bind:value={ewProvider} required>
+							<option value="" disabled>Pilih…</option>
+							{#each EWALLETS as w}<option value={w}>{w}</option>{/each}
+						</select>
+					</div>
+				</div>
+				<div class="sm:col-span-3">
+					<label class="label" for="ewn">Nomor e-wallet</label>
+					<div class="relative">
+						<Smartphone class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+						<input class="input pl-9 font-mono" id="ewn" name="ewalletNumber" bind:value={ewNumber} inputmode="numeric" placeholder="081234567890" required />
+					</div>
+				</div>
+				<div class="sm:col-span-5">
+					<label class="label" for="ewc">Ulangi nomor e-wallet</label>
+					<div class="relative">
+						<Smartphone class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+						<input
+							class="input pl-9 font-mono {ewMatch === false ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/10' : ewMatch ? 'border-emerald-400' : ''}"
+							id="ewc"
+							name="ewalletConfirm"
+							inputmode="numeric"
+							placeholder="Ketik ulang nomor yang sama"
+							autocomplete="off"
+							onpaste={(e) => e.preventDefault()}
+							bind:value={ewConfirm}
+							required
+						/>
+					</div>
+					<p class="hint flex items-center gap-1.5 {ewMatch === false ? 'text-rose-600' : ewMatch ? 'text-emerald-600' : ''}">
+						{#if ewMatch}<Check class="size-3.5" /> Nomor cocok.{:else if ewMatch === false}<CircleAlert class="size-3.5" /> Nomor tidak sama.{:else}<Info class="size-3.5" /> Tidak bisa ditempel (paste) — ketik manual.{/if}
+					</p>
+				</div>
 			</div>
-			<div class="col-span-3">
-				<label class="label" for="ewn">Nomor e-wallet</label>
-				<input class="input" id="ewn" name="ewalletNumber" value={v.ewalletNumber ?? ''} inputmode="numeric" placeholder="081234567890" required bind:this={ewn} oninput={() => (ewMatch = null)} />
-			</div>
-			<div class="col-span-5">
-				<label class="label" for="ewc">Ulangi nomor e-wallet</label>
-				<input
-					class="input {ewMatch === false ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/10' : ''}"
-					id="ewc"
-					name="ewalletConfirm"
-					inputmode="numeric"
-					placeholder="Ketik ulang nomor yang sama"
-					autocomplete="off"
-					onpaste={(e) => e.preventDefault()}
-					oninput={(e) => (ewMatch = clean(e.currentTarget.value) === clean(ewn.value) ? true : clean(e.currentTarget.value).length >= clean(ewn.value).length ? false : null)}
-					required
-				/>
-				<p class="hint {ewMatch === false ? 'text-rose-600' : ewMatch ? 'text-emerald-600' : ''}">
-					{ewMatch === false ? 'Nomor tidak sama.' : ewMatch ? '✓ Nomor cocok.' : 'Pastikan benar — pembayaran dikirim ke nomor ini. Tidak bisa ditempel (paste).'}
-				</p>
-			</div>
-		</div>
+		</section>
 
-		<div>
-			<span class="label">Akun media sosial</span>
-			<p class="mb-2 text-xs text-slate-500">
-				Setiap akun akan diverifikasi admin. Akun yang sudah didaftarkan orang lain tidak bisa digunakan.
-			</p>
+		<section>
+			{@render step(3, Link2, 'Akun media sosial', 'Setiap akun diverifikasi admin. Akun yang sudah dipakai user lain tidak bisa didaftarkan.')}
 			<AccountRows initial={data.accounts} />
-		</div>
+		</section>
 
-		<button class="btn btn-primary w-full" disabled={busy}>{busy ? 'Mengirim…' : 'Kirim Pendaftaran'}</button>
+		<button class="btn btn-primary btn-lg w-full" disabled={busy}>
+			{#if busy}<LoaderCircle class="animate-spin" /> Mengirim…{:else}<Send /> Kirim pendaftaran{/if}
+		</button>
 	</form>
-</div>
+</AuthLayout>

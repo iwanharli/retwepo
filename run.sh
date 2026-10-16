@@ -6,6 +6,8 @@
 #   ./run.sh demo     → isi data demo (80 user + rekap)
 #   ./run.sh clean    → hapus data demo
 #   ./run.sh purge    → bersihkan permanen rekap yang dihapus admin > 90 hari (--dry-run untuk simulasi)
+#   ./run.sh backup   → backup database + screenshot ke ./backups (simpan 7 hari)
+#   ./run.sh restore <db.dump> [uploads.tar.gz] → pulihkan dari backup
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -59,5 +61,7 @@ case "$MODE" in
 	demo)  npm run db:seed-demo ;;
 	clean) node --env-file=.env scripts/seed-demo.js --clean ;;
 	purge) node --env-file=.env scripts/purge-deleted.js "${@:2}" ;;
-	*) fail "Mode tidak dikenal: $MODE (pakai: dev | prod | seed | demo | clean | purge)" ;;
+	backup) exec scripts/backup.sh ;;
+	restore) exec scripts/restore.sh "${@:2}" ;;
+	*) fail "Mode tidak dikenal: $MODE (pakai: dev | prod | seed | demo | clean | purge | backup | restore)" ;;
 esac

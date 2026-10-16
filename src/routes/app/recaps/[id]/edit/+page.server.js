@@ -4,6 +4,7 @@ import { db } from '#lib/server/db/index.js';
 import { recaps, recapEdits, socialAccounts } from '#lib/server/db/schema.js';
 import { saveScreenshot, deleteScreenshot } from '#lib/server/uploads.js';
 import { parseRecapForm } from '#lib/server/recap-form.js';
+import { checkLimits, waitText } from '#lib/server/ratelimit.js';
 
 async function ownRecap(id, userId) {
 	const [r] = await db
@@ -65,6 +66,8 @@ export const actions = {
 		const removeOld = form.get('removeScreenshot') === '1';
 		const reason = String(form.get('editReason') ?? '').trim().slice(0, 500);
 		if (reason.length < 5) return fail(400, { error: 'Alasan perubahan wajib diisi (minimal 5 karakter)', keep });
+		const limit = checkLimits([[`recap-edit:${locals.user.id}`, 30, 10 * 60 * 1000]]);
+		if (!limit.ok) return fail(429, { error: `Terlalu banyak perubahan dalam waktu singkat. Coba lagi dalam ${waitText(limit.retryAfter)}.`, keep });
 
 		const parsed = await parseRecapForm(form, locals.user, { hasExistingShot: Boolean(r.screenshotPath) && !removeOld });
 		if (parsed.error) return fail(400, { error: parsed.error, keep });

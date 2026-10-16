@@ -1,6 +1,6 @@
 export const PLATFORMS = {
 	twitter: { label: 'X (Twitter)', color: '#0f172a', short: 'X', profile: (u) => `https://x.com/${u}` },
-	instagram: { label: 'Instagram', color: '#e4405f', short: 'IG', profile: (u) => `https://instagram.com/${u}` },
+	instagram: { label: 'Instagram', color: '#f97316', short: 'IG', profile: (u) => `https://instagram.com/${u}` },
 	threads: { label: 'Threads', color: '#52525b', short: 'TH', profile: (u) => `https://threads.net/@${u}` },
 	youtube: { label: 'YouTube', color: '#ef4444', short: 'YT', profile: (u) => `https://youtube.com/@${u}` },
 	facebook: { label: 'Facebook', color: '#0866ff', short: 'FB', profile: (u) => `https://facebook.com/${u}` }

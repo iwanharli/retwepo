@@ -4,7 +4,7 @@
 	import RangeFilter from '#lib/components/RangeFilter.svelte';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
-	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper } from '@lucide/svelte';
+	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper, Eye } from '@lucide/svelte';
 	import { PLATFORMS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 
 	let { data } = $props();
@@ -244,7 +244,7 @@
 		<ol class="divide-y divide-slate-100">
 			{#each s.topUsers as u, i}
 				<li>
-					<a href="/admin/members/{u.id}" class="flex items-center gap-3.5 px-5 py-3 transition hover:bg-slate-50/80">
+					<div class="flex items-center gap-3.5 px-5 py-3">
 						{#if i < 3}
 							<span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br text-xs font-bold shadow-sm {MEDAL[i]}">{i + 1}</span>
 						{:else}
@@ -266,7 +266,7 @@
 								<span class="ml-auto">{u.active_days} hari aktif</span>
 							</div>
 						</div>
-					</a>
+					<a href="/admin/members/{u.id}" class="btn btn-soft-brand btn-sm shrink-0" title="Lihat detail"><Eye /> Detail</a></div>
 				</li>
 			{:else}
 				<li class="p-10 text-center text-sm text-slate-500">Belum ada data.</li>
@@ -337,7 +337,7 @@
 			<ul class="flex-1 divide-y divide-slate-100">
 				{#each s.inactive as u}
 					<li>
-						<a href={adminUserHref(u.id, 'approved')} class="flex items-center gap-3 px-5 py-2.5 transition hover:bg-slate-50/80">
+						<div class="flex items-center gap-3 px-5 py-2.5">
 							<Avatar user={{ nickname: u.nickname, email: u.email, avatarUrl: u.avatar_url }} size={32} />
 							<div class="min-w-0 flex-1">
 								<div class="truncate text-sm font-medium text-slate-900">{u.nickname ?? u.email}</div>
@@ -348,7 +348,7 @@
 							{:else}
 								<span class="shrink-0 rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-rose-200">Belum pernah</span>
 							{/if}
-						</a>
+						<a href={adminUserHref(u.id, 'approved')} class="btn btn-soft-brand btn-sm shrink-0" title="Lihat detail"><Eye /> Detail</a></div>
 					</li>
 				{/each}
 			</ul>

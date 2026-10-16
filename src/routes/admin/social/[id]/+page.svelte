@@ -1,7 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import { ArrowLeft, ExternalLink, Check, ShieldOff, ShieldX, History, Images, Layers, FileText, Reply, CalendarDays, Clock, UserRound } from '@lucide/svelte';
+	import { ArrowLeft, ExternalLink, Check, ShieldOff, ShieldX, History, Images, Layers, FileText, Reply, CalendarDays, Clock, UserRound, Eye } from '@lucide/svelte';
 	import { PLATFORMS, ACCOUNT_STATUS, USER_STATUS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 	import { toastResult } from '#lib/toast.svelte.js';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
@@ -100,14 +100,14 @@
 		</div>
 	</div>
 	<!-- pemilik -->
-	<a href={adminUserHref(a.owner_id, a.owner_status)} class="flex items-center gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-3.5 transition hover:bg-slate-50">
+	<div class="flex flex-wrap items-center gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-3.5">
 		<UserRound class="size-4 text-slate-400" />
 		<span class="text-sm text-slate-500">Pemilik</span>
 		<Avatar user={{ nickname: a.owner_nickname, email: a.owner_email, avatarUrl: a.owner_avatar }} size={28} />
 		<span class="text-sm font-medium">{a.owner_nickname ?? '—'}</span>
 		<span class="truncate text-sm text-slate-500">{a.owner_email}</span>
 		{#if a.owner_status !== 'approved'}<Badge cls={USER_STATUS[a.owner_status].cls}>{USER_STATUS[a.owner_status].label}</Badge>{/if}
-	</a>
+	<a href={adminUserHref(a.owner_id, a.owner_status)} class="btn btn-soft-brand btn-sm shrink-0" title="Lihat detail"><Eye /> Detail user</a></div>
 </section>
 
 <!-- Statistik -->

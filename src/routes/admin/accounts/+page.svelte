@@ -2,7 +2,7 @@
 	import { toastResult } from '#lib/toast.svelte.js';
 	import { enhance } from '$app/forms';
 	import { invalidate, invalidateAll } from '$app/navigation';
-	import { ShieldCheck, ShieldX, BadgeCheck, Check, X, Inbox, CalendarClock } from '@lucide/svelte';
+	import { ShieldCheck, ShieldX, BadgeCheck, Check, X, Inbox, CalendarClock, Eye, UserRound } from '@lucide/svelte';
 	import { fmtDate, adminUserHref } from '#lib/constants.js';
 	import PlatformTag from '#lib/components/PlatformTag.svelte';
 	import Pagination from '#lib/components/Pagination.svelte';
@@ -136,15 +136,16 @@
 				{#each data.rows as a (a.id)}
 					<tr class="hover:bg-slate-50/70">
 						{#if pending}<td data-label="Pilih"><input type="checkbox" class="size-4 accent-brand-600" value={a.id} bind:group={selected} /></td>{/if}
-						<td data-label=""><a href="/admin/social/{a.id}" class="hover:underline"><PlatformTag platform={a.platform} username={a.username} size={28} /></a></td>
+						<td data-label=""><PlatformTag platform={a.platform} username={a.username} size={28} /></td>
 						<td data-label="Pemilik">
-							<a href={adminUserHref(a.user_id, a.user_status)} class="font-medium hover:underline">{a.nickname ?? a.email}</a>
+							<div class="flex items-center gap-2"><span class="font-medium">{a.nickname ?? a.email}</span><a href={adminUserHref(a.user_id, a.user_status)} class="btn btn-ghost btn-icon btn-sm size-7 text-slate-500 hover:text-brand-600" title="Detail user" aria-label="Detail user"><UserRound class="size-4" /></a></div>
 							<div class="text-xs text-slate-500">{a.email}</div>
 						</td>
 						<td class="whitespace-nowrap text-slate-500" data-label="Diajukan"><span class="flex items-center gap-1.5"><CalendarClock class="size-3.5" />{fmtDate(a.created_at, true)}</span></td>
 						{#if !pending}<td class="max-w-64 text-sm text-slate-600" data-label="Alasan penolakan">{a.status_note ?? '—'}</td>{/if}
 						<td data-cell="actions">
 							<div class="flex justify-end gap-1.5">
+								<a href="/admin/social/{a.id}" class="btn btn-soft-brand btn-sm" title="Detail akun"><Eye /> Detail</a>
 								<form method="POST" action="?/approveAccount" use:enhance={approved}>
 									<input type="hidden" name="id" value={a.id} /><button class="btn btn-success btn-sm"><Check /> Setujui</button>
 								</form>

@@ -1,5 +1,5 @@
 <script>
-	import { BadgeCheck, SearchX, ShieldOff, Images, UserCheck, Ban, Users } from '@lucide/svelte';
+	import { BadgeCheck, SearchX, ShieldOff, Images, UserCheck, Ban, Users, Eye, UserRound } from '@lucide/svelte';
 	import { page } from '$app/state';
 	import { USER_STATUS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 	import Badge from '#lib/components/Badge.svelte';
@@ -88,9 +88,9 @@
 				{#each data.rows as a (a.id)}
 					{@const days = idle(a.last_at)}
 					<tr class="hover:bg-slate-50/70">
-						<td data-label=""><a href="/admin/social/{a.id}" class="hover:underline"><PlatformTag platform={a.platform} username={a.username} size={28} /></a></td>
+						<td data-label=""><PlatformTag platform={a.platform} username={a.username} size={28} /></td>
 						<td data-label="Pemilik">
-							<a href={adminUserHref(a.user_id, a.user_status)} class="font-medium hover:underline">{a.nickname ?? a.email}</a>
+							<div class="flex items-center gap-2"><span class="font-medium">{a.nickname ?? a.email}</span><a href={adminUserHref(a.user_id, a.user_status)} class="btn btn-ghost btn-icon btn-sm size-7 text-slate-500 hover:text-brand-600" title="Detail user" aria-label="Detail user"><UserRound class="size-4" /></a></div>
 							<div class="flex items-center gap-1.5 text-xs text-slate-500">
 								{a.email}
 								{#if a.user_status !== 'approved'}<Badge cls={USER_STATUS[a.user_status].cls}>user {USER_STATUS[a.user_status].label.toLowerCase()}</Badge>{/if}
@@ -109,6 +109,7 @@
 						<td class="whitespace-nowrap text-slate-500" data-label="Disetujui">{fmtDate(a.reviewed_at ?? a.created_at)}</td>
 						<td data-cell="actions">
 							<div class="flex justify-end gap-1.5">
+								<a href="/admin/social/{a.id}" class="btn btn-soft-brand btn-sm" title="Detail akun"><Eye /> Detail</a>
 								<a href="/admin/recaps?q={encodeURIComponent(a.username)}&from=&to=" class="btn btn-soft-brand btn-sm" title="Lihat rekap akun ini"><Images /> Rekap</a>
 								<ActionDialog
 									action="rejectAccount"

@@ -1,30 +1,44 @@
 <script>
+	import { page } from '$app/state';
+	import { CalendarDays } from '@lucide/svelte';
 	import { PLATFORMS, PLATFORM_KEYS } from '#lib/constants.js';
 	let { from, to, platform = undefined } = $props();
 
+	const fmt = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(d);
+	const today = fmt(new Date());
+	const startOf = (days) => fmt(new Date(Date.now() - (days - 1) * 86400000));
+
 	function preset(days) {
-		const fmt = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(d);
-		const t = new Date();
-		const f = new Date(t.getTime() - (days - 1) * 86400000);
-		const u = new URLSearchParams(location.search);
-		u.set('from', fmt(f));
-		u.set('to', fmt(t));
+		const u = new URLSearchParams(page.url.search);
+		u.set('from', startOf(days));
+		u.set('to', today);
 		return '?' + u.toString();
 	}
 	const presets = [['Hari ini', 1], ['7 hari', 7], ['30 hari', 30], ['90 hari', 90]];
+	// preset yang sedang dipakai (null = rentang kustom)
+	const activeDays = $derived(to === today ? (presets.find(([, n]) => from === startOf(n))?.[1] ?? null) : null);
 </script>
 
 <form method="GET" class="flex flex-wrap items-end gap-2">
-	<div class="flex gap-1">
+	<div class="flex rounded-lg bg-slate-100 p-1 ring-1 ring-slate-200">
 		{#each presets as [lbl, n]}
-			<button type="button" class="btn btn-secondary btn-sm" onclick={() => (location.href = preset(n))}>{lbl}</button>
+			<a
+				href={preset(n)}
+				aria-current={activeDays === n ? 'true' : undefined}
+				class="rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition {activeDays === n
+					? 'bg-brand-600 text-white shadow-sm'
+					: 'text-slate-600 hover:bg-white hover:text-slate-900'}">{lbl}</a
+			>
 		{/each}
+		{#if activeDays === null}
+			<span class="flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm"><CalendarDays class="size-3.5" />Kustom</span>
+		{/if}
 	</div>
-	<input class="input w-auto" type="date" name="from" value={from} />
+	<input class="input w-auto {activeDays === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="from" value={from} />
 	<span class="pb-2 text-slate-400">–</span>
-	<input class="input w-auto" type="date" name="to" value={to} />
+	<input class="input w-auto {activeDays === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="to" value={to} />
 	{#if platform !== undefined}
-		<select class="input w-auto" name="platform" value={platform ?? ''}>
+		<select class="input w-auto {platform ? 'border-brand-400 bg-brand-50 font-medium text-brand-700 ring-2 ring-brand-500/15' : ''}" name="platform" value={platform ?? ''}>
 			<option value="">Semua platform</option>
 			{#each PLATFORM_KEYS as k}<option value={k}>{PLATFORMS[k].label}</option>{/each}
 		</select>

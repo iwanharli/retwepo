@@ -1,5 +1,5 @@
 <script>
-	import { UserPlus, Inbox, Wallet, CalendarClock } from '@lucide/svelte';
+	import { UserPlus, Inbox, Wallet, CalendarClock, Eye } from '@lucide/svelte';
 	import { ACCOUNT_STATUS, fmtDate } from '#lib/constants.js';
 	import Badge from '#lib/components/Badge.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
@@ -48,19 +48,19 @@
 					<SortTh key="ewallet" label="E-wallet" sort={data.f.sort} />
 					<th>Akun sosmed diajukan</th>
 					<SortTh key="registered" label="Mendaftar" sort={data.f.sort} defaultDir="desc" />
-					{#if data.f.status === 'rejected'}<th>Alasan penolakan</th>{/if}{#if data.f.status === 'pending'}<th class="text-right">Aksi</th>{/if}</tr>
+					{#if data.f.status === 'rejected'}<th>Alasan penolakan</th>{/if}<th class="text-right">Aksi</th></tr>
 			</thead>
 			<tbody>
 				{#each data.rows as u (u.id)}
 					<tr class="hover:bg-slate-50/70">
 						<td data-label="">
-							<a href="/admin/users/{u.id}" class="flex items-center gap-3">
+							<div class="flex items-center gap-3">
 								<Avatar user={{ nickname: u.nickname, email: u.email, avatarUrl: u.avatar_url }} size={36} />
 								<span class="min-w-0">
-									<span class="block font-medium hover:underline">{u.nickname ?? '—'}</span>
+									<span class="block font-medium">{u.nickname ?? '—'}</span>
 									<span class="block truncate text-xs text-slate-500">{u.email}</span>
 								</span>
-							</a>
+							</div>
 						</td>
 						<td class="whitespace-nowrap" data-label="E-wallet">
 							{#if u.ewallet_number}
@@ -83,7 +83,7 @@
 							<span class="flex items-center gap-1.5"><CalendarClock class="size-3.5" />{fmtDate(u.registered_at ?? u.created_at, true)}</span>
 						</td>
 						{#if data.f.status === 'rejected'}<td class="max-w-64 text-sm text-slate-600" data-label="Alasan penolakan">{u.status_note ?? '—'}</td>{/if}
-						{#if data.f.status === 'pending'}<td data-cell="actions"><UserActions {u} compact /></td>{/if}
+						<td data-cell="actions"><div class="flex justify-end gap-1.5"><a href="/admin/users/{u.id}" class="btn btn-soft-brand btn-sm" title="Lihat detail user"><Eye /> Detail</a>{#if data.f.status === 'pending'}<UserActions {u} compact />{/if}</div></td>
 					</tr>
 				{/each}
 			</tbody>

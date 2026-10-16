@@ -24,5 +24,5 @@
 
 <Flash {form} />
 {#key r.id}
-	<RecapForm mode="edit" accounts={data.accounts} {form} initial={r.initial} />
+	<RecapForm mode="edit" accounts={data.accounts} {form} initial={r.initial} recapId={r.id} />
 {/key}

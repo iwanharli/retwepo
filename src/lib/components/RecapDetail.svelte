@@ -21,6 +21,7 @@
 	import Lightbox from './Lightbox.svelte';
 	import RecapHistory from './RecapHistory.svelte';
 	import DeletedNotice from './DeletedNotice.svelte';
+	import DuplicateBadge from './DuplicateBadge.svelte';
 
 	/**
 	 * Tampilan detail satu rekap.
@@ -99,7 +100,10 @@
 						{#if r.accountStatus && r.accountStatus !== 'approved'}<Badge cls={ACCOUNT_STATUS[r.accountStatus].cls}>akun {ACCOUNT_STATUS[r.accountStatus].label.toLowerCase()}</Badge>{/if}
 					</div>
 				</div>
-				<TypeBadge type={r.type} />
+				<div class="flex flex-col items-end gap-1.5">
+					<TypeBadge type={r.type} />
+					<DuplicateBadge count={r.dupCount} />
+				</div>
 			</div>
 
 			<dl class="divide-y divide-slate-100 text-sm">

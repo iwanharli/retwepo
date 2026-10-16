@@ -110,7 +110,7 @@
 		<div class="font-semibold">Akun media sosial</div>
 		{#if u.status === 'approved'}<AddAccountDialog user={{ ...u, accounts: st.perAccount.filter((a) => a.status === 'approved') }} triggerClass="btn btn-soft-brand btn-sm" />{/if}
 	</div>
-	<table class="table mt-2">
+	<table class="table table-cards mt-2">
 		<thead>
 			<tr>
 				<SortTh key="username" label="Akun" sort={accSort} onsort={sortAccounts} />
@@ -124,15 +124,15 @@
 		<tbody>
 			{#each accounts as a (a.id)}
 				<tr>
-					<td><PlatformTag platform={a.platform} username={a.username} link /></td>
-					<td>
+					<td data-label=""><a href="/admin/social/{a.id}" class="hover:underline"><PlatformTag platform={a.platform} username={a.username} /></a></td>
+					<td data-label="Status">
 						<Badge cls={ACCOUNT_STATUS[a.status].cls}>{ACCOUNT_STATUS[a.status].label}</Badge>
 						{#if a.status_note}<div class="text-xs text-slate-500">{a.status_note}</div>{/if}
 					</td>
-					<td class="text-right">{fmtNum(a.in_range)} / {fmtNum(a.total)}</td>
-					<td class="text-slate-500">{fmtDate(a.last_at)}</td>
-					<td class="text-slate-500">{fmtDate(a.created_at)}</td>
-					<td class="text-right">
+					<td class="text-right" data-label="Rekap (periode / total)">{fmtNum(a.in_range)} / {fmtNum(a.total)}</td>
+					<td class="text-slate-500" data-label="Terakhir">{fmtDate(a.last_at)}</td>
+					<td class="text-slate-500" data-label="Diajukan">{fmtDate(a.created_at)}</td>
+					<td class="text-right" data-cell="actions">
 						<div class="flex justify-end gap-1.5">
 							{#if a.status !== 'approved'}
 								<form method="POST" action="?/approveAccount" use:enhance={approved}>

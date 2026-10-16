@@ -41,7 +41,7 @@
 
 {#if data.rows.length}
 	<div class="card overflow-x-auto p-0">
-		<table class="table">
+		<table class="table table-cards">
 			<thead>
 				<tr>
 					<SortTh key="name" label="User" sort={data.f.sort} />
@@ -53,7 +53,7 @@
 			<tbody>
 				{#each data.rows as u (u.id)}
 					<tr class="hover:bg-slate-50/70">
-						<td>
+						<td data-label="">
 							<a href="/admin/users/{u.id}" class="flex items-center gap-3">
 								<Avatar user={{ nickname: u.nickname, email: u.email, avatarUrl: u.avatar_url }} size={36} />
 								<span class="min-w-0">
@@ -62,13 +62,13 @@
 								</span>
 							</a>
 						</td>
-						<td class="whitespace-nowrap">
+						<td class="whitespace-nowrap" data-label="E-wallet">
 							{#if u.ewallet_number}
 								<div class="flex items-center gap-1.5 text-xs text-slate-500"><Wallet class="size-3.5" />{u.ewallet_provider}</div>
 								<div class="font-mono text-sm">{u.ewallet_number}</div>
 							{:else}<span class="text-slate-300">—</span>{/if}
 						</td>
-						<td>
+						<td data-label="Akun sosmed">
 							<div class="flex flex-col gap-1">
 								{#each u.accounts ?? [] as a}
 									<span class="flex items-center gap-1.5 {a.status === 'rejected' ? 'line-through opacity-50' : ''}">
@@ -79,11 +79,11 @@
 								{:else}<span class="text-slate-300">—</span>{/each}
 							</div>
 						</td>
-						<td class="whitespace-nowrap text-slate-500">
+						<td class="whitespace-nowrap text-slate-500" data-label="Mendaftar">
 							<span class="flex items-center gap-1.5"><CalendarClock class="size-3.5" />{fmtDate(u.registered_at ?? u.created_at, true)}</span>
 						</td>
-						{#if data.f.status === 'rejected'}<td class="max-w-64 text-sm text-slate-600">{u.status_note ?? '—'}</td>{/if}
-						{#if data.f.status === 'pending'}<td><UserActions {u} compact /></td>{/if}
+						{#if data.f.status === 'rejected'}<td class="max-w-64 text-sm text-slate-600" data-label="Alasan penolakan">{u.status_note ?? '—'}</td>{/if}
+						{#if data.f.status === 'pending'}<td data-cell="actions"><UserActions {u} compact /></td>{/if}
 					</tr>
 				{/each}
 			</tbody>

@@ -95,6 +95,7 @@
 			<option value="">Semua bukti</option>
 			<option value="url">Ada URL</option>
 			<option value="shot">Ada screenshot</option>
+			<option value="dup">URL duplikat</option>
 		</select>
 
 		<div class="col-span-2 flex items-center gap-2 md:col-span-6 xl:col-span-6">

@@ -29,6 +29,9 @@ Bits UI · Lucide · ECharts · Sharp
 - Hapus rekap = *soft delete*: user melihat label & alasan, rekap bisa dipulihkan, dibersihkan permanen otomatis setelah 90 hari
 - Log Aktivitas: semua aksi admin (siapa, kapan, target, alasan)
 - Semua tabel bisa diurutkan dengan klik judul kolom; export CSV user & akun sosmed dengan pengaturan
+- **URL duplikat**: user diperingatkan saat mengisi URL yang sudah pernah direkap (link berbeda bentuk dikenali sama, mis. twitter.com = x.com); admin melihat label *Duplikat* dan filter "URL duplikat"
+- Detail akun sosmed: statistik, grafik, riwayat verifikasi, dan rekap per akun
+- Tampilan HP: tabel otomatis berubah menjadi kartu
 
 ---
 

@@ -1,9 +1,11 @@
 <script>
+	import { untrack } from 'svelte';
 	import { Plus, X, AtSign } from '@lucide/svelte';
 	import { PLATFORMS, PLATFORM_KEYS } from '#lib/constants.js';
 	import PlatformIcon from './PlatformIcon.svelte';
 	let { initial = [] } = $props();
-	let rows = $state(initial.length ? initial.map((r) => ({ ...r })) : [{ platform: 'twitter', username: '' }]);
+	// nilai awal saja; setelah itu baris dikelola sendiri oleh komponen
+	let rows = $state(untrack(() => (initial.length ? initial.map((r) => ({ ...r })) : [{ platform: 'twitter', username: '' }])));
 </script>
 
 <div class="space-y-2.5">

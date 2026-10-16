@@ -27,7 +27,7 @@ export function recapFilters(url, { userId = null, defaultDays = null } = {}) {
 		user: userId ?? (Number(p.get('user')) || null),
 		platform: PLATFORMS[p.get('platform')] ? p.get('platform') : null,
 		type: ['post', 'reply'].includes(p.get('type')) ? p.get('type') : null,
-		evidence: ['url', 'shot'].includes(p.get('evidence')) ? p.get('evidence') : null,
+		evidence: ['url', 'shot', 'dup'].includes(p.get('evidence')) ? p.get('evidence') : null,
 		from: useDefault ? addDays(ymd(), -(defaultDays - 1)) : DATE_RE.test(p.get('from') ?? '') ? p.get('from') : null,
 		to: useDefault ? ymd() : DATE_RE.test(p.get('to') ?? '') ? p.get('to') : null,
 		q: (p.get('q') ?? '').trim().slice(0, 100),
@@ -41,6 +41,8 @@ export function recapFilters(url, { userId = null, defaultDays = null } = {}) {
 	if (f.type) where.push(eq(recaps.type, f.type));
 	if (f.evidence === 'url') where.push(isNotNull(recaps.url));
 	if (f.evidence === 'shot') where.push(isNotNull(recaps.screenshotPath));
+	if (f.evidence === 'dup')
+		where.push(sql`EXISTS (SELECT 1 FROM active_recaps d WHERE d.url_key = ${recaps.urlKey} AND d.id <> ${recaps.id})`);
 	if (f.from) where.push(gte(recaps.postedAt, startOfDay(f.from)));
 	if (f.to) where.push(lt(recaps.postedAt, startOfDay(addDays(f.to, 1))));
 	if (f.q) {
@@ -70,6 +72,8 @@ const columns = {
 	editedAt: recaps.editedAt,
 	deletedAt: recaps.deletedAt,
 	deleteReason: recaps.deleteReason,
+	// jumlah rekap aktif lain dengan URL yang sama
+	dupCount: sql`(SELECT count(*)::int FROM active_recaps d WHERE d.url_key = ${recaps.urlKey} AND d.id <> ${recaps.id})`,
 	platform: socialAccounts.platform,
 	username: socialAccounts.username,
 	userId: users.id,

@@ -46,7 +46,7 @@
 
 {#if data.rows.length}
 	<div class="card overflow-x-auto p-0">
-		<table class="table">
+		<table class="table table-cards">
 			<thead>
 				<tr>
 					<SortTh key="name" label="User" sort={data.f.sort} />
@@ -63,7 +63,7 @@
 				{#each data.rows as u (u.id)}
 					{@const days = idle(u.last_at)}
 					<tr class="hover:bg-slate-50/70">
-						<td>
+						<td data-label="">
 							<a href="/admin/members/{u.id}" class="flex items-center gap-3">
 								<Avatar user={{ nickname: u.nickname, email: u.email, avatarUrl: u.avatar_url }} size={36} />
 								<span class="min-w-0">
@@ -75,22 +75,22 @@
 								</span>
 							</a>
 						</td>
-						<td class="whitespace-nowrap">
+						<td class="whitespace-nowrap" data-label="E-wallet">
 							{#if u.ewallet_number}
 								<div class="flex items-center gap-1.5 text-xs text-slate-500"><Wallet class="size-3.5" />{u.ewallet_provider}</div>
 								<div class="font-mono text-sm">{u.ewallet_number}</div>
 							{:else}<span class="text-slate-300">—</span>{/if}
 						</td>
-						<td>
+						<td data-label="Akun aktif">
 							<div class="flex flex-wrap gap-1">
 								{#each (u.accounts ?? []).filter((a) => a.status === 'approved') as a}
 									<span title="@{a.username}"><PlatformIcon platform={a.platform} size={22} /></span>
 								{:else}<span class="text-slate-300">—</span>{/each}
 							</div>
 						</td>
-						<td class="text-right text-base font-semibold">{fmtNum(u.month)}</td>
-						<td class="text-right text-slate-500">{fmtNum(u.total)}</td>
-						<td class="whitespace-nowrap">
+						<td class="text-right text-base font-semibold" data-label="Rekap 30 hari">{fmtNum(u.month)}</td>
+						<td class="text-right text-slate-500" data-label="Total">{fmtNum(u.total)}</td>
+						<td class="whitespace-nowrap" data-label="Terakhir rekap">
 							{#if days === null}
 								<span class="text-xs text-rose-600">Belum pernah</span>
 							{:else}
@@ -98,11 +98,11 @@
 								<div class="text-xs {days >= 7 ? 'text-rose-600' : 'text-slate-400'}">{days === 0 ? 'hari ini' : `${days} hari lalu`}</div>
 							{/if}
 						</td>
-						<td>
+						<td data-label="Status">
 							<Badge cls={USER_STATUS[u.status].cls} dot>{u.status === 'approved' ? 'Aktif' : USER_STATUS[u.status].label}</Badge>
 							{#if u.status_note}<div class="mt-1 max-w-48 text-xs text-slate-500">{u.status_note}</div>{/if}
 						</td>
-						<td><UserActions {u} compact /></td>
+						<td data-cell="actions"><UserActions {u} compact /></td>
 					</tr>
 				{/each}
 			</tbody>

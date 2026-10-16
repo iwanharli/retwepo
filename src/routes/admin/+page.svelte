@@ -281,9 +281,9 @@
 			{#each s.topAccounts as a, i}
 				<li>
 					<a
-						href="/admin/recaps?q={encodeURIComponent(a.username)}"
+						href="/admin/social/{a.id}"
 						class="flex items-center gap-3.5 px-5 py-3 transition hover:bg-slate-50/80"
-						title="Lihat rekap @{a.username}"
+						title="Detail akun @{a.username}"
 					>
 						{#if i < 3}
 							<span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br text-xs font-bold shadow-sm {MEDAL[i]}">{i + 1}</span>

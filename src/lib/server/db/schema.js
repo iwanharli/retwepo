@@ -108,6 +108,8 @@ export const recaps = pgTable(
 			.references(() => socialAccounts.id, { onDelete: 'cascade' }),
 		type: recapTypeEnum('type').notNull(),
 		url: text('url'),
+		// URL ternormalisasi untuk mendeteksi rekap duplikat (lihat urlKey di constants.js)
+		urlKey: text('url_key'),
 		targetUrl: text('target_url'),
 		screenshotPath: text('screenshot_path'),
 		note: text('note'),
@@ -125,7 +127,8 @@ export const recaps = pgTable(
 		index('recaps_posted_idx').on(t.postedAt),
 		index('recaps_user_posted_idx').on(t.userId, t.postedAt),
 		index('recaps_account_idx').on(t.socialAccountId),
-		index('recaps_deleted_idx').on(t.userId, t.deletedAt)
+		index('recaps_deleted_idx').on(t.userId, t.deletedAt),
+		index('recaps_url_key_idx').on(t.urlKey)
 	]
 );
 

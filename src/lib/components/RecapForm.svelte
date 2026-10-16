@@ -16,15 +16,18 @@
 		Info,
 		Check
 	} from '@lucide/svelte';
-	import { untrack } from 'svelte';
+	import { untrack, tick } from 'svelte';
 	import { PLATFORMS } from '#lib/constants.js';
 	import PlatformIcon from './PlatformIcon.svelte';
+	import DuplicateNotice from './DuplicateNotice.svelte';
+	import { Copy } from '@lucide/svelte';
 
 	/**
 	 * Form rekap untuk halaman tambah (mode "new") dan edit (mode "edit").
 	 * initial: { accountId, type, url, targetUrl, note, postedAt (YYYY-MM-DDTHH:mm WIB), screenshotPath }
 	 */
-	let { accounts, form = null, mode = 'new', initial = {} } = $props();
+	/** recapId: id rekap yang sedang diedit (dikecualikan saat cek duplikat) */
+	let { accounts, form = null, mode = 'new', initial = {}, recapId = null } = $props();
 
 	function nowLocal() {
 		return new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 16); // WIB
@@ -44,6 +47,27 @@
 	let busy = $state(false);
 	let fileInput = $state();
 	let formEl = $state();
+
+	// ---- cek URL duplikat selagi user mengetik
+	let dup = $state(null);
+	let allowDup = $state(false);
+	let dupTimer;
+	$effect(() => {
+		const v = url.trim();
+		allowDup = false;
+		clearTimeout(dupTimer);
+		if (!/^https?:\/\/\S+\.\S+/.test(v)) return void (dup = null);
+		dupTimer = setTimeout(async () => {
+			const res = await fetch(`/app/recaps/check-url?url=${encodeURIComponent(v)}${recapId ? `&exclude=${recapId}` : ''}`);
+			if (res.ok) dup = await res.json();
+		}, 400);
+	});
+	// server menolak karena duplikat → tampilkan konfirmasi
+	const serverDup = $derived(form?.duplicate ?? null);
+	function saveAnyway() {
+		allowDup = true;
+		tick().then(() => formEl.requestSubmit());
+	}
 
 	const shownExisting = $derived(Boolean(initial.screenshotPath) && !removeShot && !preview);
 	const hasEvidence = $derived(Boolean(url.trim() || preview || shownExisting));
@@ -171,6 +195,7 @@
 						<Link2 class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
 						<input class="input pl-9" id="url" name="url" type="url" placeholder="https://x.com/username/status/…" bind:value={url} />
 					</div>
+						<DuplicateNotice {dup} />
 				</div>
 
 				{#if type === 'reply'}
@@ -282,6 +307,16 @@
 					{#if hasEvidence}<Check class="mt-px size-3.5 shrink-0" />{:else}<Info class="mt-px size-3.5 shrink-0" />{/if}
 					Minimal salah satu wajib diisi: <b>URL</b> atau <b>screenshot</b>.
 				</p>
+				{#if allowDup}<input type="hidden" name="allowDuplicate" value="1" />{/if}
+				{#if serverDup && !allowDup}
+					<div class="rounded-xl border border-orange-200 bg-orange-50 p-3.5 text-sm text-orange-900">
+						<p class="flex items-center gap-1.5 font-semibold"><Copy class="size-4" /> URL ini sudah pernah direkap</p>
+						<p class="mt-1 text-xs text-orange-800">
+							{serverDup.mine.length ? `${serverDup.mine.length}× oleh Anda` : ''}{serverDup.mine.length && serverDup.others ? ' · ' : ''}{serverDup.others ? `${serverDup.others}× oleh user lain` : ''}. Simpan tetap jika ini memang rekap yang berbeda.
+						</p>
+						<button type="button" class="btn btn-soft-warning btn-sm mt-2.5 w-full" onclick={saveAnyway}>Ya, tetap simpan</button>
+					</div>
+				{/if}
 				<button class="btn btn-primary btn-lg w-full" disabled={busy || !hasEvidence || !reasonOk}>
 					{#if busy}<LoaderCircle class="animate-spin" /> Menyimpan…{:else if mode === 'edit'}<Save /> Simpan Perubahan{:else}<Send /> Simpan Rekap{/if}
 				</button>

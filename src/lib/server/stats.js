@@ -14,6 +14,9 @@ const iso = (d) => d.toISOString();
 
 export async function adminStats(range) {
 	const { from, to, platform } = range;
+	// rentang satu hari → tren per jam (24 titik), selain itu per hari
+	const hourly = from === to;
+	const bucketFmt = hourly ? 'HH24' : 'YYYY-MM-DD';
 	const [start, end, prevStart, prevEnd] = [range.start, range.end, range.prevStart, range.prevEnd].map(iso);
 	const P = pf(platform);
 
@@ -42,7 +45,7 @@ export async function adminStats(range) {
 					(SELECT count(*) FROM active_recaps)::int AS all_recaps`),
 
 			rows(sql`
-				SELECT to_char(r.posted_at AT TIME ZONE ${TZ}, 'YYYY-MM-DD') AS day, a.platform, r.type, count(*)::int AS n
+				SELECT to_char(r.posted_at AT TIME ZONE ${TZ}, ${bucketFmt}) AS day, a.platform, r.type, count(*)::int AS n
 				FROM active_recaps r JOIN social_accounts a ON a.id = r.social_account_id
 				WHERE r.posted_at >= ${start} AND r.posted_at < ${end} ${P}
 				GROUP BY 1, 2, 3`),
@@ -115,7 +118,7 @@ export async function adminStats(range) {
 			SELECT 1 FROM active_recaps r WHERE r.user_id = u.id AND r.posted_at >= now() - interval '7 days')`);
 
 	// susun deret harian per platform & per tipe
-	const days = dayList(from, to);
+	const days = hourly ? Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0')) : dayList(from, to);
 	const idx = new Map(days.map((d, i) => [d, i]));
 	const dailyPlatform = {};
 	const dailyType = { post: days.map(() => 0), reply: days.map(() => 0) };
@@ -132,6 +135,7 @@ export async function adminStats(range) {
 
 	return {
 		kpi,
+		hourly,
 		prev,
 		totals: { ...totals, inactive_users: inactive_count },
 		days,

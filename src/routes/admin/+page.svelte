@@ -258,6 +258,28 @@
 		}
 	}
 
+	// ---- kartu utama
+	const change = (v, p) => (p === 0 ? (v > 0 ? 100 : 0) : Math.round(((v - p) / p) * 100));
+	const totalDelta = $derived(change(k.total, s.prev.total));
+	const usersDelta = $derived(change(k.active_users, s.prev.active_users));
+	const participation = $derived(pct(k.active_users, s.totals.approved_users));
+	const sparkOption = $derived({
+		grid: { left: 0, right: 0, top: 4, bottom: 0 },
+		xAxis: { type: 'category', show: false, boundaryGap: false, data: s.days },
+		yAxis: { type: 'value', show: false, min: 0 },
+		tooltip: { trigger: 'axis', formatter: (p) => `${s.hourly ? `${p[0].axisValue}:00` : label(p[0].axisValue)} — <b>${p[0].value}</b> rekap` },
+		series: [
+			{
+				type: 'line',
+				smooth: true,
+				showSymbol: false,
+				data: s.days.map((_, i) => Object.values(s.dailyPlatform).reduce((t, arr) => t + arr[i], 0)),
+				lineStyle: { color: '#ffffff', width: 2 },
+				areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(255,255,255,0.35)' }, { offset: 1, color: 'rgba(255,255,255,0)' }] } }
+			}
+		]
+	});
+
 	const maxUser = $derived(Math.max(1, ...s.topUsers.map((u) => u.total)));
 	const maxAcc = $derived(Math.max(1, ...s.topAccounts.map((a) => a.total)));
 </script>
@@ -335,19 +357,75 @@
 <!-- 1. hasil utama: volume rekap -->
 {@render divider('Aktivitas rekap', 'periode terpilih')}
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-	<Stat label="Total rekap" value={k.total} prev={data.stats.prev.total} icon={Layers} tone="brand" />
+	<!-- kartu utama: total rekap -->
+	<section class="relative col-span-2 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-violet-800 p-6 text-white shadow-lg shadow-brand-900/20">
+		<div class="pointer-events-none absolute -top-16 -right-16 size-56 rounded-full bg-white/10 blur-2xl"></div>
+		<div class="relative flex items-start justify-between gap-4">
+			<div>
+				<p class="flex items-center gap-2 text-sm font-medium text-white/80"><Layers class="size-4" /> Total rekap</p>
+				<p class="mt-2 text-5xl font-bold tracking-tight">{fmtNum(k.total)}</p>
+				<div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/75">
+					<span class="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 font-semibold text-white">
+						{#if totalDelta > 0}<TrendingUp class="size-3.5" />{:else if totalDelta < 0}<TrendingDown class="size-3.5" />{/if}{totalDelta > 0 ? '+' : ''}{totalDelta}%
+					</span>
+					vs periode sebelumnya · ≈ {fmtNum(Math.round((k.total / data.range.days) * 10) / 10)} rekap / hari
+				</div>
+			</div>
+			<div class="hidden w-1/2 max-w-64 sm:block"><Chart option={sparkOption} height="84px" /></div>
+		</div>
+		<!-- komposisi postingan vs panel -->
+		<div class="relative mt-5">
+			<div class="flex h-2 overflow-hidden rounded-full bg-white/15">
+				<div class="bg-white" style="width:{pct(k.posts, k.total)}%"></div>
+				<div class="bg-sky-300" style="width:{pct(k.replies, k.total)}%"></div>
+			</div>
+			<div class="mt-2 flex justify-between text-xs text-white/80">
+				<span><span class="mr-1.5 inline-block size-2 rounded-full bg-white align-middle"></span>Postingan <b class="text-white">{fmtNum(k.posts)}</b></span>
+				<span><span class="mr-1.5 inline-block size-2 rounded-full bg-sky-300 align-middle"></span>Panel <b class="text-white">{fmtNum(k.replies)}</b></span>
+			</div>
+		</div>
+	</section>
 	<Stat label="Postingan" value={k.posts} prev={data.stats.prev.posts} icon={FileText} tone="violet" />
 	<Stat label="Panel" value={k.replies} prev={data.stats.prev.replies} icon={Reply} tone="sky" />
-	<Stat label="Rata-rata / hari" value={Math.round((k.total / data.range.days) * 10) / 10} hint="rekap per hari" icon={CalendarDays} tone="brand" />
 </div>
 
 <!-- 2. siapa yang bekerja -->
 <div class="mt-8">
 	{@render divider('Partisipasi user', 'dari user terverifikasi')}
 	<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-		<Stat label="User aktif" value={k.active_users} prev={data.stats.prev.active_users} icon={UserCheck} tone="emerald" />
-		<Stat label="Partisipasi" value="{pct(k.active_users, s.totals.approved_users)}%" hint="aktif / disetujui" icon={Activity} tone="emerald" />
-		<Stat label="Tidak aktif 7 hari" value={s.totals.inactive_users} accent="text-rose-600" hint="user disetujui" icon={MoonStar} tone="rose" />
+		<!-- kartu utama kedua: user aktif + cincin partisipasi -->
+		<section class="col-span-2 flex items-center gap-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-white p-6 shadow-sm">
+			<div class="relative size-28 shrink-0">
+				<svg viewBox="0 0 36 36" class="size-full -rotate-90">
+					<circle cx="18" cy="18" r="15.5" fill="none" class="stroke-emerald-100" stroke-width="3.5" />
+					<circle cx="18" cy="18" r="15.5" fill="none" class="stroke-emerald-500" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="{(participation / 100) * 97.4} 97.4" />
+				</svg>
+				<div class="absolute inset-0 flex flex-col items-center justify-center">
+					<span class="text-2xl font-bold text-emerald-700">{participation}%</span>
+					<span class="text-[10px] font-medium tracking-wide text-emerald-600/80 uppercase">partisipasi</span>
+				</div>
+			</div>
+			<div class="min-w-0">
+				<p class="flex items-center gap-2 text-sm font-medium text-slate-500"><UserCheck class="size-4 text-emerald-600" /> User aktif</p>
+				<p class="mt-1 text-4xl font-bold tracking-tight text-slate-900">{fmtNum(k.active_users)} <span class="text-lg font-medium text-slate-400">/ {fmtNum(s.totals.approved_users)}</span></p>
+				<div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+					<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold {usersDelta > 0 ? 'bg-emerald-100 text-emerald-700' : usersDelta < 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'}">
+						{#if usersDelta > 0}<TrendingUp class="size-3.5" />{:else if usersDelta < 0}<TrendingDown class="size-3.5" />{/if}{usersDelta > 0 ? '+' : ''}{usersDelta}%
+					</span>
+					vs periode sebelumnya
+				</div>
+				<p class="mt-2 text-xs text-slate-500">user terverifikasi yang membuat rekap di periode ini</p>
+			</div>
+		</section>
+		<!-- perlu perhatian -->
+		<a href="/admin/members?status=approved&sort=last&dir=asc" class="card group flex flex-col gap-3 border-rose-200 bg-rose-50/40 transition hover:border-rose-300 hover:shadow-md">
+			<div class="flex items-start justify-between gap-2">
+				<span class="text-sm font-medium text-rose-700">Tidak aktif 7 hari</span>
+				<span class="flex size-9 items-center justify-center rounded-lg bg-rose-100 text-rose-600"><MoonStar class="size-[18px]" /></span>
+			</div>
+			<div class="text-3xl font-semibold tracking-tight text-rose-600">{fmtNum(s.totals.inactive_users)}</div>
+			<div class="flex items-center gap-1 text-xs text-rose-700/80">perlu ditindaklanjuti <ArrowRight class="size-3.5 transition group-hover:translate-x-0.5" /></div>
+		</a>
 		<Stat label="Rata-rata / user" value={k.active_users ? Math.round((k.total / k.active_users) * 10) / 10 : 0} hint="rekap per user aktif" icon={Gauge} tone="violet" />
 	</div>
 </div>

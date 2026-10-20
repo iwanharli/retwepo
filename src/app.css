@@ -18,6 +18,34 @@ html {
 	font-feature-settings: 'cv11', 'ss01';
 }
 
+/* Skeleton loading: blok abu-abu dengan kilau yang bergerak */
+.sk {
+	position: relative;
+	overflow: hidden;
+	border-radius: 0.5rem;
+	background-color: rgb(226 232 240 / 0.7);
+}
+.sk::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	transform: translateX(-100%);
+	background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
+	animation: sk-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes sk-shimmer {
+	100% {
+		transform: translateX(100%);
+	}
+}
+/* garis progres navigasi di atas layar */
+@keyframes nav-progress {
+	0% { transform: scaleX(0); }
+	30% { transform: scaleX(0.45); }
+	70% { transform: scaleX(0.8); }
+	100% { transform: scaleX(0.95); }
+}
+
 /* Scrollbar tipis & halus (Firefox: scrollbar-width; Chrome/Safari/Edge: ::-webkit-scrollbar) */
 * {
 	scrollbar-width: thin;

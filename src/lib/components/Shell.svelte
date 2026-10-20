@@ -1,5 +1,6 @@
 <script>
-	import { page } from '$app/state';
+	import { page, navigating } from '$app/state';
+	import PageSkeleton from './PageSkeleton.svelte';
 	import {
 		LayoutDashboard,
 		Plus,
@@ -66,6 +67,18 @@
 	};
 
 	const cta = $derived(nav.find((i) => i.cta));
+
+	// ---- loading antar halaman: kerangka (skeleton) sesuai halaman tujuan.
+	// Ditunda sebentar agar navigasi cepat tidak berkedip; pada halaman yang sama (mis. ganti filter)
+	// konten lama cukup diredupkan.
+	let slow = $state(false);
+	$effect(() => {
+		if (!navigating.to) return void (slow = false);
+		const t = setTimeout(() => (slow = true), 120);
+		return () => clearTimeout(t);
+	});
+	const targetRoute = $derived(navigating.to?.route.id ?? null);
+	const sameRoute = $derived(targetRoute !== null && targetRoute === page.route.id);
 
 	// item aktif = href terpanjang yang cocok dengan path sekarang
 	const current = $derived(
@@ -224,5 +237,16 @@
 		</div>
 	</header>
 
-	<main class="w-full px-4 py-6 lg:px-8 lg:py-8">{@render children()}</main>
+	<!-- garis progres navigasi -->
+	{#if navigating.to}
+		<div class="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-gradient-to-r from-brand-500 via-violet-500 to-fuchsia-500" style="animation: nav-progress 8s cubic-bezier(0.1, 0.7, 0.2, 1) forwards"></div>
+	{/if}
+
+	<main class="w-full px-4 py-6 lg:px-8 lg:py-8">
+		{#if slow && !sameRoute}
+			<PageSkeleton route={targetRoute} />
+		{:else}
+			<div class="transition-opacity duration-200 {slow && sameRoute ? 'pointer-events-none opacity-50' : ''}">{@render children()}</div>
+		{/if}
+	</main>
 </div>

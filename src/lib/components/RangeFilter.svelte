@@ -3,7 +3,8 @@
 	import { CalendarDays } from '@lucide/svelte';
 	import { PLATFORMS, PLATFORM_KEYS } from '#lib/constants.js';
 	/** platform / campaign: undefined = filter tidak ditampilkan; campaigns: pilihan kampanye */
-	let { from, to, platform = undefined, campaign = undefined, campaigns = [] } = $props();
+	/** card: tampil sebagai kartu filter selebar halaman (di bawah judul), seperti halaman lain */
+	let { from, to, platform = undefined, campaign = undefined, campaigns = [], card = false } = $props();
 
 	const fmt = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(d);
 	const today = fmt(new Date());
@@ -20,9 +21,9 @@
 	const activeDays = $derived(to === today ? (presets.find(([, n]) => from === startOf(n))?.[1] ?? null) : null);
 </script>
 
-<form method="GET" class="flex flex-wrap items-end gap-2">
-	<!-- pertahankan tab yang sedang dibuka -->
-	{#if page.url.searchParams.get('tab')}<input type="hidden" name="tab" value={page.url.searchParams.get('tab')} />{/if}
+<form method="GET" class={card ? 'card mb-6 flex flex-wrap items-center gap-3 p-4 lg:p-5' : 'flex flex-wrap items-end gap-2'}>
+	<!-- pertahankan parameter lain di URL (tab, filter aksi, dll.) -->
+	{#each [...page.url.searchParams].filter(([k, v]) => v && !['from', 'to', 'platform', 'campaign', 'page'].includes(k)) as [k, v]}<input type="hidden" name={k} value={v} />{/each}
 	<div class="flex rounded-lg bg-slate-100 p-1 ring-1 ring-slate-200">
 		{#each presets as [lbl, n]}
 			<a
@@ -38,7 +39,7 @@
 		{/if}
 	</div>
 	<input class="input w-auto {activeDays === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="from" value={from} />
-	<span class="pb-2 text-slate-400">–</span>
+	<span class="{card ? '' : 'pb-2'} text-slate-400">–</span>
 	<input class="input w-auto {activeDays === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="to" value={to} />
 	{#if campaign !== undefined}
 		<select class="input w-auto {campaign ? 'border-brand-400 bg-brand-50 font-medium text-brand-700 ring-2 ring-brand-500/15' : ''}" name="campaign" value={campaign ?? ''}>
@@ -52,5 +53,5 @@
 			{#each PLATFORM_KEYS as k}<option value={k}>{PLATFORMS[k].label}</option>{/each}
 		</select>
 	{/if}
-	<button class="btn btn-primary">Terapkan</button>
+	<button class="btn btn-primary {card ? 'ml-auto' : ''}">Terapkan</button>
 </form>

@@ -68,9 +68,8 @@
 
 <svelte:head><title>Log Aktivitas · Admin Retwepo</title></svelte:head>
 
-<PageHeader title="Log Aktivitas" description="Catatan setiap aksi admin: siapa, kapan, terhadap apa, dan alasannya." icon={ScrollText}>
-	{#snippet actions()}<RangeFilter from={data.f.from} to={data.f.to} />{/snippet}
-</PageHeader>
+<PageHeader title="Log Aktivitas" description="Catatan setiap aksi admin: siapa, kapan, terhadap apa, dan alasannya." icon={ScrollText} />
+<RangeFilter card from={data.f.from} to={data.f.to} />
 
 <div class="mb-5 flex flex-wrap gap-1.5">
 	<a

@@ -24,6 +24,9 @@
 
 	let { data } = $props();
 	const c = $derived(data.counts);
+	// 7 hari terakhir (postingan + panel) untuk grafik batang kecil
+	const last7 = $derived(data.series.post.slice(-7).map((n, i) => n + data.series.reply.slice(-7)[i]));
+	const max7 = $derived(Math.max(1, ...last7));
 	const canRecap = $derived(!data.missingProfile.length && data.perAccount.some((a) => a.status === 'approved'));
 
 	const hour = new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta', hour: 'numeric', hour12: false });
@@ -127,10 +130,50 @@
 
 <!-- KPI -->
 <div class="grid grid-cols-2 gap-4 lg:gap-6 xl:grid-cols-4">
-	<Stat label="Hari ini" value={c.today} icon={CalendarCheck} tone="brand" hint="rekap tercatat hari ini" />
-	<Stat label="7 hari terakhir" value={c.week} icon={CalendarRange} tone="sky" hint="rata-rata {Math.round((c.week / 7) * 10) / 10} / hari" />
-	<Stat label="30 hari terakhir" value={c.month} prev={c.prev_month} icon={CalendarDays} tone="violet" />
-	<Stat label="Total rekap" value={c.total} icon={Layers} tone="emerald" hint="terakhir {fmtDate(c.last_at)}" />
+	<!-- kartu utama: hari ini -->
+	<section class="relative col-span-2 overflow-hidden rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 via-white to-white p-5 shadow-sm xl:col-span-1">
+		<div class="flex items-start justify-between gap-2">
+			<div>
+				<span class="block text-sm font-semibold text-brand-700">Hari ini</span>
+				<span class="mt-0.5 block text-xs text-slate-500">Rekap yang Anda catat hari ini</span>
+			</div>
+			<span class="flex size-9 items-center justify-center rounded-lg bg-brand-600 text-white shadow-sm"><CalendarCheck class="size-[18px]" /></span>
+		</div>
+		<div class="mt-3 flex items-end gap-3">
+			<span class="text-4xl font-bold tracking-tight text-slate-900">{fmtNum(c.today)}</span>
+			<span class="mb-1.5 text-xs text-slate-500">
+				{#if c.today > c.yesterday}<b class="text-emerald-600">▲ {c.today - c.yesterday}</b>{:else if c.today < c.yesterday}<b class="text-rose-600">▼ {c.yesterday - c.today}</b>{:else}<b class="text-slate-500">=</b>{/if}
+				vs kemarin ({fmtNum(c.yesterday)})
+			</span>
+		</div>
+		<!-- 7 hari terakhir, batang kecil; hari ini paling kanan -->
+		<div class="mt-4 flex h-10 items-end gap-1" aria-hidden="true">
+			{#each last7 as n, i}
+				<div class="flex-1 rounded-sm {i === 6 ? 'bg-brand-600' : 'bg-brand-200'}" style="height:{Math.max(8, (n / max7) * 100)}%" title="{n} rekap"></div>
+			{/each}
+		</div>
+	</section>
+	<Stat label="7 hari terakhir" desc="Jumlah rekap sepekan terakhir" value={c.week} icon={CalendarRange} tone="sky" hint="rata-rata {Math.round((c.week / 7) * 10) / 10} rekap / hari" />
+	<Stat label="30 hari terakhir" desc="Dibanding 30 hari sebelumnya" value={c.month} prev={c.prev_month} icon={CalendarDays} tone="violet" />
+	<div class="card flex flex-col gap-3">
+		<div class="flex items-start justify-between gap-2">
+			<div>
+				<span class="block text-sm font-medium text-slate-500">Total rekap</span>
+				<span class="mt-0.5 block text-xs leading-snug text-slate-400">Semua rekap sejak pertama mendaftar</span>
+			</div>
+			<span class="flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600"><Layers class="size-[18px]" /></span>
+		</div>
+		<div class="text-3xl font-semibold tracking-tight">{fmtNum(c.total)}</div>
+		<div>
+			<div class="flex h-1.5 overflow-hidden rounded-full bg-slate-100">
+				<div class="bg-brand-500" style="width:{c.total ? (c.posts / c.total) * 100 : 0}%"></div>
+				<div class="bg-sky-400" style="width:{c.total ? (c.replies / c.total) * 100 : 0}%"></div>
+			</div>
+			<div class="mt-1.5 flex justify-between text-xs text-slate-500">
+				<span>{fmtNum(c.posts)} postingan</span><span>{fmtNum(c.replies)} panel</span>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="mt-6 grid gap-6 lg:mt-8 xl:grid-cols-3">

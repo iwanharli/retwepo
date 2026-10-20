@@ -10,6 +10,7 @@ export async function load({ locals }) {
 	const uid = locals.user.id;
 	const today = ymd();
 	const t0 = iso(startOfDay(today));
+	const y0 = iso(startOfDay(addDays(today, -1)));
 	const w0 = iso(startOfDay(addDays(today, -6)));
 	const m0 = iso(startOfDay(addDays(today, -29)));
 	const p0 = iso(startOfDay(addDays(today, -59)));
@@ -17,6 +18,7 @@ export async function load({ locals }) {
 	const [counts] = await db.execute(sql`
 		SELECT
 			count(*) FILTER (WHERE posted_at >= ${t0})::int AS today,
+			count(*) FILTER (WHERE posted_at >= ${y0} AND posted_at < ${t0})::int AS yesterday,
 			count(*) FILTER (WHERE posted_at >= ${w0})::int AS week,
 			count(*) FILTER (WHERE posted_at >= ${m0})::int AS month,
 			count(*) FILTER (WHERE posted_at >= ${p0} AND posted_at < ${m0})::int AS prev_month,

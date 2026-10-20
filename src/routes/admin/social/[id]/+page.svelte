@@ -116,11 +116,11 @@
 	<RangeFilter from={data.range.from} to={data.range.to} />
 </div>
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-5 lg:gap-6">
-	<Stat label="Rekap periode" value={s.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />
-	<Stat label="Postingan" value={s.posts} icon={FileText} tone="violet" />
-	<Stat label="Panel" value={s.replies} icon={Reply} tone="sky" />
-	<Stat label="Hari aktif" value="{s.active_days} / {data.range.days}" icon={Clock} tone="emerald" />
-	<Stat label="Total semua" value={s.total} icon={Layers} tone="amber" hint={s.deleted ? `${s.deleted} dihapus admin (tidak dihitung)` : `sejak ${fmtDate(s.first_at)}`} />
+	<Stat label="Rekap periode" desc="Rekap pada rentang tanggal terpilih" value={s.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />
+	<Stat label="Postingan" desc="Konten yang diunggah sendiri" value={s.posts} icon={FileText} tone="violet" />
+	<Stat label="Panel" desc="Reply, like, retweet & share" value={s.replies} icon={Reply} tone="sky" />
+	<Stat label="Hari aktif" desc="Hari dengan minimal 1 rekap" value="{s.active_days} / {data.range.days}" icon={Clock} tone="emerald" />
+	<Stat label="Total semua" desc="Seluruh rekap akun ini" value={s.total} icon={Layers} tone="amber" hint={s.deleted ? `${s.deleted} dihapus admin (tidak dihitung)` : `sejak ${fmtDate(s.first_at)}`} />
 </div>
 
 <div class="mt-6 grid gap-6 xl:grid-cols-3">

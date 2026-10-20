@@ -3,6 +3,7 @@
 	import { fmtDate } from '#lib/constants.js';
 	import PlatformTag from './PlatformTag.svelte';
 	import TypeBadge from './TypeBadge.svelte';
+	import CampaignBadge from './CampaignBadge.svelte';
 	import EditedBadge from './EditedBadge.svelte';
 	import DeletedNotice from './DeletedNotice.svelte';
 	import DuplicateBadge from './DuplicateBadge.svelte';
@@ -35,7 +36,7 @@
 	<div class="flex flex-1 flex-col gap-2.5 p-4">
 		<div class="flex items-center justify-between gap-2">
 			<PlatformTag platform={r.platform} username={r.username} />
-			<TypeBadge type={r.type} />
+			<span class="flex shrink-0 items-center gap-1.5"><CampaignBadge name={r.campaign} /><TypeBadge type={r.type} /></span>
 		</div>
 		{#if r.deletedAt}<DeletedNotice {r} compact />{/if}
 		{#if owner || edited || r.dupCount}

@@ -3,6 +3,7 @@
 	import { fmtDate } from '#lib/constants.js';
 	import PlatformTag from './PlatformTag.svelte';
 	import TypeBadge from './TypeBadge.svelte';
+	import CampaignBadge from './CampaignBadge.svelte';
 	import EditedBadge from './EditedBadge.svelte';
 	import DeletedNotice from './DeletedNotice.svelte';
 	import DuplicateBadge from './DuplicateBadge.svelte';
@@ -39,7 +40,7 @@
 					</td>
 					<td data-label="">
 						<PlatformTag platform={r.platform} username={r.username} />
-						<div class="mt-1 ml-7"><TypeBadge type={r.type} /></div>
+						<div class="mt-1 ml-7 flex flex-wrap gap-1.5"><CampaignBadge name={r.campaign} /><TypeBadge type={r.type} /></div>
 					</td>
 					{#if showOwner}<td class="whitespace-nowrap" data-label="User">{r.nickname ?? r.email}</td>{/if}
 					<td class="max-w-52" data-label="URL">

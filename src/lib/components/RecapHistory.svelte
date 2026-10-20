@@ -8,6 +8,7 @@
 
 	const FIELDS = {
 		socialAccountId: 'Akun',
+		campaignId: 'Kampanye',
 		type: 'Tipe',
 		url: 'URL',
 		targetUrl: 'URL dibalas',
@@ -22,6 +23,7 @@
 			const a = history.accounts[v];
 			return a ? `${PLATFORMS[a.platform].label} @${a.username}` : `#${v}`;
 		}
+		if (key === 'campaignId') return history.campaigns?.[v] ? `#${history.campaigns[v]}` : `#${v}`;
 		if (key === 'type') return RECAP_TYPES[v] ?? v;
 		if (key === 'postedAt') return fmtDate(v, true);
 		return String(v).replace(/^https?:\/\/(www\.)?/, '');

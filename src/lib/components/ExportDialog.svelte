@@ -4,7 +4,8 @@
 	import { EXPORT_COLUMNS, PLATFORMS, PLATFORM_KEYS, fmtDate } from '#lib/constants.js';
 
 	/** f: filter yang sedang aktif di halaman (dipakai sebagai nilai awal) */
-	let { f, action = '/admin/export/recaps' } = $props();
+	/** campaigns: daftar kampanye untuk filter */
+	let { f, campaigns = [], action = '/admin/export/recaps' } = $props();
 
 	let open = $state(false);
 	let mode = $state('detail');
@@ -12,6 +13,7 @@
 	let to = $state('');
 	let platform = $state('');
 	let type = $state('');
+	let campaign = $state('');
 	let sep = $state('semicolon');
 	let cols = $state(EXPORT_COLUMNS.filter((c) => c.default).map((c) => c.key));
 
@@ -22,6 +24,7 @@
 		to = f.to ?? '';
 		platform = f.platform ?? '';
 		type = f.type ?? '';
+		campaign = f.campaign ?? '';
 	}
 
 	const ymd = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(d);
@@ -99,7 +102,11 @@
 					<!-- Filter -->
 					<section>
 						<h3 class="label flex items-center gap-1.5"><SlidersHorizontal class="size-4 text-slate-400" /> Filter</h3>
-						<div class="grid gap-3 sm:grid-cols-2">
+						<div class="grid gap-3 sm:grid-cols-3">
+							<select class="input" name="campaign" bind:value={campaign}>
+								<option value="">Semua kampanye</option>
+								{#each campaigns as c (c.id)}<option value={c.id}>#{c.name}</option>{/each}
+							</select>
 							<select class="input" name="platform" bind:value={platform}>
 								<option value="">Semua platform</option>
 								{#each PLATFORM_KEYS as k}<option value={k}>{PLATFORMS[k].label}</option>{/each}

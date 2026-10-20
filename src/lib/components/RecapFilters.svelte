@@ -5,7 +5,8 @@
 	import ExportDialog from './ExportDialog.svelte';
 	/** presets: pilihan cepat rentang tanggal, mis. [[7, '7 hari'], [30, '30 hari'], [null, 'Semua']] */
 	/** filterUser: user yang sedang difilter lewat ?user= (admin), tampil sebagai chip; placeholder: teks kotak cari */
-	let { f, accounts = null, filterUser = null, exportable = false, view = null, presets = null, placeholder = 'Cari URL, catatan, username…' } = $props();
+	/** campaigns: daftar kampanye untuk filter */
+	let { f, campaigns = [], accounts = null, filterUser = null, exportable = false, view = null, presets = null, placeholder = 'Cari URL, catatan, username…' } = $props();
 
 	function withoutUser() {
 		const u = new URLSearchParams(page.url.search);
@@ -60,7 +61,7 @@
 					<UserRound class="size-3.5" />{filterUser.nickname ?? filterUser.email}<X class="size-3.5 opacity-60" />
 				</a>
 			{/if}
-			{#if exportable}<ExportDialog {f} />{/if}
+			{#if exportable}<ExportDialog {f} {campaigns} />{/if}
 		</div>
 	{/if}
 	{#if view}<input type="hidden" name="view" value={view} />{/if}
@@ -69,9 +70,9 @@
 	{#if page.url.searchParams.get('dir')}<input type="hidden" name="dir" value={page.url.searchParams.get('dir')} />{/if}
 	{#if filterUser}<input type="hidden" name="user" value={filterUser.id} />{/if}
 
-	<!-- Grid 12 kolom: cari (6) + 3 dropdown (2 + 2 + 2); tanggal (6) + tombol (6) -->
+	<!-- Grid 12 kolom: cari (4) + 4 dropdown (2 × 4); tanggal (6) + tombol (6) -->
 	<div class="grid grid-cols-2 gap-3 md:grid-cols-6 xl:grid-cols-12">
-		<div class="relative col-span-2 md:col-span-6 xl:col-span-6">
+		<div class="relative col-span-2 md:col-span-6 xl:col-span-4">
 			<Search class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
 			<input class="input pl-9" name="q" value={f.q} {placeholder} aria-label="Cari" />
 		</div>
@@ -86,6 +87,10 @@
 				{#each PLATFORM_KEYS as k}<option value={k}>{PLATFORMS[k].label}</option>{/each}
 			</select>
 		{/if}
+		<select class="input md:col-span-2" name="campaign" value={f.campaign ?? ''} aria-label="Kampanye">
+			<option value="">Semua kampanye</option>
+			{#each campaigns as c (c.id)}<option value={c.id}>#{c.name}</option>{/each}
+		</select>
 		<select class="input md:col-span-2" name="type" value={f.type ?? ''} aria-label="Tipe">
 			<option value="">Semua tipe</option>
 			<option value="post">Postingan</option>

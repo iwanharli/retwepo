@@ -29,5 +29,9 @@ export const LOG_ACTIONS = {
 	restoreRecap: 'Memulihkan rekap',
 	purgeRecaps: 'Membersihkan rekap lama',
 	undoApproveUser: 'Membatalkan persetujuan user',
-	undoApproveAccount: 'Membatalkan persetujuan akun'
+	undoApproveAccount: 'Membatalkan persetujuan akun',
+	createCampaign: 'Menambah kampanye',
+	renameCampaign: 'Mengganti nama kampanye',
+	closeCampaign: 'Menutup kampanye',
+	openCampaign: 'Membuka kembali kampanye'
 };

@@ -1,6 +1,6 @@
 import { and, eq, gte, lt, ilike, or, asc, desc, count, isNotNull, isNull, sql } from 'drizzle-orm';
 import { db } from './db/index.js';
-import { recaps, recapEdits, socialAccounts, users } from './db/schema.js';
+import { recaps, recapEdits, socialAccounts, users, campaigns } from './db/schema.js';
 import { startOfDay, addDays, ymd } from './dates.js';
 import { PLATFORMS } from '#lib/constants.js';
 import { parseSort } from './sort.js';
@@ -26,6 +26,7 @@ export function recapFilters(url, { userId = null, defaultDays = null } = {}) {
 		account: Number(p.get('account')) || null,
 		user: userId ?? (Number(p.get('user')) || null),
 		platform: PLATFORMS[p.get('platform')] ? p.get('platform') : null,
+		campaign: Number(p.get('campaign')) || null,
 		type: ['post', 'reply'].includes(p.get('type')) ? p.get('type') : null,
 		evidence: ['url', 'shot', 'dup'].includes(p.get('evidence')) ? p.get('evidence') : null,
 		from: useDefault ? addDays(ymd(), -(defaultDays - 1)) : DATE_RE.test(p.get('from') ?? '') ? p.get('from') : null,
@@ -38,6 +39,7 @@ export function recapFilters(url, { userId = null, defaultDays = null } = {}) {
 	if (f.user) where.push(eq(recaps.userId, f.user));
 	if (f.account) where.push(eq(recaps.socialAccountId, f.account));
 	if (f.platform) where.push(eq(socialAccounts.platform, f.platform));
+	if (f.campaign) where.push(eq(recaps.campaignId, f.campaign));
 	if (f.type) where.push(eq(recaps.type, f.type));
 	if (f.evidence === 'url') where.push(isNotNull(recaps.url));
 	if (f.evidence === 'shot') where.push(isNotNull(recaps.screenshotPath));
@@ -74,6 +76,8 @@ const columns = {
 	deleteReason: recaps.deleteReason,
 	// jumlah rekap aktif lain dengan URL yang sama
 	dupCount: sql`(SELECT count(*)::int FROM active_recaps d WHERE d.url_key = ${recaps.urlKey} AND d.id <> ${recaps.id})`,
+	campaignId: recaps.campaignId,
+	campaign: campaigns.name,
 	platform: socialAccounts.platform,
 	username: socialAccounts.username,
 	userId: users.id,
@@ -88,7 +92,8 @@ function base(fields) {
 		.select(fields)
 		.from(recaps)
 		.innerJoin(socialAccounts, eq(socialAccounts.id, recaps.socialAccountId))
-		.innerJoin(users, eq(users.id, recaps.userId));
+		.innerJoin(users, eq(users.id, recaps.userId))
+		.innerJoin(campaigns, eq(campaigns.id, recaps.campaignId));
 }
 
 // kolom tabel rekap yang bisa diurutkan
@@ -173,10 +178,13 @@ export async function getRecap(id, { userId = null } = {}) {
 export async function getRecapEdits(recapId) {
 	const edits = await db.select().from(recapEdits).where(eq(recapEdits.recapId, recapId)).orderBy(desc(recapEdits.createdAt));
 	const ids = [...new Set(edits.flatMap((e) => [e.before.socialAccountId, e.after.socialAccountId]))];
-	const accs = ids.length
-		? await db.select({ id: socialAccounts.id, platform: socialAccounts.platform, username: socialAccounts.username }).from(socialAccounts).where(or(...ids.map((i) => eq(socialAccounts.id, i))))
-		: [];
-	return { edits, accounts: Object.fromEntries(accs.map((a) => [a.id, a])) };
+	const [accs, camps] = await Promise.all([
+		ids.length
+			? db.select({ id: socialAccounts.id, platform: socialAccounts.platform, username: socialAccounts.username }).from(socialAccounts).where(or(...ids.map((i) => eq(socialAccounts.id, i))))
+			: [],
+		db.select({ id: campaigns.id, name: campaigns.name }).from(campaigns)
+	]);
+	return { edits, accounts: Object.fromEntries(accs.map((a) => [a.id, a])), campaigns: Object.fromEntries(camps.map((c) => [c.id, c.name])) };
 }
 
 /** Jumlah rekap aktif & terhapus (untuk tab Aktif / Dihapus) */

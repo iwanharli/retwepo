@@ -18,7 +18,8 @@
 		Eraser,
 		Bot,
 		UserPlus,
-		UserPen
+		UserPen,
+		Megaphone
 	} from '@lucide/svelte';
 	import { fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 	import PageHeader from '#lib/components/PageHeader.svelte';
@@ -47,7 +48,11 @@
 		purgeRecaps: [Eraser, 'bg-slate-100 text-slate-600 ring-slate-200'],
 		createUser: [UserPlus, 'bg-brand-50 text-brand-600 ring-brand-200'],
 		addAccount: [BadgeCheck, 'bg-emerald-50 text-emerald-600 ring-emerald-200'],
-		editUserProfile: [UserPen, 'bg-brand-50 text-brand-600 ring-brand-200']
+		editUserProfile: [UserPen, 'bg-brand-50 text-brand-600 ring-brand-200'],
+		createCampaign: [Megaphone, 'bg-violet-50 text-violet-600 ring-violet-200'],
+		renameCampaign: [Megaphone, 'bg-violet-50 text-violet-600 ring-violet-200'],
+		closeCampaign: [Megaphone, 'bg-slate-100 text-slate-600 ring-slate-200'],
+		openCampaign: [Megaphone, 'bg-emerald-50 text-emerald-600 ring-emerald-200']
 	};
 	// aksi yang belum punya gaya khusus tetap tampil dengan ikon umum
 	const styleOf = (k) => STYLE[k] ?? [ScrollText, 'bg-slate-100 text-slate-600 ring-slate-200'];

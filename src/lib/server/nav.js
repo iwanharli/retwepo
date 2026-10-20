@@ -25,6 +25,7 @@ const ADMIN_NAV = [
 	{ href: '/admin/users', label: 'Pendaftaran User', icon: 'userPlus' },
 	{ href: '/admin/accounts', label: 'Pengajuan Akun', icon: 'verify' },
 	{ section: 'Sistem' },
+	{ href: '/admin/campaigns', label: 'Kelompok Kampanye', icon: 'campaign' },
 	{ href: '/admin/logs', label: 'Log Aktivitas', icon: 'logs' },
 	{ section: 'Akun' },
 	{ href: '/app/profile', label: 'Profil', icon: 'profile' }

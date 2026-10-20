@@ -6,6 +6,7 @@
 	import ActionDialog from './ActionDialog.svelte';
 	import PlatformTag from './PlatformTag.svelte';
 	import TypeBadge from './TypeBadge.svelte';
+	import CampaignBadge from './CampaignBadge.svelte';
 	import { fmtNum, fmtDate } from '#lib/constants.js';
 
 	/**
@@ -108,7 +109,7 @@
 		{#snippet trigger()}<Trash2 />{/snippet}
 		<div class="flex items-center justify-between gap-3">
 			<PlatformTag platform={r.platform} username={r.username} size={24} />
-			<TypeBadge type={r.type} />
+			<span class="flex items-center gap-1.5"><CampaignBadge name={r.campaign} /><TypeBadge type={r.type} /></span>
 		</div>
 		<div class="mt-2 text-xs text-slate-500">
 			{#if showOwner}oleh <b class="text-slate-700">{r.nickname ?? r.email}</b>{' · '}{/if}{fmtDate(r.postedAt, true)}

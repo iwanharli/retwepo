@@ -14,7 +14,8 @@
 		Save,
 		LoaderCircle,
 		Info,
-		Check
+		Check,
+		Megaphone
 	} from '@lucide/svelte';
 	import { untrack, tick } from 'svelte';
 	import { PLATFORMS } from '#lib/constants.js';
@@ -24,10 +25,11 @@
 
 	/**
 	 * Form rekap untuk halaman tambah (mode "new") dan edit (mode "edit").
-	 * initial: { accountId, type, url, targetUrl, note, postedAt (YYYY-MM-DDTHH:mm WIB), screenshotPath }
+	 * initial: { accountId, campaignId, type, url, targetUrl, note, postedAt (YYYY-MM-DDTHH:mm WIB), screenshotPath }
 	 */
 	/** recapId: id rekap yang sedang diedit (dikecualikan saat cek duplikat) */
-	let { accounts, form = null, mode = 'new', initial = {}, recapId = null } = $props();
+	/** campaigns: kampanye yang bisa dipilih [{ id, name, active }] */
+	let { accounts, campaigns = [], form = null, mode = 'new', initial = {}, recapId = null } = $props();
 
 	function nowLocal() {
 		return new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 16); // WIB
@@ -36,6 +38,7 @@
 	// nilai awal saja; setelah itu dikendalikan oleh input
 	let accountId = $state(untrack(() => form?.keep?.accountId ?? initial.accountId ?? accounts[0]?.id ?? ''));
 	let type = $state(untrack(() => form?.keep?.type ?? initial.type ?? 'post'));
+	let campaignId = $state(untrack(() => form?.keep?.campaignId ?? initial.campaignId ?? campaigns[0]?.id ?? ''));
 	let postedAt = $state(untrack(() => initial.postedAt ?? nowLocal()));
 	let url = $state(untrack(() => initial.url ?? ''));
 	let removeShot = $state(false); // edit: hapus screenshot lama
@@ -169,6 +172,17 @@
 		<section class="card p-0">
 			<div class="card-header"><div class="card-title">2. Detail rekap</div></div>
 			<div class="space-y-5 p-5">
+				<div>
+					<label class="label" for="campaign">Kelompok Kampanye</label>
+					<div class="relative">
+						<Megaphone class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+						<select id="campaign" name="campaignId" class="input pl-9 font-medium" bind:value={campaignId} required>
+							{#each campaigns as c (c.id)}
+								<option value={c.id}>#{c.name}{c.active ? '' : ' (ditutup)'}</option>
+							{/each}
+						</select>
+					</div>
+				</div>
 				<div>
 					<span class="label">Tipe</span>
 					<div class="grid grid-cols-2 gap-3">

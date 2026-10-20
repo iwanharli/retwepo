@@ -76,6 +76,7 @@ export const EXPORT_COLUMNS = [
 	{ key: 'nickname', label: 'Nickname', default: true },
 	{ key: 'email', label: 'Email', default: true },
 	{ key: 'ewallet', label: 'E-wallet & nomor', default: false },
+	{ key: 'campaign', label: 'Kampanye', default: true },
 	{ key: 'platform', label: 'Platform', default: true },
 	{ key: 'username', label: 'Username sosmed', default: true },
 	{ key: 'type', label: 'Tipe (postingan/panel)', default: true },

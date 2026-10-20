@@ -38,6 +38,7 @@ export async function GET({ url }) {
 		nickname: [['Nickname'], (r) => [r.nickname]],
 		email: [['Email'], (r) => [r.email]],
 		ewallet: [['E-wallet', 'Nomor e-wallet'], (r) => [r.ewalletProvider, r.ewalletNumber]],
+		campaign: [['Kampanye'], (r) => [`#${r.campaign}`]],
 		platform: [['Platform'], (r) => [PLATFORMS[r.platform].label]],
 		username: [['Username'], (r) => [r.username]],
 		type: [['Tipe'], (r) => [r.type === 'post' ? 'Postingan' : 'Panel']],

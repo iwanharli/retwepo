@@ -16,6 +16,7 @@
 	import { PLATFORMS, ACCOUNT_STATUS, fmtDate } from '#lib/constants.js';
 	import PlatformIcon from './PlatformIcon.svelte';
 	import TypeBadge from './TypeBadge.svelte';
+	import CampaignBadge from './CampaignBadge.svelte';
 	import EditedBadge from './EditedBadge.svelte';
 	import Badge from './Badge.svelte';
 	import Avatar from './Avatar.svelte';
@@ -102,7 +103,7 @@
 					</div>
 				</div>
 				<div class="flex flex-col items-end gap-1.5">
-					<TypeBadge type={r.type} />
+					<span class="flex items-center gap-1.5"><CampaignBadge name={r.campaign} /><TypeBadge type={r.type} /></span>
 					<DuplicateBadge count={r.dupCount} />
 				</div>
 			</div>

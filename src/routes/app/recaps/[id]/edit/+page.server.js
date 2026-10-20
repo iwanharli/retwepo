@@ -6,6 +6,7 @@ import { saveScreenshot, deleteScreenshot } from '#lib/server/uploads.js';
 import { parseRecapForm } from '#lib/server/recap-form.js';
 import { checkLimits, waitText } from '#lib/server/ratelimit.js';
 import { findDuplicates } from '#lib/server/duplicates.js';
+import { listCampaigns } from '#lib/server/campaigns.js';
 
 async function ownRecap(id, userId) {
 	const [r] = await db
@@ -29,14 +30,18 @@ export async function load({ params, locals }) {
 		.where(and(eq(socialAccounts.userId, locals.user.id), or(eq(socialAccounts.status, 'approved'), eq(socialAccounts.id, r.socialAccountId))))
 		.orderBy(asc(socialAccounts.platform), asc(socialAccounts.username));
 
+	// kampanye aktif + kampanye rekap ini (walau sudah ditutup)
+	const campaignList = (await listCampaigns()).filter((c) => c.active || c.id === r.campaignId);
 	return {
 		accounts,
+		campaigns: campaignList,
 		recap: {
 			id: r.id,
 			createdAt: r.createdAt,
 			editedAt: r.editedAt,
 			initial: {
 				accountId: r.socialAccountId,
+				campaignId: r.campaignId,
 				type: r.type,
 				url: r.url,
 				targetUrl: r.targetUrl,
@@ -51,6 +56,7 @@ export async function load({ params, locals }) {
 // kolom yang dibandingkan & disimpan di riwayat edit
 const snapshot = (r) => ({
 	socialAccountId: r.socialAccountId,
+	campaignId: r.campaignId,
 	type: r.type,
 	url: r.url,
 	targetUrl: r.targetUrl,
@@ -63,14 +69,14 @@ export const actions = {
 	default: async ({ request, params, locals }) => {
 		const r = await ownRecap(params.id, locals.user.id);
 		const form = await request.formData();
-		const keep = { accountId: Number(form.get('accountId')), type: String(form.get('type')) };
+		const keep = { accountId: Number(form.get('accountId')), type: String(form.get('type')), campaignId: Number(form.get('campaignId')) || null };
 		const removeOld = form.get('removeScreenshot') === '1';
 		const reason = String(form.get('editReason') ?? '').trim().slice(0, 500);
 		if (reason.length < 5) return fail(400, { error: 'Alasan perubahan wajib diisi (minimal 5 karakter)', keep });
 		const limit = checkLimits([[`recap-edit:${locals.user.id}`, 30, 10 * 60 * 1000]]);
 		if (!limit.ok) return fail(429, { error: `Terlalu banyak perubahan dalam waktu singkat. Coba lagi dalam ${waitText(limit.retryAfter)}.`, keep });
 
-		const parsed = await parseRecapForm(form, locals.user, { hasExistingShot: Boolean(r.screenshotPath) && !removeOld });
+		const parsed = await parseRecapForm(form, locals.user, { hasExistingShot: Boolean(r.screenshotPath) && !removeOld, currentCampaignId: r.campaignId });
 		if (parsed.error) return fail(400, { error: parsed.error, keep });
 
 		// URL sama sudah pernah direkap: minta konfirmasi dulu (bukan diblokir)

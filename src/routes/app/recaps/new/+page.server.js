@@ -7,20 +7,22 @@ import { missingProfile } from '#lib/server/profile.js';
 import { parseRecapForm } from '#lib/server/recap-form.js';
 import { checkLimits, waitText } from '#lib/server/ratelimit.js';
 import { findDuplicates } from '#lib/server/duplicates.js';
+import { listCampaigns, lastCampaignId } from '#lib/server/campaigns.js';
 
 export async function load({ locals, url }) {
+	const [campaignList, lastCampaign] = await Promise.all([listCampaigns({ activeOnly: true }), lastCampaignId(locals.user.id)]);
 	const accounts = await db
 		.select({ id: socialAccounts.id, platform: socialAccounts.platform, username: socialAccounts.username })
 		.from(socialAccounts)
 		.where(and(eq(socialAccounts.userId, locals.user.id), eq(socialAccounts.status, 'approved')))
 		.orderBy(asc(socialAccounts.platform), asc(socialAccounts.username));
-	return { accounts, missingProfile: missingProfile(locals.user), preselect: Number(url.searchParams.get('account')) || null };
+	return { accounts, campaigns: campaignList, lastCampaign, missingProfile: missingProfile(locals.user), preselect: Number(url.searchParams.get('account')) || null };
 }
 
 export const actions = {
 	default: async ({ request, locals }) => {
 		const form = await request.formData();
-		const keep = { accountId: Number(form.get('accountId')), type: String(form.get('type')) };
+		const keep = { accountId: Number(form.get('accountId')), type: String(form.get('type')), campaignId: Number(form.get('campaignId')) || null };
 
 		if (missingProfile(locals.user).length)
 			return fail(400, { error: 'Lengkapi data profil (nama panggilan & e-wallet) sebelum membuat rekap', keep });

@@ -14,6 +14,7 @@
 		Trash2
 	} from '@lucide/svelte';
 	import Stat from '#lib/components/Stat.svelte';
+	import RangeFilter from '#lib/components/RangeFilter.svelte';
 	import Chart from '#lib/components/Chart.svelte';
 	import RecapCard from '#lib/components/RecapCard.svelte';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
@@ -25,7 +26,7 @@
 	let { data } = $props();
 	const c = $derived(data.counts);
 	// 7 hari terakhir (postingan + panel) untuk grafik batang kecil
-	const last7 = $derived(data.series.post.slice(-7).map((n, i) => n + data.series.reply.slice(-7)[i]));
+	const last7 = $derived(data.last7);
 	const max7 = $derived(Math.max(1, ...last7));
 	const canRecap = $derived(!data.missingProfile.length && data.perAccount.some((a) => a.status === 'approved'));
 
@@ -50,13 +51,14 @@
 		]
 	});
 
-	const postPct = $derived(c.total ? Math.round((c.posts / c.total) * 100) : 0);
+	const postPct = $derived(c.period ? Math.round((c.period_posts / c.period) * 100) : 0);
+	const periodText = $derived(data.range.from === data.range.to ? fmtDate(data.range.from) : `${fmtDate(data.range.from)} – ${fmtDate(data.range.to)}`);
 
 	const donut = $derived({
 		tooltip: { trigger: 'item', formatter: '{b}: <b>{c}</b> ({d}%)' },
 		title: {
-			text: fmtNum(c.total),
-			subtext: 'total rekap',
+			text: fmtNum(c.period),
+			subtext: 'rekap periode ini',
 			left: 'center',
 			top: '38%',
 			textStyle: { fontSize: 28, fontWeight: 600, color: '#0f172a', fontFamily: 'Inter' },
@@ -73,13 +75,13 @@
 				label: { show: false },
 				emphasis: { scale: true, scaleSize: 6 },
 				data: [
-					{ name: 'Postingan', value: c.posts, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 1, colorStops: [{ offset: 0, color: '#818cf8' }, { offset: 1, color: '#4f46e5' }] } } },
-					{ name: 'Panel', value: c.replies, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 1, colorStops: [{ offset: 0, color: '#7dd3fc' }, { offset: 1, color: '#0ea5e9' }] } } }
+					{ name: 'Postingan', value: c.period_posts, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 1, colorStops: [{ offset: 0, color: '#818cf8' }, { offset: 1, color: '#4f46e5' }] } } },
+					{ name: 'Panel', value: c.period_replies, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 1, colorStops: [{ offset: 0, color: '#7dd3fc' }, { offset: 1, color: '#0ea5e9' }] } } }
 				]
 			}
 		]
 	});
-	const maxAcc = $derived(Math.max(1, ...data.perAccount.map((a) => a.month)));
+	const maxAcc = $derived(Math.max(1, ...data.perAccount.map((a) => a.period)));
 </script>
 
 <svelte:head><title>Dashboard · Retwepo</title></svelte:head>
@@ -118,8 +120,8 @@
 		</div>
 		<div class="flex flex-wrap items-center gap-3">
 			<div class="rounded-xl bg-white/10 px-4 py-3 ring-1 ring-white/15 backdrop-blur">
-				<div class="flex items-center gap-1.5 text-xs text-brand-100"><Flame class="size-3.5" /> Hari aktif (30 hari)</div>
-				<div class="mt-0.5 text-xl font-semibold">{c.active_days} <span class="text-sm font-normal text-brand-200">/ 30</span></div>
+				<div class="flex items-center gap-1.5 text-xs text-brand-100"><Flame class="size-3.5" /> Hari aktif ({data.range.days} hari)</div>
+				<div class="mt-0.5 text-xl font-semibold">{c.active_days} <span class="text-sm font-normal text-brand-200">/ {data.range.days}</span></div>
 			</div>
 			{#if canRecap}
 				<a href="/app/recaps/new" class="btn btn-lg bg-white text-brand-700 shadow-md hover:bg-brand-50"><Plus class="!size-5" /> Tambah Rekap</a>
@@ -127,6 +129,8 @@
 		</div>
 	</div>
 </section>
+
+<RangeFilter card from={data.range.from} to={data.range.to} platform={data.platform} campaign={data.campaign} campaigns={data.campaigns} />
 
 <!-- KPI -->
 <div class="grid grid-cols-2 gap-4 lg:gap-6 xl:grid-cols-4">
@@ -153,13 +157,13 @@
 			{/each}
 		</div>
 	</section>
-	<Stat label="7 hari terakhir" desc="Jumlah rekap sepekan terakhir" value={c.week} icon={CalendarRange} tone="sky" hint="rata-rata {Math.round((c.week / 7) * 10) / 10} rekap / hari" />
-	<Stat label="30 hari terakhir" desc="Dibanding 30 hari sebelumnya" value={c.month} prev={c.prev_month} icon={CalendarDays} tone="violet" />
+	<Stat label="Rekap periode" desc={periodText} value={c.period} prev={c.prev_period} icon={CalendarRange} tone="sky" />
+	<Stat label="Rata-rata / hari" desc="Rekap per hari di periode terpilih" value={Math.round((c.period / data.range.days) * 10) / 10} icon={CalendarDays} tone="violet" hint="{c.active_days} dari {data.range.days} hari aktif" />
 	<div class="card flex flex-col gap-3">
 		<div class="flex items-start justify-between gap-2">
 			<div>
 				<span class="block text-sm font-medium text-slate-500">Total rekap</span>
-				<span class="mt-0.5 block text-xs leading-snug text-slate-400">Semua rekap sejak pertama mendaftar</span>
+				<span class="mt-0.5 block text-xs leading-snug text-slate-400">Semua rekap sejak pertama mendaftar{data.campaign || data.platform ? ' (sesuai filter)' : ''}</span>
 			</div>
 			<span class="flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600"><Layers class="size-[18px]" /></span>
 		</div>
@@ -181,8 +185,8 @@
 	<div class="card p-0 xl:col-span-2">
 		<div class="card-header">
 			<div>
-				<div class="card-title">Aktivitas 30 hari terakhir</div>
-				<p class="mt-0.5 text-xs text-slate-500">Jumlah postingan dan panel per hari</p>
+				<div class="card-title">Aktivitas per hari</div>
+				<p class="mt-0.5 text-xs text-slate-500">Jumlah postingan dan panel per hari · {periodText}</p>
 			</div>
 		</div>
 		<div class="p-5"><Chart option={trend} height="320px" /></div>
@@ -192,13 +196,13 @@
 	<div class="card flex flex-col p-0">
 		<div class="card-header">
 			<div class="card-title">Komposisi rekap</div>
-			<span class="text-xs text-slate-500">semua waktu</span>
+			<span class="text-xs text-slate-500">periode terpilih</span>
 		</div>
 		<div class="flex flex-1 flex-col justify-center gap-4 p-5">
-			{#if c.total}
+			{#if c.period}
 				<Chart option={donut} height="240px" />
 				<div class="grid grid-cols-2 gap-3">
-					{#each [['Postingan', c.posts, postPct, 'bg-brand-500', FileText], ['Panel', c.replies, 100 - postPct, 'bg-sky-400', Reply]] as [lbl, n, pct, dot, Icon]}
+					{#each [['Postingan', c.period_posts, postPct, 'bg-brand-500', FileText], ['Panel', c.period_replies, 100 - postPct, 'bg-sky-400', Reply]] as [lbl, n, pct, dot, Icon]}
 						<div class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/60 px-3.5 py-3">
 							<span class="flex size-9 shrink-0 items-center justify-center rounded-lg {dot} text-white"><Icon class="size-4" /></span>
 							<div class="min-w-0">
@@ -212,7 +216,7 @@
 					{/each}
 				</div>
 			{:else}
-				<p class="py-10 text-center text-sm text-slate-500">Belum ada rekap.</p>
+				<p class="py-10 text-center text-sm text-slate-500">Belum ada rekap di periode ini.</p>
 			{/if}
 		</div>
 	</div>
@@ -239,15 +243,15 @@
 				</div>
 				<div class="flex items-end justify-between">
 					<div>
-						<div class="text-2xl font-semibold">{fmtNum(a.month)}</div>
-						<div class="text-xs text-slate-500">30 hari · total {fmtNum(a.total)}</div>
+						<div class="text-2xl font-semibold">{fmtNum(a.period)}</div>
+						<div class="text-xs text-slate-500">periode ini · total {fmtNum(a.total)}</div>
 					</div>
 					{#if a.status === 'approved'}
 						<a href="/app/recaps/new?account={a.id}" class="btn btn-soft-brand btn-sm"><Plus /> Rekap</a>
 					{/if}
 				</div>
 				<div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
-					<div class="h-full rounded-full" style="width:{(a.month / maxAcc) * 100}%;background:{PLATFORMS[a.platform].color}"></div>
+					<div class="h-full rounded-full" style="width:{(a.period / maxAcc) * 100}%;background:{PLATFORMS[a.platform].color}"></div>
 				</div>
 			</div>
 		{/each}

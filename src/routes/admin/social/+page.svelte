@@ -15,7 +15,6 @@
 	import FilterSelect from '#lib/components/FilterSelect.svelte';
 	import ActionDialog from '#lib/components/ActionDialog.svelte';
 	import AddAccountDialog from '#lib/components/AddAccountDialog.svelte';
-	import ExportLink from '#lib/components/ExportLink.svelte';
 	import AccountSummary from '#lib/components/AccountSummary.svelte';
 
 	let { data, form } = $props();
@@ -56,7 +55,6 @@
 	icon={BadgeCheck}
 >
 	{#snippet actions()}
-		<ExportLink params={{ type: 'accounts', q: data.f.q, platform: data.f.platform, status: ['approved'] }} />
 		<AddAccountDialog />
 	{/snippet}
 </PageHeader>

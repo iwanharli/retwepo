@@ -12,7 +12,6 @@
 	import AccountListToolbar from '#lib/components/AccountListToolbar.svelte';
 	import SortTh from '#lib/components/SortTh.svelte';
 	import ActionDialog from '#lib/components/ActionDialog.svelte';
-	import ExportLink from '#lib/components/ExportLink.svelte';
 	import AccountSummary from '#lib/components/AccountSummary.svelte';
 
 	let { data, form } = $props();
@@ -50,7 +49,6 @@
 	description="Akun sosmed tambahan dari user yang sudah terverifikasi. Akun milik user baru ditinjau di Pendaftaran User."
 	icon={ShieldCheck}>
 	{#snippet actions()}
-		<ExportLink params={{ type: 'accounts', q: data.f.q, platform: data.f.platform, status: data.f.status ? [data.f.status] : [] }} />
 	{/snippet}
 </PageHeader>
 

@@ -11,7 +11,6 @@
 	import UserActions from '#lib/components/UserActions.svelte';
 	import UserListToolbar from '#lib/components/UserListToolbar.svelte';
 	import CreateUserDialog from '#lib/components/CreateUserDialog.svelte';
-	import ExportLink from '#lib/components/ExportLink.svelte';
 	import SortTh from '#lib/components/SortTh.svelte';
 	let { data, form } = $props();
 
@@ -23,7 +22,6 @@
 
 <PageHeader title="User Terverifikasi" description="User yang sudah disetujui beserta aktivitas rekapnya." icon={Users}>
 	{#snippet actions()}
-		<ExportLink params={{ type: 'users', q: data.f.q, status: data.f.status ? [data.f.status] : [] }} />
 		<CreateUserDialog />
 	{/snippet}
 </PageHeader>

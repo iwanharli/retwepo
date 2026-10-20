@@ -363,6 +363,7 @@
 		<div class="relative flex items-start justify-between gap-4">
 			<div>
 				<p class="flex items-center gap-2 text-sm font-medium text-white/80"><Layers class="size-4" /> Total rekap</p>
+				<p class="mt-0.5 text-xs text-white/60">Semua rekap postingan & panel yang tercatat di periode ini</p>
 				<p class="mt-2 text-5xl font-bold tracking-tight">{fmtNum(k.total)}</p>
 				<div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/75">
 					<span class="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 font-semibold text-white">
@@ -385,8 +386,8 @@
 			</div>
 		</div>
 	</section>
-	<Stat label="Postingan" value={k.posts} prev={data.stats.prev.posts} icon={FileText} tone="violet" />
-	<Stat label="Panel" value={k.replies} prev={data.stats.prev.replies} icon={Reply} tone="sky" />
+	<Stat label="Postingan" desc="Konten yang diunggah sendiri oleh user" value={k.posts} prev={data.stats.prev.posts} icon={FileText} tone="violet" />
+	<Stat label="Panel" desc="Reply, like, retweet & share di postingan lain" value={k.replies} prev={data.stats.prev.replies} icon={Reply} tone="sky" />
 </div>
 
 <!-- 2. siapa yang bekerja -->
@@ -414,19 +415,22 @@
 					</span>
 					vs periode sebelumnya
 				</div>
-				<p class="mt-2 text-xs text-slate-500">user terverifikasi yang membuat rekap di periode ini</p>
+				<p class="mt-2 text-xs text-slate-500">User terverifikasi yang membuat minimal 1 rekap di periode ini. Partisipasi = user aktif ÷ user terverifikasi.</p>
 			</div>
 		</section>
 		<!-- perlu perhatian -->
 		<a href="/admin/members?status=approved&sort=last&dir=asc" class="card group flex flex-col gap-3 border-rose-200 bg-rose-50/40 transition hover:border-rose-300 hover:shadow-md">
 			<div class="flex items-start justify-between gap-2">
-				<span class="text-sm font-medium text-rose-700">Tidak aktif 7 hari</span>
+				<div>
+					<span class="block text-sm font-medium text-rose-700">Tidak aktif 7 hari</span>
+					<span class="mt-0.5 block text-xs leading-snug text-rose-700/60">User terverifikasi tanpa rekap dalam 7 hari terakhir</span>
+				</div>
 				<span class="flex size-9 items-center justify-center rounded-lg bg-rose-100 text-rose-600"><MoonStar class="size-[18px]" /></span>
 			</div>
 			<div class="text-3xl font-semibold tracking-tight text-rose-600">{fmtNum(s.totals.inactive_users)}</div>
 			<div class="flex items-center gap-1 text-xs text-rose-700/80">perlu ditindaklanjuti <ArrowRight class="size-3.5 transition group-hover:translate-x-0.5" /></div>
 		</a>
-		<Stat label="Rata-rata / user" value={k.active_users ? Math.round((k.total / k.active_users) * 10) / 10 : 0} hint="rekap per user aktif" icon={Gauge} tone="violet" />
+		<Stat label="Rata-rata / user" desc="Rekap per user aktif di periode ini" value={k.active_users ? Math.round((k.total / k.active_users) * 10) / 10 : 0} hint="rekap per user aktif" icon={Gauge} tone="violet" />
 	</div>
 </div>
 
@@ -435,9 +439,9 @@
 	<div class="flex flex-col lg:col-span-3">
 		{@render divider('User & akun', 'total terverifikasi')}
 		<div class="grid flex-1 grid-cols-2 gap-4 md:grid-cols-3">
-			<Stat label="User disetujui" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar periode ini" icon={Users} tone="sky" />
-			<Stat label="Akun sosmed disetujui" value={s.totals.approved_accounts} hint={s.totals.pending_accounts ? `+${fmtNum(s.totals.pending_accounts)} menunggu verifikasi` : 'total akun terverifikasi'} icon={BadgeCheck} tone="emerald" />
-			<Stat label="Akun aktif" value={k.active_accounts} hint="{pct(k.active_accounts, s.totals.approved_accounts)}% akun dipakai periode ini" icon={AtSign} tone="amber" />
+			<Stat label="User disetujui" desc="User yang sudah diverifikasi admin" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar periode ini" icon={Users} tone="sky" />
+			<Stat label="Akun sosmed disetujui" desc="Akun yang boleh dipakai untuk rekap" value={s.totals.approved_accounts} hint={s.totals.pending_accounts ? `+${fmtNum(s.totals.pending_accounts)} menunggu verifikasi` : 'total akun terverifikasi'} icon={BadgeCheck} tone="emerald" />
+			<Stat label="Akun aktif" desc="Akun yang dipakai merekap di periode ini" value={k.active_accounts} hint="{pct(k.active_accounts, s.totals.approved_accounts)}% akun dipakai periode ini" icon={AtSign} tone="amber" />
 		</div>
 	</div>
 	<div class="flex flex-col">
@@ -445,7 +449,10 @@
 		<!-- screenshot & URL dalam satu kartu -->
 		<div class="card flex flex-1 flex-col gap-3">
 			<div class="flex items-start justify-between gap-2">
-				<span class="text-sm font-medium text-slate-500">Rekap dengan bukti</span>
+				<div>
+					<span class="block text-sm font-medium text-slate-500">Rekap dengan bukti</span>
+					<span class="mt-0.5 block text-xs leading-snug text-slate-400">Porsi rekap yang menyertakan screenshot / URL</span>
+				</div>
 				<span class="flex size-9 items-center justify-center rounded-lg bg-sky-50 text-sky-600"><ShieldCheck class="size-[18px]" /></span>
 			</div>
 			<!-- dua metrik berdampingan agar tinggi kartu sama dengan kartu statistik lain -->

@@ -318,9 +318,9 @@
 
 <!-- 3. basis user & akun · 4. kualitas bukti -->
 <div class="mt-8 grid gap-x-4 gap-y-8 lg:grid-cols-4">
-	<div class="lg:col-span-3">
+	<div class="flex flex-col lg:col-span-3">
 		{@render divider('User & akun', 'total terverifikasi')}
-		<div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+		<div class="grid flex-1 grid-cols-2 gap-4 md:grid-cols-3">
 			<Stat label="User disetujui" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar periode ini" icon={Users} tone="sky" />
 			<Stat label="Akun sosmed disetujui" value={s.totals.approved_accounts} hint={s.totals.pending_accounts ? `+${fmtNum(s.totals.pending_accounts)} menunggu verifikasi` : 'total akun terverifikasi'} icon={BadgeCheck} tone="emerald" />
 			<Stat label="Akun aktif" value={k.active_accounts} hint="{pct(k.active_accounts, s.totals.approved_accounts)}% akun dipakai periode ini" icon={AtSign} tone="amber" />
@@ -329,22 +329,23 @@
 	<div class="flex flex-col">
 		{@render divider('Kualitas bukti', 'periode ini')}
 		<!-- screenshot & URL dalam satu kartu -->
-		<div class="card flex flex-1 flex-col gap-4">
+		<div class="card flex flex-1 flex-col gap-3">
 			<div class="flex items-start justify-between gap-2">
 				<span class="text-sm font-medium text-slate-500">Rekap dengan bukti</span>
 				<span class="flex size-9 items-center justify-center rounded-lg bg-sky-50 text-sky-600"><ShieldCheck class="size-[18px]" /></span>
 			</div>
-			{#each [['Screenshot', k.with_shot, Image, 'bg-sky-500'], ['URL', k.with_url, Link2, 'bg-violet-500']] as [lbl, n, Icon, bar]}
-				{@const v = pct(n, k.total)}
-				<div>
-					<div class="flex items-baseline justify-between gap-2">
-						<span class="flex items-center gap-1.5 text-sm text-slate-600"><Icon class="size-4 text-slate-400" />{lbl}</span>
-						<span class="text-2xl font-semibold tracking-tight">{v}%</span>
+			<!-- dua metrik berdampingan agar tinggi kartu sama dengan kartu statistik lain -->
+			<div class="grid flex-1 grid-cols-2 gap-4">
+				{#each [['Screenshot', k.with_shot, Image, 'bg-sky-500'], ['URL', k.with_url, Link2, 'bg-violet-500']] as [lbl, n, Icon, bar]}
+					{@const v = pct(n, k.total)}
+					<div class="flex flex-col justify-end">
+						<span class="flex items-center gap-1.5 text-xs text-slate-500"><Icon class="size-3.5" />{lbl}</span>
+						<span class="mt-1 text-2xl font-semibold tracking-tight">{v}%</span>
+						<div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full {bar}" style="width:{v}%"></div></div>
+						<span class="mt-1 text-xs text-slate-500">{fmtNum(n)}/{fmtNum(k.total)} rekap</span>
 					</div>
-					<div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full {bar}" style="width:{v}%"></div></div>
-					<div class="mt-1 text-xs text-slate-500">{fmtNum(n)} dari {fmtNum(k.total)} rekap</div>
-				</div>
-			{/each}
+				{/each}
+			</div>
 		</div>
 	</div>
 </div>

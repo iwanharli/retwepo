@@ -61,14 +61,6 @@ export function fmtNum(n) {
 	return new Intl.NumberFormat('id-ID').format(Number(n ?? 0));
 }
 
-/** Pilihan cepat rentang tanggal di halaman rekap: [jumlah hari | null = semua, label] */
-export const RANGE_PRESETS = [
-	[1, 'Hari ini'],
-	[7, '7 hari'],
-	[30, '30 hari'],
-	[90, '90 hari'],
-	[null, 'Semua waktu']
-];
 
 /** Kolom yang bisa dipilih saat export rekap (mode detail) */
 export const EXPORT_COLUMNS = [

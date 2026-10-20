@@ -114,10 +114,8 @@
 </section>
 
 <!-- Statistik -->
-<div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-	<h2 class="text-lg font-semibold">Aktivitas rekap</h2>
-	<RangeFilter from={data.range.from} to={data.range.to} />
-</div>
+<h2 class="mb-3 text-lg font-semibold">Aktivitas rekap</h2>
+<RangeFilter from={data.range.from} to={data.range.to} />
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-5 lg:gap-6">
 	<Stat label="Rekap periode" href={recapsHref()} desc="Rekap pada rentang tanggal terpilih" value={s.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />
 	<Stat label="Postingan" href={recapsHref({ type: 'post' })} desc="Konten yang diunggah sendiri" value={s.posts} icon={FileText} tone="violet" />

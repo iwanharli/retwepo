@@ -7,7 +7,7 @@
 	import Flash from '#lib/components/Flash.svelte';
 	import PageHeader from '#lib/components/PageHeader.svelte';
 	import EmptyState from '#lib/components/EmptyState.svelte';
-	import { fmtNum, fmtDate, RANGE_PRESETS } from '#lib/constants.js';
+	import { fmtNum, fmtDate } from '#lib/constants.js';
 
 	let { data, form } = $props();
 	let total = $state(0);
@@ -21,13 +21,13 @@
 
 <PageHeader title="Riwayat Rekap" description="{fmtNum(total)} rekap · {rangeLabel}" icon={History}>
 	{#snippet actions()}
-		<ViewToggle view={data.view} />
+		<ViewToggle />
 		<a href="/app/recaps/new" class="btn btn-primary"><Plus /> Tambah Rekap</a>
 	{/snippet}
 </PageHeader>
 
 <RecapStatusTabs counts={data.statusCounts} status={data.f.status} />
-<RecapFilters f={data.f} campaigns={data.campaigns} accounts={data.accounts} view={data.view} presets={RANGE_PRESETS} />
+<RecapFilters f={data.f} campaigns={data.campaigns} accounts={data.accounts} />
 <Flash {form} />
 
 <RecapFeed list={data.list} feedUrl="/app/recaps/feed" detailBase="/app/recaps" sort={data.sort} view={data.view} canEdit bind:total>

@@ -138,7 +138,7 @@
 	</div>
 </section>
 
-<RangeFilter card from={data.range.from} to={data.range.to} platform={data.platform} campaign={data.campaign} campaigns={data.campaigns} />
+<RangeFilter from={data.range.from} to={data.range.to} platform={data.platform} campaign={data.campaign} campaigns={data.campaigns} />
 
 <!-- KPI -->
 <div class="grid grid-cols-2 gap-4 lg:gap-6 xl:grid-cols-4">

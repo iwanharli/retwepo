@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
+import { platformCond } from '#lib/server/filters.js';
 import { exportParams, wib, campaignTag, exportResponse } from '#lib/server/export-common.js';
 import { ACCOUNT_EXPORT_COLUMNS, ACCOUNT_STATUS, USER_STATUS, PLATFORMS } from '#lib/constants.js';
 
@@ -9,7 +10,6 @@ import { ACCOUNT_EXPORT_COLUMNS, ACCOUNT_STATUS, USER_STATUS, PLATFORMS } from '
  */
 export async function GET({ url }) {
 	const o = exportParams(url, ACCOUNT_EXPORT_COLUMNS, Object.keys(ACCOUNT_STATUS));
-	const platform = PLATFORMS[o.platform] ? o.platform : null;
 	const verifiedOwners = url.searchParams.get('owner') === 'verified';
 	const like = `%${o.q.replace(/[%_\\]/g, '\\$&')}%`;
 	const inStatuses = sql.join(o.statuses.map((s) => sql`${s}`), sql`, `);
@@ -27,7 +27,7 @@ export async function GET({ url }) {
 		JOIN users u ON u.id = a.user_id
 		LEFT JOIN active_recaps r ON r.social_account_id = a.id AND ${range}
 		WHERE a.status::text IN (${inStatuses})
-			AND (${platform}::text IS NULL OR a.platform::text = ${platform})
+			${platformCond(o.platforms)}
 			AND (${verifiedOwners} = false OR u.status = 'approved')
 			AND (${o.q} = '' OR a.username ILIKE ${like} OR u.nickname ILIKE ${like} OR u.email ILIKE ${like})
 		GROUP BY a.id, u.id

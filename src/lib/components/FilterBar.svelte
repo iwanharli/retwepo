@@ -31,19 +31,32 @@
 
 	// ---- filter aktif → chip
 	const params = $derived(page.url.searchParams);
-	const activeSelects = $derived(
-		managed
-			.filter((k) => !uncounted.includes(k) && params.get(k))
-			.map((k) => {
+	// daftar chip disusun saat bar dirender (setelah dropdown di drawer mendaftar) — sengaja bukan $derived
+	const valuesOf = (k) => params.getAll(k).flatMap((v) => v.split(',')).filter(Boolean);
+	function activeSelects() {
+		return managed
+			.filter((k) => !uncounted.includes(k))
+			.flatMap((k) => {
 				const s = selects[k];
-				const label = s?.options.find(([v]) => String(v) === params.get(k))?.[1] ?? params.get(k);
-				return { key: k, label };
-			})
-	);
-	const activeCount = $derived(activeSelects.length + (search && params.get(searchName) ? 1 : 0));
+				const vals = s?.multiple ? valuesOf(k) : params.get(k) ? [params.get(k)] : [];
+				return vals.map((v) => ({ key: k, value: s?.multiple ? v : null, label: s?.options.find(([o]) => String(o) === v)?.[1] ?? v }));
+			});
+	}
+	// jumlah filter aktif dihitung langsung dari URL (tidak bergantung pada pendaftaran dropdown)
+	const activeCount = $derived(managed.filter((k) => !uncounted.includes(k)).reduce((n, k) => n + valuesOf(k).length, 0) + (search && params.get(searchName) ? 1 : 0));
 	function without(...keys) {
 		const u = new URLSearchParams(page.url.search);
 		for (const k of [...keys, 'page']) u.delete(k);
+		const q = u.toString();
+		return q ? `?${q}` : page.url.pathname;
+	}
+	// hapus satu nilai dari filter yang boleh lebih dari satu
+	function withoutValue(key, value) {
+		const u = new URLSearchParams(page.url.search);
+		const rest = u.getAll(key).flatMap((v) => v.split(',')).filter((v) => v && v !== value);
+		u.delete(key);
+		u.delete('page');
+		for (const v of rest) u.append(key, v);
 		const q = u.toString();
 		return q ? `?${q}` : page.url.pathname;
 	}
@@ -175,15 +188,15 @@
 		{#if search && !hasDrawer}<button class="btn btn-primary h-10"><Search /> Cari</button>{/if}
 
 		<!-- chip filter aktif -->
-		{#if dates || activeSelects.length || chips || activeCount}
+		{#if dates || chips || activeCount}
 			<div class="flex w-full flex-wrap items-center gap-1.5 {search || hasDrawer ? 'border-t border-slate-100 pt-2.5' : ''}">
 				{#if dates}
 					<button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-full bg-slate-100 px-2.5 text-xs font-medium text-slate-700 hover:bg-slate-200" onclick={() => (open = true)}>
 						<CalendarDays class="size-3.5 text-slate-400" />{periodLabel}
 					</button>
 				{/if}
-				{#each activeSelects as a (a.key)}
-					<a href={without(a.key)} class={chipCls} title="Hapus filter">{a.label}<X class="size-3.5 opacity-60" /></a>
+				{#each activeSelects() as a (a.key + ':' + a.value)}
+					<a href={a.value === null ? without(a.key) : withoutValue(a.key, a.value)} class={chipCls} title="Hapus filter">{a.label}<X class="size-3.5 opacity-60" /></a>
 				{/each}
 				{#if chips}{@render chips()}{/if}
 				{#if activeCount}

@@ -262,7 +262,7 @@
 	function recapsHref(extra = {}) {
 		const u = new URLSearchParams({ from: data.range.from, to: data.range.to });
 		if (data.campaign) u.set('campaign', data.campaign);
-		if (data.platform) u.set('platform', data.platform);
+		for (const k of data.platforms) u.append('platform', k);
 		for (const [key, v] of Object.entries(extra)) u.set(key, v);
 		return `/admin/recaps?${u}`;
 	}
@@ -301,7 +301,7 @@
 		<p class="text-sm text-slate-500">{fmtDate(data.range.from)} – {fmtDate(data.range.to)} · {data.range.days} hari{#if data.campaign} · <b class="text-violet-700">#{data.campaigns.find((c) => c.id === data.campaign)?.name}</b>{/if}</p>
 	</div>
 </div>
-<RangeFilter from={data.range.from} to={data.range.to} platform={data.platform} campaign={data.campaign} campaigns={data.campaigns} />
+<RangeFilter from={data.range.from} to={data.range.to} platforms={data.platforms} campaign={data.campaign} campaigns={data.campaigns} />
 
 {#snippet head(Icon, title, sub = '', link = null, tone = 'bg-brand-50 text-brand-600')}
 	<div class="card-header">

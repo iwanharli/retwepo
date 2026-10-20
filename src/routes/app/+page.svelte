@@ -31,7 +31,7 @@
 	function recapsHref(from, to) {
 		const u = new URLSearchParams({ from, to });
 		if (data.campaign) u.set('campaign', data.campaign);
-		if (data.platform) u.set('platform', data.platform);
+		for (const k of data.platforms) u.append('platform', k);
 		return `/app/recaps?${u}`;
 	}
 	const todayYmd = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date());
@@ -138,7 +138,7 @@
 	</div>
 </section>
 
-<RangeFilter from={data.range.from} to={data.range.to} platform={data.platform} campaign={data.campaign} campaigns={data.campaigns} />
+<RangeFilter from={data.range.from} to={data.range.to} platforms={data.platforms} campaign={data.campaign} campaigns={data.campaigns} />
 
 <!-- KPI -->
 <div class="grid grid-cols-2 gap-4 lg:gap-6 xl:grid-cols-4">
@@ -171,7 +171,7 @@
 		<div class="flex items-start justify-between gap-2">
 			<div>
 				<span class="block text-sm font-medium text-slate-500">Total rekap</span>
-				<span class="mt-0.5 block text-xs leading-snug text-slate-400">Semua rekap sejak pertama mendaftar{data.campaign || data.platform ? ' (sesuai filter)' : ''}</span>
+				<span class="mt-0.5 block text-xs leading-snug text-slate-400">Semua rekap sejak pertama mendaftar{data.campaign || data.platforms.length ? ' (sesuai filter)' : ''}</span>
 			</div>
 			<span class="flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600"><Layers class="size-[18px]" /></span>
 		</div>

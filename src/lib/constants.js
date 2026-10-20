@@ -172,3 +172,8 @@ export function urlKey(raw) {
 	// umum: host + path (tanpa query, hash, dan "/" akhir); path dibiarkan peka huruf besar/kecil
 	return `${host}/${parts.join('/')}`;
 }
+
+/** Platform terpilih dari query string: ?platform=x&platform=tiktok (atau dipisah koma); hanya kunci yang valid */
+export function parsePlatforms(searchParams) {
+	return [...new Set(searchParams.getAll('platform').flatMap((v) => v.split(',')))].filter((k) => PLATFORMS[k]);
+}

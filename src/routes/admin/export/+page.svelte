@@ -14,6 +14,7 @@
 		fmtNum
 	} from '#lib/constants.js';
 	import PageHeader from '#lib/components/PageHeader.svelte';
+	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
 
 	let { data } = $props();
 	const pre = untrack(() => data.prefill);
@@ -34,7 +35,7 @@
 	let campaign = $state(pre.campaign);
 	let from = $state(pre.from);
 	let to = $state(pre.to);
-	let platform = $state(pre.platform);
+	let platforms = $state(pre.platform ? pre.platform.split(',').filter((k) => PLATFORMS[k]) : []);
 	let rtype = $state(pre.rtype);
 	let sep = $state('semicolon');
 	let format = $state('csv'); // csv | pdf
@@ -80,7 +81,7 @@
 	const canSubmit = $derived(!statusError && (!colList || cols[type].length > 0));
 	$effect(() => {
 		// dependensi: semua pengaturan yang memengaruhi isi data
-		void JSON.stringify([type, campaign, from, to, platform, rtype, verifiedOwners, userStatuses, accountStatuses, cols[type] ?? [], carried]);
+		void JSON.stringify([type, campaign, from, to, platforms, rtype, verifiedOwners, userStatuses, accountStatuses, cols[type] ?? [], carried]);
 		if (!formEl || !canSubmit) return;
 		clearTimeout(previewTimer);
 		previewTimer = setTimeout(loadPreview, 350);
@@ -184,11 +185,16 @@
 			<div class="card-header"><div class="card-title"><SlidersHorizontal /> 4. Filter</div></div>
 			<div class="space-y-4 p-5">
 				{#if type !== 'users'}
+					<div>
+						<span class="label">Platform <span class="font-normal text-slate-400">· boleh lebih dari satu</span></span>
+						<div class="flex flex-wrap gap-2">
+							<button type="button" class={chip(platforms.length === 0)} onclick={() => (platforms = [])}>Semua</button>
+							{#each PLATFORM_KEYS as k}
+								<label class={chip(platforms.includes(k))}><input type="checkbox" name="platform" value={k} bind:group={platforms} class="size-4 accent-brand-600" /><PlatformIcon platform={k} size={18} />{PLATFORMS[k].label}</label>
+							{/each}
+						</div>
+					</div>
 					<div class="grid gap-3 sm:grid-cols-2">
-						<select class="input" name="platform" bind:value={platform}>
-							<option value="">Semua platform</option>
-							{#each PLATFORM_KEYS as k}<option value={k}>{PLATFORMS[k].label}</option>{/each}
-						</select>
 						{#if isRecap}
 							<select class="input" name="type" bind:value={rtype}>
 								<option value="">Postingan & panel</option>
@@ -332,7 +338,7 @@
 	<div class="sticky bottom-4 z-20 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-xl shadow-slate-900/10">
 		<div class="flex flex-wrap items-center justify-between gap-3">
 			<p class="min-w-0 text-sm text-slate-600">
-				<b class="text-slate-900">{T.label}</b> · <span class="font-medium">{format.toUpperCase()}</span> · <span class="text-violet-700">{campaignName ? `#${campaignName}` : 'Semua kampanye'}</span> · {rangeText}{platform && type !== 'users' ? ` · ${PLATFORMS[platform].label}` : ''}
+				<b class="text-slate-900">{T.label}</b> · <span class="font-medium">{format.toUpperCase()}</span> · <span class="text-violet-700">{campaignName ? `#${campaignName}` : 'Semua kampanye'}</span> · {rangeText}{platforms.length && type !== 'users' ? ` · ${platforms.map((k) => PLATFORMS[k].label).join(', ')}` : ''}
 				{#if statusError}<span class="block text-xs text-rose-600">Pilih minimal satu status.</span>{:else if colList && !cols[type].length}<span class="block text-xs text-rose-600">Pilih minimal satu kolom.</span>{/if}
 			</p>
 			<button class="btn btn-success btn-lg" disabled={!canSubmit}><Download /> Download {format.toUpperCase()}</button>

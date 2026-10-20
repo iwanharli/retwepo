@@ -1,8 +1,8 @@
-import { and, eq, gte, lt, ilike, or, asc, desc, count, isNotNull, isNull, sql } from 'drizzle-orm';
+import { and, eq, gte, lt, ilike, or, asc, desc, count, isNotNull, isNull, inArray, sql } from 'drizzle-orm';
 import { db } from './db/index.js';
 import { recaps, recapEdits, socialAccounts, users, campaigns } from './db/schema.js';
 import { startOfDay, addDays, ymd } from './dates.js';
-import { PLATFORMS } from '#lib/constants.js';
+import { parsePlatforms } from '#lib/constants.js';
 import { parseSort } from './sort.js';
 
 export const PER_PAGE = 24;
@@ -25,7 +25,7 @@ export function recapFilters(url, { userId = null, defaultDays = null } = {}) {
 	const f = {
 		account: Number(p.get('account')) || null,
 		user: userId ?? (Number(p.get('user')) || null),
-		platform: PLATFORMS[p.get('platform')] ? p.get('platform') : null,
+		platforms: parsePlatforms(p),
 		campaign: Number(p.get('campaign')) || null,
 		type: ['post', 'reply'].includes(p.get('type')) ? p.get('type') : null,
 		evidence: ['url', 'shot', 'dup'].includes(p.get('evidence')) ? p.get('evidence') : null,
@@ -38,7 +38,7 @@ export function recapFilters(url, { userId = null, defaultDays = null } = {}) {
 	const where = [deleted ? isNotNull(recaps.deletedAt) : isNull(recaps.deletedAt)];
 	if (f.user) where.push(eq(recaps.userId, f.user));
 	if (f.account) where.push(eq(recaps.socialAccountId, f.account));
-	if (f.platform) where.push(eq(socialAccounts.platform, f.platform));
+	if (f.platforms.length) where.push(inArray(socialAccounts.platform, f.platforms));
 	if (f.campaign) where.push(eq(recaps.campaignId, f.campaign));
 	if (f.type) where.push(eq(recaps.type, f.type));
 	if (f.evidence === 'url') where.push(isNotNull(recaps.url));

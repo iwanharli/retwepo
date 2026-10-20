@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { db } from './db/index.js';
-import { PLATFORMS } from '#lib/constants.js';
+import { parsePlatforms } from '#lib/constants.js';
+import { platformCond } from './filters.js';
 import { parseSort, orderSql } from './sort.js';
 
 const PER_PAGE = 50;
@@ -23,7 +24,7 @@ export const ACCOUNT_COLUMNS = {
 export async function listAccounts(url, { statuses, defaultStatus = null, defaultSort = { key: 'created', dir: 'desc' }, verifiedUsersOnly = false, ownerStatus = null }) {
 	const p = url.searchParams;
 	const status = statuses.includes(p.get('status')) ? p.get('status') : defaultStatus;
-	const platform = PLATFORMS[p.get('platform')] ? p.get('platform') : null;
+	const platforms = parsePlatforms(p);
 	const q = (p.get('q') ?? '').trim().slice(0, 100);
 	const sort = parseSort(url, ACCOUNT_COLUMNS, defaultSort);
 	const page = Math.max(1, Number(p.get('page')) || 1);
@@ -33,7 +34,7 @@ export async function listAccounts(url, { statuses, defaultStatus = null, defaul
 
 	const where = sql`WHERE a.status::text IN (${inStatuses}) ${userCond}
 		AND (${status}::text IS NULL OR a.status::text = ${status})
-		AND (${platform}::text IS NULL OR a.platform::text = ${platform})
+		${platformCond(platforms)}
 		AND (${q} = '' OR a.username ILIKE ${like} OR u.nickname ILIKE ${like} OR u.email ILIKE ${like})`;
 
 	const [rows, [{ total }], counts] = await Promise.all([
@@ -54,7 +55,7 @@ export async function listAccounts(url, { statuses, defaultStatus = null, defaul
 			LIMIT ${PER_PAGE} OFFSET ${(page - 1) * PER_PAGE}`),
 		db.execute(sql`SELECT count(*)::int AS total FROM social_accounts a JOIN users u ON u.id = a.user_id ${where}`),
 		db.execute(sql`SELECT a.status, count(*)::int AS n FROM social_accounts a JOIN users u ON u.id = a.user_id
-			WHERE a.status::text IN (${inStatuses}) ${userCond} AND (${platform}::text IS NULL OR a.platform::text = ${platform})
+			WHERE a.status::text IN (${inStatuses}) ${userCond} ${platformCond(platforms)}
 			GROUP BY a.status`)
 	]);
 
@@ -63,7 +64,7 @@ export async function listAccounts(url, { statuses, defaultStatus = null, defaul
 		total,
 		page,
 		perPage: PER_PAGE,
-		f: { status, platform, q, sort },
+		f: { status, platforms, q, sort },
 		counts: Object.fromEntries([...counts].map((c) => [c.status, c.n]))
 	};
 }
@@ -84,7 +85,7 @@ export const GROUP_COLUMNS = {
  */
 export async function listAccountsByUser(url, { ownerStatus = null }) {
 	const p = url.searchParams;
-	const platform = PLATFORMS[p.get('platform')] ? p.get('platform') : null;
+	const platforms = parsePlatforms(p);
 	const q = (p.get('q') ?? '').trim().slice(0, 100);
 	const sort = parseSort(url, GROUP_COLUMNS, { key: 'month', dir: 'desc' });
 	const page = Math.max(1, Number(p.get('page')) || 1);
@@ -92,7 +93,7 @@ export async function listAccountsByUser(url, { ownerStatus = null }) {
 
 	const where = sql`WHERE a.status = 'approved'
 		AND (${ownerStatus}::text IS NULL OR u.status::text = ${ownerStatus})
-		AND (${platform}::text IS NULL OR a.platform::text = ${platform})
+		${platformCond(platforms)}
 		AND (${q} = '' OR a.username ILIKE ${like} OR u.nickname ILIKE ${like} OR u.email ILIKE ${like})`;
 
 	const [rows, [{ total, accounts }]] = await Promise.all([
@@ -124,5 +125,5 @@ export async function listAccountsByUser(url, { ownerStatus = null }) {
 			FROM social_accounts a JOIN users u ON u.id = a.user_id ${where}`)
 	]);
 
-	return { groups: [...rows], total, accounts, page, perPage: GROUP_PER_PAGE, f: { status: 'approved', platform, q, sort } };
+	return { groups: [...rows], total, accounts, page, perPage: GROUP_PER_PAGE, f: { status: 'approved', platforms, q, sort } };
 }

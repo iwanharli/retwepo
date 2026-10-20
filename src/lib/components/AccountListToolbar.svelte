@@ -15,6 +15,6 @@
 	<FilterTabs current={f.status} items={tabs.map(([st, label]) => ({ value: st, label, count: counts[st] ?? 0, alert: st === 'pending' ? 'amber' : undefined }))} />
 {/if}
 <FilterBar search={{ value: f.q, placeholder: 'Cari username sosmed, nama atau email pemilik…' }} managed={['platform', ...extra]} {uncounted}>
-	<FilterSelect name="platform" value={f.platform ?? ''} all="Semua platform" options={PLATFORM_KEYS.map((k) => [k, PLATFORMS[k].label])} />
+	<FilterSelect name="platform" multiple value={f.platforms} all="Semua platform" options={PLATFORM_KEYS.map((k) => [k, PLATFORMS[k].label])} />
 	{#if children}{@render children()}{/if}
 </FilterBar>

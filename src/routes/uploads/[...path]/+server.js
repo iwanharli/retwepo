@@ -4,9 +4,9 @@ import { error } from '@sveltejs/kit';
 import { and, eq, sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
 import { recaps, recapEdits } from '#lib/server/db/schema.js';
-import { uploadRoot } from '#lib/server/uploads.js';
+import { uploadRoot, readThumb } from '#lib/server/uploads.js';
 
-export async function GET({ params, locals }) {
+export async function GET({ params, locals, url }) {
 	const rel = params.path;
 	if (!/^\d{4}\/\d{2}\/[0-9a-f-]+\.webp$/.test(rel)) error(404);
 
@@ -28,7 +28,8 @@ export async function GET({ params, locals }) {
 	}
 
 	try {
-		const file = await fs.readFile(path.join(uploadRoot(), rel));
+		// ?thumb → versi kecil untuk kartu (jauh lebih ringan); izin akses sama dengan gambar aslinya
+		const file = url.searchParams.has('thumb') ? await readThumb(rel) : await fs.readFile(path.join(uploadRoot(), rel));
 		return new Response(file, {
 			headers: { 'content-type': 'image/webp', 'cache-control': 'private, max-age=31536000, immutable' }
 		});

@@ -44,7 +44,11 @@ export async function purgeDeletedRecaps(sql, { uploadDir, days, dryRun = false 
 	const stillUsed = new Set(
 		(await sql`SELECT screenshot_path AS f FROM recaps WHERE screenshot_path = ANY(${[...files]})`).map((r) => r.f)
 	);
-	for (const f of files) if (!stillUsed.has(f)) await fs.rm(path.join(uploadDir, f), { force: true });
+	for (const f of files) {
+		if (stillUsed.has(f)) continue;
+		await fs.rm(path.join(uploadDir, f), { force: true });
+		await fs.rm(path.join(uploadDir, f.replace(/\.webp$/, '.thumb.webp')), { force: true }); // thumbnail kartu
+	}
 
 	return { recaps: ids.length, files: files.size, freedBytes };
 }

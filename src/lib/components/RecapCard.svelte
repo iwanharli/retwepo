@@ -2,6 +2,7 @@
 	import { Link2, CornerDownRight, ImageOff, Clock, Eye } from '@lucide/svelte';
 	import { fmtDate, PLATFORMS } from '#lib/constants.js';
 	import PlatformIcon from './PlatformIcon.svelte';
+	import Thumb from './Thumb.svelte';
 	import TypeBadge from './TypeBadge.svelte';
 	import CampaignBadge from './CampaignBadge.svelte';
 	import EditedBadge from './EditedBadge.svelte';
@@ -28,7 +29,7 @@
 	<div class="relative">
 		{#if shot}
 			<a href={href ?? `/uploads/${shot}`} target={href ? undefined : '_blank'} class="block aspect-[16/10] overflow-hidden bg-slate-100">
-				<img src="/uploads/{shot}" alt="screenshot" loading="lazy" class="size-full object-cover object-top transition duration-300 group-hover:scale-[1.03] {r.deletedAt ? 'opacity-50 grayscale' : ''}" />
+				<Thumb path={shot} alt="screenshot" dim={Boolean(r.deletedAt)} class="group-hover:scale-[1.03]" />
 			</a>
 		{:else}
 			<a href={href} class="flex aspect-[16/10] flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-slate-50 to-slate-100 text-slate-300">

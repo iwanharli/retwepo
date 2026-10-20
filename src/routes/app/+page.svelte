@@ -112,8 +112,8 @@
 
 <!-- Hero -->
 <section class="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-600 to-violet-600 p-6 text-white shadow-lg lg:mb-8 lg:p-8">
-	<div class="pointer-events-none absolute -top-24 -right-16 size-72 rounded-full bg-white/10 blur-2xl"></div>
-	<div class="pointer-events-none absolute -bottom-32 left-1/3 size-72 rounded-full bg-violet-400/20 blur-3xl"></div>
+	<div class="pointer-events-none absolute -top-24 -right-16 size-72 rounded-full bg-white/10 [filter:none] [mask-image:radial-gradient(closest-side,#000,transparent)]"></div>
+	<div class="pointer-events-none absolute -bottom-32 left-1/3 size-72 rounded-full bg-violet-400/20 [filter:none] [mask-image:radial-gradient(closest-side,#000,transparent)]"></div>
 	<div class="relative flex flex-wrap items-center justify-between gap-6">
 		<div>
 			<p class="text-sm text-brand-100">{greet},</p>
@@ -127,7 +127,7 @@
 			</p>
 		</div>
 		<div class="flex flex-wrap items-center gap-3">
-			<div class="rounded-xl bg-white/10 px-4 py-3 ring-1 ring-white/15 backdrop-blur">
+			<div class="rounded-xl bg-white/10 px-4 py-3 ring-1 ring-white/15">
 				<div class="flex items-center gap-1.5 text-xs text-brand-100"><Flame class="size-3.5" /> Hari aktif ({data.range.days} hari)</div>
 				<div class="mt-0.5 text-xl font-semibold">{c.active_days} <span class="text-sm font-normal text-brand-200">/ {data.range.days}</span></div>
 			</div>

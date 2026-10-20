@@ -80,7 +80,7 @@
 <div class="min-h-screen transition-[padding] duration-200 {collapsed ? 'lg:pl-[72px]' : 'lg:pl-64'}">
 	<!-- Sidebar -->
 	<aside
-		class="fixed inset-y-0 left-0 z-40 flex w-64 transform-gpu flex-col overflow-hidden [contain:paint] bg-gradient-to-b from-slate-950 via-[#12143a] to-[#1e1550] text-slate-300 transition-[transform,width] duration-200 lg:translate-x-0 {open
+		class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-hidden [backface-visibility:hidden] isolate will-change-transform bg-gradient-to-b from-slate-950 via-[#12143a] to-[#1e1550] text-slate-300 transition-[transform,width] duration-200 lg:translate-x-0 {open
 			? 'translate-x-0 shadow-2xl'
 			: '-translate-x-full'} {collapsed ? 'lg:w-[72px]' : ''}"
 		data-collapsed={collapsed}
@@ -202,7 +202,8 @@
 	{/if}
 
 	<!-- Header -->
-	<header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200/70 bg-white/60 px-4 backdrop-blur-xl lg:px-8">
+	<!-- tanpa backdrop-blur: efek kaca pada header sticky membuat sidebar (fixed) berkedip saat scroll di Chrome -->
+	<header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200/70 bg-white/95 px-4 lg:px-8">
 		<button class="btn btn-ghost btn-icon lg:hidden" onclick={() => (open = true)} aria-label="Buka menu"><Menu /></button>
 		<button
 			class="btn btn-ghost btn-icon -ml-2 hidden text-slate-500 lg:inline-flex"

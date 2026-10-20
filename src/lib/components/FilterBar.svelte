@@ -50,16 +50,6 @@
 		const q = u.toString();
 		return q ? `?${q}` : page.url.pathname;
 	}
-	// hapus satu nilai dari filter yang boleh lebih dari satu
-	function withoutValue(key, value) {
-		const u = new URLSearchParams(page.url.search);
-		const rest = u.getAll(key).flatMap((v) => v.split(',')).filter((v) => v && v !== value);
-		u.delete(key);
-		u.delete('page');
-		for (const v of rest) u.append(key, v);
-		const q = u.toString();
-		return q ? `?${q}` : page.url.pathname;
-	}
 	// reset dropdown & pencarian; tanggal dan parameter lain tetap
 	const resetHref = $derived(without(...managed.filter((k) => !uncounted.includes(k)), ...(search ? [searchName] : [])));
 
@@ -102,12 +92,21 @@
 	function onkeydown(e) {
 		if (open && e.key === 'Escape') open = false;
 	}
-	const chipCls = 'inline-flex h-7 items-center gap-1 rounded-full bg-brand-50 pr-1.5 pl-2.5 text-xs font-medium text-brand-700 ring-1 ring-brand-200 hover:bg-brand-100';
+	// satu chip per filter; nilai banyak diringkas: "Platform: X, Instagram +2"
+	function activeGroups() {
+		const groups = {};
+		for (const a of activeSelects()) (groups[a.key] ??= []).push(a.label);
+		return Object.entries(groups).map(([key, labels]) => ({
+			key,
+			label: labels.length > 1 ? `${selects[key]?.all?.replace(/^Semua /, '').replace(/^./, (c) => c.toUpperCase()) ?? key}: ${labels.slice(0, 2).join(', ')}${labels.length > 2 ? ` +${labels.length - 2}` : ''}` : labels[0]
+		}));
+	}
+	const chipCls = 'inline-flex h-7 items-center gap-1 rounded-full bg-brand-50 pr-2 pl-2.5 text-xs font-medium text-brand-700 hover:bg-brand-100';
 </script>
 
 <svelte:window {onkeydown} />
 
-<form method="GET" class="mb-6">
+<form method="GET" class="mb-5">
 	{#each kept as [k, v]}<input type="hidden" name={k} value={v} />{/each}
 
 	<!-- drawer: tetap di dalam form (disembunyikan saat tertutup) agar semua isian ikut terkirim -->
@@ -171,39 +170,32 @@
 		</div>
 	{/if}
 
-	<!-- bar ringkas -->
-	<div class="card flex flex-wrap items-center gap-2 p-3 lg:p-3.5">
+	<!-- bar ringkas: satu baris, tanpa kartu -->
+	<div class="flex flex-wrap items-center gap-2">
 		{#if search}
-			<div class="relative min-w-48 flex-1">
+			<div class="relative min-w-56 flex-1 sm:max-w-md">
 				<Search class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
-				<input class="input pl-9 {search.value ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" name={searchName} value={search.value ?? ''} placeholder={search.placeholder} aria-label="Cari" />
+				<input class="input h-9 bg-white pl-9 {search.value ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" name={searchName} value={search.value ?? ''} placeholder={search.placeholder} aria-label="Cari" />
 			</div>
 		{/if}
+		{#if search && !hasDrawer}<button class="btn btn-secondary"><Search /> Cari</button>{/if}
 		{#if hasDrawer}
-			<button type="button" class="btn btn-secondary h-10 {search ? '' : 'flex-1 justify-start sm:flex-none'}" onclick={() => (open = true)} aria-expanded={open}>
-				<SlidersHorizontal /> Filter
-				{#if activeCount - (search && params.get(searchName) ? 1 : 0)}<span class="rounded-full bg-brand-600 px-1.5 text-xs text-white">{activeCount - (search && params.get(searchName) ? 1 : 0)}</span>{/if}
+			{@const n = activeCount - (search && params.get(searchName) ? 1 : 0)}
+			<button type="button" class="btn h-9 bg-white ring-1 {n ? 'text-brand-700 ring-brand-300' : 'text-slate-700 ring-slate-200'} shadow-sm hover:bg-slate-50" onclick={() => (open = true)} aria-expanded={open}>
+				<SlidersHorizontal /> Filter{#if n}<span class="-mr-1 rounded-full bg-brand-600 px-1.5 text-[11px] leading-5 text-white">{n}</span>{/if}
 			</button>
 		{/if}
-		{#if search && !hasDrawer}<button class="btn btn-primary h-10"><Search /> Cari</button>{/if}
-
-		<!-- chip filter aktif -->
-		{#if dates || chips || activeCount}
-			<div class="flex w-full flex-wrap items-center gap-1.5 {search || hasDrawer ? 'border-t border-slate-100 pt-2.5' : ''}">
-				{#if dates}
-					<button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-full bg-slate-100 px-2.5 text-xs font-medium text-slate-700 hover:bg-slate-200" onclick={() => (open = true)}>
-						<CalendarDays class="size-3.5 text-slate-400" />{periodLabel}
-					</button>
-				{/if}
-				{#each activeSelects() as a (a.key + ':' + a.value)}
-					<a href={a.value === null ? without(a.key) : withoutValue(a.key, a.value)} class={chipCls} title="Hapus filter">{a.label}<X class="size-3.5 opacity-60" /></a>
-				{/each}
-				{#if chips}{@render chips()}{/if}
-				{#if activeCount}
-					<a href={resetHref} class="ml-auto flex items-center gap-1 text-xs text-slate-500 hover:text-rose-600"><FunnelX class="size-3.5" />Reset</a>
-				{/if}
-			</div>
+		{#if dates}
+			<button type="button" class="inline-flex h-7 items-center gap-1.5 rounded-full px-2 text-xs font-medium text-slate-600 hover:bg-white hover:text-slate-900" onclick={() => (open = true)} title="Ubah periode">
+				<CalendarDays class="size-3.5 text-slate-400" />{periodLabel}
+			</button>
+		{/if}
+		{#each activeGroups() as g (g.key)}
+			<a href={without(g.key)} class={chipCls} title="Hapus filter {g.label}">{g.label}<X class="size-3 opacity-60" /></a>
+		{/each}
+		{#if chips}{@render chips()}{/if}
+		{#if activeCount}
+			<a href={resetHref} class="ml-auto inline-flex h-7 items-center gap-1 rounded-full px-2 text-xs text-slate-500 hover:bg-white hover:text-rose-600"><FunnelX class="size-3.5" />Reset</a>
 		{/if}
 	</div>
-
 </form>

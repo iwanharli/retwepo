@@ -1,7 +1,8 @@
 <script>
 	import { TrendingUp, TrendingDown, Minus } from '@lucide/svelte';
 	import { fmtNum } from '#lib/constants.js';
-	let { label, value, prev = null, hint = '', accent = 'text-slate-900', icon: Icon = null, tone = 'brand' } = $props();
+	/** desc: penjelasan singkat di bawah judul */
+	let { label, desc = '', value, prev = null, hint = '', accent = 'text-slate-900', icon: Icon = null, tone = 'brand' } = $props();
 	const delta = $derived(prev === null ? null : prev === 0 ? (value > 0 ? 100 : 0) : Math.round(((value - prev) / prev) * 100));
 	const TONES = {
 		brand: 'bg-brand-50 text-brand-600',
@@ -15,7 +16,10 @@
 
 <div class="card flex flex-col gap-3">
 	<div class="flex items-start justify-between gap-2">
-		<span class="text-sm font-medium text-slate-500">{label}</span>
+		<div class="min-w-0">
+			<span class="block text-sm font-medium text-slate-500">{label}</span>
+			{#if desc}<span class="mt-0.5 block text-xs leading-snug text-slate-400">{desc}</span>{/if}
+		</div>
 		{#if Icon}
 			<span class="flex size-9 items-center justify-center rounded-lg {TONES[tone]}"><Icon class="size-[18px]" /></span>
 		{/if}

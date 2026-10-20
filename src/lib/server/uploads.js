@@ -58,10 +58,34 @@ export async function saveScreenshot(file) {
 	const name = `${crypto.randomUUID()}.webp`;
 	await fs.mkdir(path.join(uploadRoot(), dir), { recursive: true });
 	await fs.writeFile(path.join(uploadRoot(), dir, name), output);
+	// thumbnail dibuat sekalian; bila gagal, akan dibuat saat pertama diminta
+	await makeThumb(output)
+		.then((t) => fs.writeFile(path.join(uploadRoot(), dir, name.replace(/\.webp$/, '.thumb.webp')), t))
+		.catch(() => {});
 	return `${dir}/${name}`;
 }
 
 export async function deleteScreenshot(rel) {
 	if (!rel) return;
 	await fs.rm(path.join(uploadRoot(), rel), { force: true });
+	await fs.rm(path.join(uploadRoot(), thumbPath(rel)), { force: true });
+}
+
+// ---- Thumbnail untuk kartu rekap: 480×300 (rasio kartu 16:10), dipotong dari bagian atas, ~10–20 KB
+export const thumbPath = (rel) => rel.replace(/\.webp$/, '.thumb.webp');
+
+export function makeThumb(input) {
+	return sharp(input).resize({ width: 480, height: 300, fit: 'cover', position: 'top' }).webp({ quality: 70, effort: 4 }).toBuffer();
+}
+
+/** Ambil thumbnail; bila belum ada (screenshot lama), buat dari gambar asli lalu simpan */
+export async function readThumb(rel) {
+	const file = path.join(uploadRoot(), thumbPath(rel));
+	try {
+		return await fs.readFile(file);
+	} catch {
+		const thumb = await makeThumb(await fs.readFile(path.join(uploadRoot(), rel)));
+		await fs.writeFile(file, thumb).catch(() => {});
+		return thumb;
+	}
 }

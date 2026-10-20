@@ -2,6 +2,7 @@
 	import { Link2, ImageIcon, Minus } from '@lucide/svelte';
 	import { fmtDate } from '#lib/constants.js';
 	import PlatformTag from './PlatformTag.svelte';
+	import Thumb from './Thumb.svelte';
 	import TypeBadge from './TypeBadge.svelte';
 	import CampaignBadge from './CampaignBadge.svelte';
 	import EditedBadge from './EditedBadge.svelte';
@@ -32,7 +33,7 @@
 					<td data-label="Bukti">
 						{#if r.screenshotPath}
 							<a href={detailBase ? `${detailBase}/${r.id}` : `/uploads/${r.screenshotPath}`} target={detailBase ? undefined : '_blank'} class="block size-12 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
-								<img src="/uploads/{r.screenshotPath}" alt="" loading="lazy" class="size-full object-cover object-top" />
+								<Thumb path={r.screenshotPath} />
 							</a>
 						{:else}
 							<a href={detailBase ? `${detailBase}/${r.id}` : undefined} class="flex size-12 items-center justify-center rounded-lg border border-dashed border-slate-200 text-slate-300"><ImageIcon class="size-4" /></a>

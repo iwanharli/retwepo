@@ -288,22 +288,50 @@
 	</div>
 {/if}
 
+{#snippet divider(title, sub)}
+	<div class="mb-3 flex items-center gap-3">
+		<h2 class="shrink-0 text-xs font-semibold tracking-wider text-slate-500 uppercase">{title}</h2>
+		{#if sub}<span class="hidden shrink-0 text-xs text-slate-400 sm:inline">{sub}</span>{/if}
+		<span class="h-px flex-1 bg-slate-200"></span>
+	</div>
+{/snippet}
+
+<!-- 1. hasil utama: volume rekap -->
+{@render divider('Aktivitas rekap', 'periode terpilih')}
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
 	<Stat label="Total rekap" value={k.total} prev={data.stats.prev.total} icon={Layers} tone="brand" />
 	<Stat label="Postingan" value={k.posts} prev={data.stats.prev.posts} icon={FileText} tone="violet" />
 	<Stat label="Panel" value={k.replies} prev={data.stats.prev.replies} icon={Reply} tone="sky" />
-	<Stat label="User aktif" value={k.active_users} prev={data.stats.prev.active_users} icon={UserCheck} tone="emerald" />
+	<Stat label="Rata-rata / hari" value={Math.round((k.total / data.range.days) * 10) / 10} hint="rekap per hari" icon={CalendarDays} tone="brand" />
 </div>
 
-<div class="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
-	<Stat label="Rata-rata / hari" value={Math.round((k.total / data.range.days) * 10) / 10} hint="rekap per hari" icon={CalendarDays} tone="brand" />
-	<Stat label="Rata-rata / user" value={k.active_users ? Math.round((k.total / k.active_users) * 10) / 10 : 0} hint="per user aktif" icon={Gauge} tone="violet" />
-	<Stat label="User disetujui" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar periode ini" icon={Users} tone="sky" />
-	<Stat label="Partisipasi" value="{pct(k.active_users, s.totals.approved_users)}%" hint="aktif / disetujui" icon={Activity} tone="emerald" />
-	<Stat label="Tidak aktif 7 hari" value={s.totals.inactive_users} accent="text-rose-600" hint="user disetujui" icon={MoonStar} tone="rose" />
-	<Stat label="Akun aktif" value={k.active_accounts} hint="dari {fmtNum(s.totals.approved_accounts)} disetujui" icon={AtSign} tone="amber" />
-	<Stat label="Dengan screenshot" value="{pct(k.with_shot, k.total)}%" hint="{fmtNum(k.with_shot)} rekap" icon={Image} tone="sky" />
-	<Stat label="Dengan URL" value="{pct(k.with_url, k.total)}%" hint="{fmtNum(k.with_url)} rekap" icon={Link2} tone="violet" />
+<!-- 2. siapa yang bekerja -->
+<div class="mt-8">
+	{@render divider('Partisipasi user', 'dari user terverifikasi')}
+	<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+		<Stat label="User aktif" value={k.active_users} prev={data.stats.prev.active_users} icon={UserCheck} tone="emerald" />
+		<Stat label="Partisipasi" value="{pct(k.active_users, s.totals.approved_users)}%" hint="aktif / disetujui" icon={Activity} tone="emerald" />
+		<Stat label="Tidak aktif 7 hari" value={s.totals.inactive_users} accent="text-rose-600" hint="user disetujui" icon={MoonStar} tone="rose" />
+		<Stat label="Rata-rata / user" value={k.active_users ? Math.round((k.total / k.active_users) * 10) / 10 : 0} hint="rekap per user aktif" icon={Gauge} tone="violet" />
+	</div>
+</div>
+
+<!-- 3. basis user & akun · 4. kualitas bukti -->
+<div class="mt-8 grid gap-x-4 gap-y-8 lg:grid-cols-2">
+	<div>
+		{@render divider('User & akun', 'total terverifikasi')}
+		<div class="grid grid-cols-2 gap-4">
+			<Stat label="User disetujui" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar periode ini" icon={Users} tone="sky" />
+			<Stat label="Akun aktif" value={k.active_accounts} hint="dari {fmtNum(s.totals.approved_accounts)} disetujui" icon={AtSign} tone="amber" />
+		</div>
+	</div>
+	<div>
+		{@render divider('Kualitas bukti', 'porsi rekap periode ini')}
+		<div class="grid grid-cols-2 gap-4">
+			<Stat label="Dengan screenshot" value="{pct(k.with_shot, k.total)}%" hint="{fmtNum(k.with_shot)} rekap" icon={Image} tone="sky" />
+			<Stat label="Dengan URL" value="{pct(k.with_url, k.total)}%" hint="{fmtNum(k.with_url)} rekap" icon={Link2} tone="violet" />
+		</div>
+	</div>
 </div>
 
 

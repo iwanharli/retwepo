@@ -241,13 +241,13 @@
 
 <svelte:head><title>Statistik · Admin Retwepo</title></svelte:head>
 
-<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+<div class="mb-6">
 	<div>
 		<h1 class="text-2xl font-bold">Statistik</h1>
 		<p class="text-sm text-slate-500">{fmtDate(data.range.from)} – {fmtDate(data.range.to)} · {data.range.days} hari{#if data.campaign} · <b class="text-violet-700">#{data.campaigns.find((c) => c.id === data.campaign)?.name}</b>{/if}</p>
 	</div>
-	<RangeFilter from={data.range.from} to={data.range.to} platform={data.platform} campaign={data.campaign} campaigns={data.campaigns} />
 </div>
+<RangeFilter card from={data.range.from} to={data.range.to} platform={data.platform} campaign={data.campaign} campaigns={data.campaigns} />
 
 {#snippet head(Icon, title, sub = '', link = null, tone = 'bg-brand-50 text-brand-600')}
 	<div class="card-header">

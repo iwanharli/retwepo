@@ -1,4 +1,5 @@
 <script>
+	import { untrack } from 'svelte';
 	import { page } from '$app/state';
 	import { Trash2, LoaderCircle, CircleCheck, SquarePen, Eye, RotateCcw } from '@lucide/svelte';
 	import RecapCard from './RecapCard.svelte';
@@ -19,7 +20,8 @@
 	// detailBase: awalan URL halaman detail rekap
 	let { list, feedUrl, detailBase, sort = null, view = 'grid', showOwner = false, canDelete = false, canEdit = false, empty, total = $bindable(0) } = $props();
 
-	let rows = $state([]);
+	// isi awal langsung dari data server (agar render server tidak menampilkan kosong)
+	let rows = $state(untrack(() => list.rows));
 	let nextPage = $state(2);
 	let loading = $state(false);
 	let failed = $state(false);

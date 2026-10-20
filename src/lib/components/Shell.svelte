@@ -18,7 +18,8 @@
 		X,
 		PanelLeftClose,
 		PanelLeftOpen,
-		Megaphone
+		Megaphone,
+		Send
 	} from '@lucide/svelte';
 	import { untrack } from 'svelte';
 	import { Tooltip } from 'bits-ui';
@@ -57,6 +58,7 @@
 		badgeCheck: BadgeCheck,
 		logs: ScrollText,
 		campaign: Megaphone,
+		announce: Send,
 		bell: Bell,
 		verify: ShieldCheck,
 		gallery: Images

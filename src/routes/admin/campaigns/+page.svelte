@@ -40,8 +40,9 @@
 			<input id="cname" name="name" class="input pl-9" maxlength="61" placeholder="NamaKampanye" bind:value={name} required />
 		</div>
 		<p class="hint">Huruf, angka, atau _ tanpa spasi — mis. EconomicFrontline</p>
+		<label class="mt-2 flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" name="notify" value="1" checked class="size-4 accent-brand-600" /> Beri tahu semua user lewat notifikasi</label>
 	</div>
-	<button class="btn btn-primary mb-6" disabled={busy || name.trim().length < 2}>
+	<button class="btn btn-primary mb-12" disabled={busy || name.trim().length < 2}>
 		{#if busy}<LoaderCircle class="animate-spin" />{:else}<Plus />{/if} Tambah kampanye
 	</button>
 </form>
@@ -99,6 +100,7 @@
 						triggerClass="btn btn-soft-danger btn-sm"
 					>
 						{#snippet trigger()}<Lock /> Tutup{/snippet}
+						<label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" name="notify" value="1" checked class="size-4 accent-brand-600" /> Beri tahu semua user lewat notifikasi</label>
 					</ActionDialog>
 				{:else}
 					<ActionDialog
@@ -112,6 +114,7 @@
 						triggerClass="btn btn-success btn-sm"
 					>
 						{#snippet trigger()}<LockOpen /> Buka kembali{/snippet}
+						<label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" name="notify" value="1" checked class="size-4 accent-brand-600" /> Beri tahu semua user lewat notifikasi</label>
 					</ActionDialog>
 				{/if}
 			</div>

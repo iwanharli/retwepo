@@ -4,6 +4,7 @@ import { db } from '#lib/server/db/index.js';
 import { campaigns } from '#lib/server/db/schema.js';
 import { cleanCampaignName } from '#lib/server/campaigns.js';
 import { logAdmin } from '#lib/server/audit.js';
+import { notifyAllUsers } from '#lib/server/reminders.js';
 
 export async function load() {
 	const rows = await db.execute(sql`
@@ -38,7 +39,15 @@ export const actions = {
 			if (isDupName(e)) return fail(400, { error: `Kampanye #${name} sudah ada` });
 			throw e;
 		}
-		return { success: `Kampanye #${name} ditambahkan` };
+		let sent = 0;
+		if (form.get('notify') === '1')
+			sent = await notifyAllUsers({
+				type: 'campaign_opened',
+				title: `Kampanye baru: #${name}`,
+				body: `Kampanye #${name} sudah dibuka. Pilih kampanye ini di form rekap saat mencatat postingan atau panel.`,
+				link: '/app/recaps/new'
+			});
+		return { success: `Kampanye #${name} ditambahkan${sent ? ` · ${sent} user diberi tahu` : ''}` };
 	},
 
 	rename: async ({ request, locals }) => {
@@ -75,6 +84,14 @@ export const actions = {
 			targetLabel: `#${c.name}`,
 			note: String(form.get('note') ?? '').trim() || null
 		});
-		return { success: c.active ? `Kampanye #${c.name} ditutup` : `Kampanye #${c.name} dibuka kembali` };
+		let sent = 0;
+		if (form.get('notify') === '1')
+			sent = await notifyAllUsers(
+				c.active
+					? { type: 'campaign_closed', title: `Kampanye #${c.name} ditutup`, body: 'Rekap baru tidak bisa lagi memakai kampanye ini. Rekap yang sudah ada tetap tersimpan.', link: '/app' }
+					: { type: 'campaign_opened', title: `Kampanye #${c.name} dibuka kembali`, body: `Anda bisa kembali memilih #${c.name} di form rekap.`, link: '/app/recaps/new' }
+			);
+		const msg = c.active ? `Kampanye #${c.name} ditutup` : `Kampanye #${c.name} dibuka kembali`;
+		return { success: `${msg}${sent ? ` · ${sent} user diberi tahu` : ''}` };
 	}
 };

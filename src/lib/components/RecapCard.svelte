@@ -53,9 +53,7 @@
 			</div>
 		</div>
 		{#if r.deletedAt}<DeletedNotice {r} compact />{/if}
-		{#if edited || r.dupCount}
-			<div class="flex flex-wrap items-center gap-2 text-xs"><EditedBadge at={edited} /><DuplicateBadge count={r.dupCount} /></div>
-		{/if}
+		{#if r.dupCount}<div class="flex flex-wrap items-center gap-2 text-xs"><DuplicateBadge count={r.dupCount} /></div>{/if}
 		{#if r.url}
 			<a href={r.url} target="_blank" rel="noopener noreferrer" class="flex items-start gap-1.5 rounded-lg bg-slate-50 px-2.5 py-2 text-xs text-brand-600 hover:bg-brand-50 hover:underline">
 				<Link2 class="mt-px size-3.5 shrink-0" /><span class="break-all">{host(r.url)}</span>
@@ -68,9 +66,9 @@
 		{/if}
 		<div class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500">
 			{#if href}
-				<a {href} class="flex items-center gap-1 hover:text-brand-600 hover:underline"><Clock class="size-3.5" />{fmtDate(at, true)}</a>
+				<span class="flex items-center gap-2"><a {href} class="flex items-center gap-1 hover:text-brand-600 hover:underline"><Clock class="size-3.5" />{fmtDate(at, true)}</a><EditedBadge at={edited} compact /></span>
 			{:else}
-				<span class="flex items-center gap-1"><Clock class="size-3.5" />{fmtDate(at, true)}</span>
+				<span class="flex items-center gap-2"><span class="flex items-center gap-1"><Clock class="size-3.5" />{fmtDate(at, true)}</span><EditedBadge at={edited} compact /></span>
 			{/if}
 			<div class="flex flex-wrap items-center justify-end gap-1.5">
 				{#if children}

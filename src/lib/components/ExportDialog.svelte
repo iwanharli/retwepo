@@ -120,8 +120,9 @@
 						<!-- filter lain dari halaman ikut terbawa -->
 						{#if f.q}<input type="hidden" name="q" value={f.q} />{/if}
 						{#if f.user}<input type="hidden" name="user" value={f.user} />{/if}
+						{#if f.account}<input type="hidden" name="account" value={f.account} />{/if}
 						{#if f.evidence}<input type="hidden" name="evidence" value={f.evidence} />{/if}
-						{#if f.q || f.user || f.evidence}
+						{#if f.q || f.user || f.account || f.evidence}
 							<p class="hint flex items-center gap-1.5"><Info class="size-3.5" /> Pencarian / filter user yang sedang aktif di halaman ikut diterapkan.</p>
 						{/if}
 					</section>

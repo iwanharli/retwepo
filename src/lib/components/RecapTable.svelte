@@ -53,7 +53,7 @@
 					<td class="hidden max-w-44 truncate text-slate-600 2xl:table-cell" data-label="Catatan">{r.note ?? ''}</td>
 					<td class="whitespace-nowrap text-slate-500" data-label="Waktu posting">
 						{#if detailBase}<a href="{detailBase}/{r.id}" class="hover:text-brand-600 hover:underline">{fmtDate(r.postedAt, true)}</a>{:else}{fmtDate(r.postedAt, true)}{/if}
-						{#if r.editedAt}<div class="mt-1"><EditedBadge at={r.editedAt} /></div>{/if}
+						{#if r.editedAt}<div class="mt-0.5"><EditedBadge at={r.editedAt} compact /></div>{/if}
 						{#if r.dupCount}<div class="mt-1"><DuplicateBadge count={r.dupCount} /></div>{/if}
 						{#if r.deletedAt}<div class="mt-1.5 max-w-60 whitespace-normal"><DeletedNotice {r} compact /></div>{/if}
 					</td>

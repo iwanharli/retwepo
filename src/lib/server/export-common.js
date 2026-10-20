@@ -2,6 +2,7 @@ import { TZ } from '#lib/constants.js';
 import { eq } from 'drizzle-orm';
 import { startOfDay, addDays, ymd } from './dates.js';
 import { db } from './db/index.js';
+import { csvResponse } from './csv.js';
 import { campaigns } from './db/schema.js';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -40,4 +41,52 @@ export async function campaignTag(id) {
 	if (!id) return '';
 	const [c] = await db.select({ name: campaigns.name }).from(campaigns).where(eq(campaigns.id, id));
 	return c ? `-${c.name.toLowerCase()}` : '';
+}
+
+const PDF_MAX_ROWS = 5000;
+
+/** Keterangan filter untuk kop PDF & pratinjau */
+export async function describeFilters(url) {
+	const p = url.searchParams;
+	const out = [];
+	const id = Number(p.get('campaign')) || null;
+	if (id) {
+		const [c] = await db.select({ name: campaigns.name }).from(campaigns).where(eq(campaigns.id, id));
+		out.push(`Kampanye: #${c?.name ?? id}`);
+	} else out.push('Kampanye: semua');
+	const from = DATE_RE.test(p.get('from') ?? '') ? p.get('from') : null;
+	const to = DATE_RE.test(p.get('to') ?? '') ? p.get('to') : null;
+	const fmt = (d) => new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${d}T00:00:00Z`));
+	out.push(`Periode: ${from || to ? `${from ? fmt(from) : 'awal'} – ${to ? fmt(to) : 'sekarang'}` : 'semua waktu'}`);
+	if (p.get('platform')) out.push(`Platform: ${p.get('platform')}`);
+	if (p.get('type') === 'post') out.push('Tipe: postingan');
+	if (p.get('type') === 'reply') out.push('Tipe: panel');
+	if (p.getAll('status').length) out.push(`Status: ${p.getAll('status').join(', ')}`);
+	if (p.get('q')) out.push(`Cari: "${p.get('q')}"`);
+	return out;
+}
+
+/**
+ * Kirim hasil export sesuai ?format=: csv (default) | pdf | preview (JSON 5 baris pertama untuk contoh di halaman)
+ */
+export async function exportResponse(url, { filename, title }, header, rows, sep) {
+	const format = url.searchParams.get('format');
+	if (format === 'preview') {
+		return Response.json({ header, rows: rows.slice(0, 5), total: rows.length, filename });
+	}
+	if (format === 'pdf') {
+		const { tablePdf, pdfBuffer } = await import('./pdf.js');
+		const cut = rows.length > PDF_MAX_ROWS;
+		const doc = tablePdf({
+			title,
+			meta: await describeFilters(url),
+			header,
+			rows: cut ? rows.slice(0, PDF_MAX_ROWS) : rows,
+			note: cut ? `Ditampilkan ${PDF_MAX_ROWS.toLocaleString('id-ID')} baris pertama dari ${rows.length.toLocaleString('id-ID')}. Gunakan CSV untuk data lengkap.` : null
+		});
+		return new Response(await pdfBuffer(doc), {
+			headers: { 'content-type': 'application/pdf', 'content-disposition': `attachment; filename="${filename.replace(/\.csv$/, '.pdf')}"` }
+		});
+	}
+	return csvResponse(filename, header, rows, sep);
 }

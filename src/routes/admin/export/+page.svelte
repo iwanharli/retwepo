@@ -1,7 +1,7 @@
 <script>
 	import { untrack } from 'svelte';
 	import { page } from '$app/state';
-	import { Download, FileSpreadsheet, ListChecks, Wallet, Megaphone, Users, AtSign, Hash, Layers, CalendarDays, SlidersHorizontal, Columns3, X, Info } from '@lucide/svelte';
+	import { Download, FileSpreadsheet, ListChecks, Wallet, Megaphone, Users, AtSign, Hash, Layers, CalendarDays, SlidersHorizontal, Columns3, X, Info, FileText, Eye, LoaderCircle } from '@lucide/svelte';
 	import {
 		PLATFORMS,
 		PLATFORM_KEYS,
@@ -37,6 +37,15 @@
 	let platform = $state(pre.platform);
 	let rtype = $state(pre.rtype);
 	let sep = $state('semicolon');
+	let format = $state('csv'); // csv | pdf
+
+	// ---- contoh data: 5 baris pertama sesuai pengaturan, diperbarui otomatis
+	let formEl = $state();
+	let preview = $state(null);
+	let previewLoading = $state(false);
+	let previewError = $state(false);
+	let previewTimer;
+	let previewSeq = 0;
 	let verifiedOwners = $state(true);
 	let userStatuses = $state(pre.status.length && pre.type === 'users' ? pre.status : ['approved']);
 	let accountStatuses = $state(pre.status.length && pre.type === 'accounts' ? pre.status : ['approved']);
@@ -69,6 +78,32 @@
 
 	const statusError = $derived((type === 'users' && !userStatuses.length) || (type === 'accounts' && !accountStatuses.length));
 	const canSubmit = $derived(!statusError && (!colList || cols[type].length > 0));
+	$effect(() => {
+		// dependensi: semua pengaturan yang memengaruhi isi data
+		void JSON.stringify([type, campaign, from, to, platform, rtype, verifiedOwners, userStatuses, accountStatuses, cols[type] ?? [], carried]);
+		if (!formEl || !canSubmit) return;
+		clearTimeout(previewTimer);
+		previewTimer = setTimeout(loadPreview, 350);
+	});
+	async function loadPreview() {
+		const seq = ++previewSeq;
+		const q = new URLSearchParams(new FormData(formEl));
+		q.delete('sep');
+		q.set('format', 'preview');
+		previewLoading = true;
+		previewError = false;
+		try {
+			const res = await fetch(`${T.url}?${q}`);
+			if (!res.ok) throw new Error();
+			const json = await res.json();
+			if (seq === previewSeq) preview = json;
+		} catch {
+			if (seq === previewSeq) previewError = true;
+		} finally {
+			if (seq === previewSeq) previewLoading = false;
+		}
+	}
+
 	const CARRY_LABEL = { q: 'Cari', user: 'User #', account: 'Akun #', evidence: 'Bukti' };
 
 	const chip = (on) =>
@@ -79,7 +114,8 @@
 
 <PageHeader title="Export Data" description="Unduh data rekap, pembayaran, user, atau akun sosmed ke CSV — bisa per kampanye." icon={FileSpreadsheet} />
 
-<form method="GET" action={T.url} data-sveltekit-reload class="space-y-6">
+<form bind:this={formEl} method="GET" action={T.url} data-sveltekit-reload class="space-y-6">
+	<input type="hidden" name="format" value={format} />
 	{#if T.mode}<input type="hidden" name="mode" value={T.mode} />{/if}
 
 	<!-- 1. jenis data -->
@@ -219,27 +255,87 @@
 		</section>
 	{/if}
 
-	<!-- format -->
+	<!-- 6. format -->
 	<section class="card p-0">
-		<div class="card-header"><div class="card-title">Pemisah kolom</div></div>
-		<div class="grid gap-3 p-5 sm:grid-cols-2">
-			{#each [['semicolon', 'Titik koma ( ; )', 'Excel dengan bahasa/regional Indonesia'], ['comma', 'Koma ( , )', 'Google Sheets, Excel bahasa Inggris']] as [val, lbl, desc]}
-				<label class="flex cursor-pointer items-start gap-2.5 rounded-xl border p-3 transition {sep === val ? 'border-brand-500 bg-brand-50/50' : 'border-slate-200 hover:bg-slate-50'}">
-					<input type="radio" name="sep" value={val} bind:group={sep} class="mt-0.5 size-4 accent-brand-600" />
-					<span><span class="block text-sm font-medium">{lbl}</span><span class="block text-xs text-slate-500">{desc}</span></span>
+		<div class="card-header"><div class="card-title">6. Format file</div></div>
+		<div class="grid gap-3 p-5 md:grid-cols-2">
+			{#each [['csv', 'CSV', 'Untuk diolah di Excel / Google Sheets — semua baris & kolom', FileSpreadsheet, 'bg-emerald-600'], ['pdf', 'PDF', 'Laporan siap cetak / kirim: kop, ringkasan filter, tabel rapi', FileText, 'bg-rose-600']] as [val, lbl, desc, Icon, solid]}
+				{@const on = format === val}
+				<label class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition {on ? 'border-brand-500 bg-brand-50/50 ring-4 ring-brand-500/10' : 'border-slate-200 hover:bg-slate-50'}">
+					<input type="radio" value={val} bind:group={format} class="sr-only" />
+					<span class="flex size-10 shrink-0 items-center justify-center rounded-xl text-white {on ? solid : 'bg-slate-300'}"><Icon class="size-5" /></span>
+					<span><span class="block font-semibold text-slate-900">{lbl}</span><span class="block text-xs text-slate-500">{desc}</span></span>
 				</label>
 			{/each}
 		</div>
+		{#if format === 'csv'}
+			<div class="border-t border-slate-100 px-5 py-4">
+				<span class="label">Pemisah kolom</span>
+				<div class="grid gap-3 sm:grid-cols-2">
+					{#each [['semicolon', 'Titik koma ( ; )', 'Excel dengan bahasa/regional Indonesia'], ['comma', 'Koma ( , )', 'Google Sheets, Excel bahasa Inggris']] as [val, lbl, desc]}
+						<label class="flex cursor-pointer items-start gap-2.5 rounded-xl border p-3 transition {sep === val ? 'border-brand-500 bg-brand-50/50' : 'border-slate-200 hover:bg-slate-50'}">
+							<input type="radio" name="sep" value={val} bind:group={sep} class="mt-0.5 size-4 accent-brand-600" />
+							<span><span class="block text-sm font-medium">{lbl}</span><span class="block text-xs text-slate-500">{desc}</span></span>
+						</label>
+					{/each}
+				</div>
+			</div>
+		{:else}
+			<p class="mx-5 mb-5 flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
+				<Info class="mt-px size-3.5 shrink-0" /> PDF berukuran A4 mendatar. Pilih kolom secukupnya agar tabel tetap lega; untuk data sangat besar (lebih dari 5.000 baris) gunakan CSV.
+			</p>
+		{/if}
+	</section>
+
+	<!-- contoh data -->
+	<section class="card overflow-hidden p-0">
+		<div class="card-header">
+			<div class="card-title"><Eye /> Contoh data</div>
+			<span class="flex items-center gap-2 text-xs text-slate-500">
+				{#if previewLoading}<LoaderCircle class="size-3.5 animate-spin" /> memuat…{:else if preview}5 baris pertama dari <b class="text-slate-800">{fmtNum(preview.total)}</b> baris{/if}
+			</span>
+		</div>
+		{#if !canSubmit}
+			<p class="p-8 text-center text-sm text-slate-500">Lengkapi pilihan di atas untuk melihat contoh data.</p>
+		{:else if previewError}
+			<p class="p-8 text-center text-sm text-rose-600">Contoh data gagal dimuat. <button type="button" class="font-medium underline" onclick={loadPreview}>Coba lagi</button></p>
+		{:else if preview}
+			{#if preview.rows.length}
+				<div class="overflow-x-auto transition {previewLoading ? 'opacity-50' : ''}">
+					<table class="w-full text-left text-xs">
+						<thead>
+							<tr class="bg-slate-800 text-white">
+								{#each preview.header as h}<th class="px-3 py-2.5 font-semibold whitespace-nowrap">{h}</th>{/each}
+							</tr>
+						</thead>
+						<tbody>
+							{#each preview.rows as r, ri}
+								<tr class="border-b border-slate-100 {ri % 2 ? 'bg-slate-50' : 'bg-white'}">
+									{#each r as v}
+										<td class="max-w-72 px-3 py-2 align-top break-words {typeof v === 'number' ? 'text-right tabular-nums' : ''}">{v ?? ''}</td>
+									{/each}
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+				<p class="border-t border-slate-100 px-5 py-2.5 text-xs text-slate-500">{preview.header.length} kolom · file: <code class="rounded bg-slate-100 px-1 font-mono text-slate-700">{preview.filename.replace(/\.csv$/, format === 'pdf' ? '.pdf' : '.csv')}</code></p>
+			{:else}
+				<p class="p-8 text-center text-sm text-slate-500">Tidak ada data untuk pengaturan ini — coba ubah kampanye, rentang tanggal, atau filter.</p>
+			{/if}
+		{:else}
+			<p class="flex items-center justify-center gap-2 p-8 text-sm text-slate-500"><LoaderCircle class="size-4 animate-spin" /> Memuat contoh data…</p>
+		{/if}
 	</section>
 
 	<!-- ringkasan & tombol unduh, menempel di bawah layar -->
 	<div class="sticky bottom-4 z-20 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-xl shadow-slate-900/10">
 		<div class="flex flex-wrap items-center justify-between gap-3">
 			<p class="min-w-0 text-sm text-slate-600">
-				<b class="text-slate-900">{T.label}</b> · <span class="text-violet-700">{campaignName ? `#${campaignName}` : 'Semua kampanye'}</span> · {rangeText}{platform && type !== 'users' ? ` · ${PLATFORMS[platform].label}` : ''}
+				<b class="text-slate-900">{T.label}</b> · <span class="font-medium">{format.toUpperCase()}</span> · <span class="text-violet-700">{campaignName ? `#${campaignName}` : 'Semua kampanye'}</span> · {rangeText}{platform && type !== 'users' ? ` · ${PLATFORMS[platform].label}` : ''}
 				{#if statusError}<span class="block text-xs text-rose-600">Pilih minimal satu status.</span>{:else if colList && !cols[type].length}<span class="block text-xs text-rose-600">Pilih minimal satu kolom.</span>{/if}
 			</p>
-			<button class="btn btn-success btn-lg" disabled={!canSubmit}><Download /> Download CSV</button>
+			<button class="btn btn-success btn-lg" disabled={!canSubmit}><Download /> Download {format.toUpperCase()}</button>
 		</div>
 	</div>
 </form>

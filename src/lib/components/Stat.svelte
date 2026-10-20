@@ -1,8 +1,8 @@
 <script>
-	import { TrendingUp, TrendingDown, Minus } from '@lucide/svelte';
+	import { TrendingUp, TrendingDown, Minus, ArrowUpRight } from '@lucide/svelte';
 	import { fmtNum } from '#lib/constants.js';
-	/** desc: penjelasan singkat di bawah judul */
-	let { label, desc = '', value, prev = null, hint = '', accent = 'text-slate-900', icon: Icon = null, tone = 'brand' } = $props();
+	/** desc: penjelasan singkat di bawah judul; href: kartu bisa diklik ke halaman rincian */
+	let { label, desc = '', href = null, value, prev = null, hint = '', accent = 'text-slate-900', icon: Icon = null, tone = 'brand' } = $props();
 	const delta = $derived(prev === null ? null : prev === 0 ? (value > 0 ? 100 : 0) : Math.round(((value - prev) / prev) * 100));
 	const TONES = {
 		brand: 'bg-brand-50 text-brand-600',
@@ -14,7 +14,11 @@
 	};
 </script>
 
-<div class="card flex flex-col gap-3">
+<svelte:element
+	this={href ? 'a' : 'div'}
+	{href}
+	class="card group relative flex h-full flex-col gap-3 {href ? 'transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md' : ''}"
+>
 	<div class="flex items-start justify-between gap-2">
 		<div class="min-w-0">
 			<span class="block text-sm font-medium text-slate-500">{label}</span>
@@ -24,7 +28,8 @@
 			<span class="flex size-9 items-center justify-center rounded-lg {TONES[tone]}"><Icon class="size-[18px]" /></span>
 		{/if}
 	</div>
-	<div class="text-3xl font-semibold tracking-tight {accent}">{typeof value === 'number' ? fmtNum(value) : value}</div>
+	<!-- angka & keterangan menempel di bawah agar kartu tidak berlubang saat setinggi kartu lain -->
+	<div class="mt-auto pt-2 text-3xl font-semibold tracking-tight {accent}">{typeof value === 'number' ? fmtNum(value) : value}</div>
 	<div class="flex items-center gap-1.5 text-xs text-slate-500">
 		{#if delta !== null}
 			<span
@@ -41,5 +46,6 @@
 		{:else if hint}
 			<span>{hint}</span>
 		{/if}
+		{#if href}<ArrowUpRight class="ml-auto size-4 shrink-0 text-slate-300 transition group-hover:text-brand-600" />{/if}
 	</div>
-</div>
+</svelte:element>

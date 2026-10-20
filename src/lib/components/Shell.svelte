@@ -79,14 +79,15 @@
 <div class="min-h-screen transition-[padding] duration-200 {collapsed ? 'lg:pl-[72px]' : 'lg:pl-64'}">
 	<!-- Sidebar -->
 	<aside
-		class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-hidden bg-gradient-to-b from-slate-950 via-[#12143a] to-[#1e1550] text-slate-300 transition-[transform,width] duration-200 lg:translate-x-0 {open
+		class="fixed inset-y-0 left-0 z-40 flex w-64 transform-gpu flex-col overflow-hidden [contain:paint] bg-gradient-to-b from-slate-950 via-[#12143a] to-[#1e1550] text-slate-300 transition-[transform,width] duration-200 lg:translate-x-0 {open
 			? 'translate-x-0 shadow-2xl'
 			: '-translate-x-full'} {collapsed ? 'lg:w-[72px]' : ''}"
 		data-collapsed={collapsed}
 	>
 		<!-- efek cahaya dekoratif -->
-		<div class="pointer-events-none absolute -top-24 -left-20 size-64 rounded-full bg-brand-500/25 blur-3xl"></div>
-		<div class="pointer-events-none absolute -right-24 bottom-10 size-64 rounded-full bg-fuchsia-500/15 blur-3xl"></div>
+		<!-- gradasi radial biasa (tanpa filter blur yang berat saat halaman di-scroll) -->
+		<div class="pointer-events-none absolute -top-40 -left-36 size-96 bg-[radial-gradient(closest-side,rgb(99_102_241/0.28),transparent)]"></div>
+		<div class="pointer-events-none absolute -right-40 -bottom-16 size-96 bg-[radial-gradient(closest-side,rgb(217_70_239/0.16),transparent)]"></div>
 		<div
 			class="pointer-events-none absolute inset-0 opacity-[0.04]"
 			style="background-image:radial-gradient(#fff 1px,transparent 1px);background-size:18px 18px"

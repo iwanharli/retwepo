@@ -4,8 +4,9 @@
 	import RangeFilter from '#lib/components/RangeFilter.svelte';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
-	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper, Eye, Layers, FileText, Reply, UserCheck, CalendarDays, Gauge, Users, Activity, AtSign, Image, Link2, LayoutDashboard, Clock, Megaphone, Hash, TrendingUp, TrendingDown, BadgeCheck, ShieldCheck } from '@lucide/svelte';
+	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper, Eye, Layers, FileText, Reply, UserCheck, CalendarDays, Gauge, Users, Activity, AtSign, Image, Link2, LayoutDashboard, Clock, Megaphone, Hash, TrendingUp, TrendingDown, BadgeCheck, ShieldCheck, TriangleAlert, X } from '@lucide/svelte';
 	import { page } from '$app/state';
+	import { fly } from 'svelte/transition';
 	import CampaignBadge from '#lib/components/CampaignBadge.svelte';
 	import { PLATFORMS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 
@@ -235,6 +236,28 @@
 		};
 	});
 
+	// ---- notifikasi "perlu ditinjau"
+	const pendingKey = $derived(`${s.totals.pending_users}:${s.totals.pending_accounts}`);
+	let dismissed = $state(null);
+	$effect(() => {
+		try {
+			dismissed = sessionStorage.getItem('retwepo:pending-dismissed') ?? '';
+		} catch {
+			dismissed = ''; // storage tidak tersedia: tetap tampilkan
+		}
+	});
+	const showPending = $derived(
+		Boolean(s.totals.pending_users || s.totals.pending_accounts) && dismissed !== null && dismissed !== pendingKey
+	);
+	function dismissPending() {
+		dismissed = pendingKey;
+		try {
+			sessionStorage.setItem('retwepo:pending-dismissed', pendingKey);
+		} catch {
+			/* abaikan */
+		}
+	}
+
 	const maxUser = $derived(Math.max(1, ...s.topUsers.map((u) => u.total)));
 	const maxAcc = $derived(Math.max(1, ...s.topAccounts.map((a) => a.total)));
 </script>
@@ -280,11 +303,24 @@
 </nav>
 
 {#if data.tab === 'ringkasan'}
-{#if s.totals.pending_users || s.totals.pending_accounts}
-	<div class="mb-6 flex flex-wrap gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-		<span>⚠ Perlu ditinjau:</span>
-		{#if s.totals.pending_users}<a href="/admin/users?status=pending" class="font-semibold hover:underline">{s.totals.pending_users} user baru</a>{/if}
-		{#if s.totals.pending_accounts}<a href="/admin/accounts" class="font-semibold hover:underline">{s.totals.pending_accounts} akun sosmed</a>{/if}
+{#if showPending}
+	<!-- notifikasi pojok kanan atas; ditutup = tidak muncul lagi sampai jumlahnya berubah -->
+	<div
+		role="alert"
+		transition:fly={{ x: 40, duration: 250 }}
+		class="fixed top-20 right-4 z-40 w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-amber-200 bg-white p-4 shadow-xl ring-4 ring-amber-500/10"
+	>
+		<div class="flex items-start gap-3">
+			<span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600"><TriangleAlert class="size-[18px]" /></span>
+			<div class="min-w-0 flex-1">
+				<p class="text-sm font-semibold text-slate-900">Perlu ditinjau</p>
+				<ul class="mt-1.5 space-y-1 text-sm">
+					{#if s.totals.pending_users}<li><a href="/admin/users?status=pending" class="font-medium text-amber-700 hover:underline">{fmtNum(s.totals.pending_users)} pendaftaran user baru →</a></li>{/if}
+					{#if s.totals.pending_accounts}<li><a href="/admin/accounts" class="font-medium text-amber-700 hover:underline">{fmtNum(s.totals.pending_accounts)} pengajuan akun sosmed →</a></li>{/if}
+				</ul>
+			</div>
+			<button type="button" class="-mt-1 -mr-1 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600" onclick={dismissPending} aria-label="Tutup"><X class="size-4" /></button>
+		</div>
 	</div>
 {/if}
 

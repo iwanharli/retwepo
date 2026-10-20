@@ -1,8 +1,6 @@
 <script>
 	import {
 		ScrollText,
-		Search,
-		SlidersHorizontal,
 		Inbox,
 		UserCheck,
 		UserX,
@@ -26,6 +24,7 @@
 	import EmptyState from '#lib/components/EmptyState.svelte';
 	import Pagination from '#lib/components/Pagination.svelte';
 	import RangeFilter from '#lib/components/RangeFilter.svelte';
+	import FilterSelect from '#lib/components/FilterSelect.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
 
 	let { data } = $props();
@@ -58,49 +57,22 @@
 	const styleOf = (k) => STYLE[k] ?? [ScrollText, 'bg-slate-100 text-slate-600 ring-slate-200'];
 
 	const targetHref = (l) => (l.target_type === 'user' && l.target_user_status ? adminUserHref(l.target_id, l.target_user_status) : null);
-	const actionHref = (a) => {
-		const u = new URLSearchParams({ from: data.f.from, to: data.f.to });
-		if (a) u.set('action', a);
-		if (data.f.q) u.set('q', data.f.q);
-		return '?' + u;
-	};
 </script>
 
 <svelte:head><title>Log Aktivitas · Admin Retwepo</title></svelte:head>
 
 <PageHeader title="Log Aktivitas" description="Catatan setiap aksi admin: siapa, kapan, terhadap apa, dan alasannya." icon={ScrollText} />
-<RangeFilter card from={data.f.from} to={data.f.to} />
-
-<div class="mb-5 flex flex-wrap gap-1.5">
-	<a
-		href={actionHref(null)}
-		class="inline-flex h-8 items-center gap-2 rounded-full px-3.5 text-xs font-medium transition {!data.f.action
-			? 'bg-slate-900 text-white'
-			: 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}">Semua aksi</a
-	>
-	{#each Object.entries(data.actions).filter(([k]) => data.counts[k]) as [k, label]}
-		{@const [Icon] = styleOf(k)}
-		<a
-			href={actionHref(k)}
-			class="inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-xs font-medium transition {data.f.action === k
-				? 'bg-slate-900 text-white'
-				: 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}"
-		>
-			<Icon class="size-3.5" />{label}<span class="opacity-60">{data.counts[k]}</span>
-		</a>
-	{/each}
-</div>
-
-<form method="GET" class="card mb-6 grid grid-cols-2 gap-3 p-4 md:grid-cols-12 lg:p-5">
-	<input type="hidden" name="from" value={data.f.from} />
-	<input type="hidden" name="to" value={data.f.to} />
-	{#if data.f.action}<input type="hidden" name="action" value={data.f.action} />{/if}
-	<div class="relative col-span-2 md:col-span-10">
-		<Search class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
-		<input class="input pl-9" name="q" value={data.f.q} placeholder="Cari nama admin, target (user / akun / rekap), atau alasan…" aria-label="Cari log" />
-	</div>
-	<button class="btn btn-primary col-span-2 h-10 md:col-span-2"><SlidersHorizontal /> Terapkan</button>
-</form>
+<RangeFilter from={data.f.from} to={data.f.to} extra={['action']} search={{ value: data.f.q, placeholder: 'Cari nama admin, target (user / akun / rekap), atau alasan…' }}>
+	<FilterSelect
+		name="action"
+		value={data.f.action ?? ''}
+		all="Semua aksi"
+		label="Jenis aksi"
+		options={Object.entries(data.actions)
+			.filter(([k]) => data.counts[k])
+			.map(([k, label]) => [k, `${label} (${data.counts[k]})`])}
+	/>
+</RangeFilter>
 
 {#if data.rows.length}
 	<div class="card p-0">

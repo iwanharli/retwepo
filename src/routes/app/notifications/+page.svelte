@@ -6,6 +6,7 @@
 	import EmptyState from '#lib/components/EmptyState.svelte';
 	import Pagination from '#lib/components/Pagination.svelte';
 	import NotificationIcon from '#lib/components/NotificationIcon.svelte';
+	import FilterTabs from '#lib/components/FilterTabs.svelte';
 	let { data } = $props();
 </script>
 
@@ -19,16 +20,14 @@
 	{/snippet}
 </PageHeader>
 
-<div class="mb-4 flex gap-1.5">
-	{#each [[false, 'Semua'], [true, 'Belum dibaca']] as [u, lbl]}
-		<a
-			href={u ? '?filter=unread' : '?'}
-			class="inline-flex h-9 items-center rounded-full px-4 text-sm font-medium transition {data.unreadOnly === u
-				? 'bg-slate-900 text-white'
-				: 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}">{lbl}</a
-		>
-	{/each}
-</div>
+<FilterTabs
+	param="filter"
+	current={data.unreadOnly ? 'unread' : null}
+	items={[
+		{ value: null, label: 'Semua' },
+		{ value: 'unread', label: 'Belum dibaca' }
+	]}
+/>
 
 {#if data.rows.length}
 	<div class="card p-0">

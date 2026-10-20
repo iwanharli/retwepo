@@ -173,10 +173,8 @@
 	</table>
 </div>
 
-<div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-	<h2 class="text-lg font-semibold">Aktivitas</h2>
-	<RangeFilter from={data.range.from} to={data.range.to} />
-</div>
+<h2 class="mb-3 text-lg font-semibold">Aktivitas</h2>
+<RangeFilter from={data.range.from} to={data.range.to} />
 
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
 	<Stat label="Rekap periode" href={recapsHref()} desc="Rekap pada rentang tanggal terpilih" value={st.summary.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />

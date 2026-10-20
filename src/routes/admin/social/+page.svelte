@@ -1,5 +1,5 @@
 <script>
-	import { BadgeCheck, SearchX, ShieldOff, Images, UserCheck, Ban, Users, Eye, ChevronDown, ChevronsUpDown, ChevronsDownUp, ArrowDownUp, Wallet } from '@lucide/svelte';
+	import { BadgeCheck, SearchX, ShieldOff, Images, UserCheck, Ban, Users, Eye, ChevronDown, ChevronsUpDown, ChevronsDownUp, Wallet } from '@lucide/svelte';
 	import { page } from '$app/state';
 	import { USER_STATUS, fmtDate, fmtNum, adminUserHref, ACCOUNT_EXPORT_COLUMNS } from '#lib/constants.js';
 	import Badge from '#lib/components/Badge.svelte';
@@ -11,6 +11,8 @@
 	import PageHeader from '#lib/components/PageHeader.svelte';
 	import EmptyState from '#lib/components/EmptyState.svelte';
 	import AccountListToolbar from '#lib/components/AccountListToolbar.svelte';
+	import FilterTabs from '#lib/components/FilterTabs.svelte';
+	import FilterSelect from '#lib/components/FilterSelect.svelte';
 	import ActionDialog from '#lib/components/ActionDialog.svelte';
 	import AddAccountDialog from '#lib/components/AddAccountDialog.svelte';
 	import CsvExportDialog from '#lib/components/CsvExportDialog.svelte';
@@ -29,21 +31,7 @@
 	const allOpen = $derived(data.groups.length > 0 && data.groups.every((g) => open.has(g.user_id)));
 	const toggleAll = () => (open = allOpen ? new Set() : new Set(data.groups.map((g) => g.user_id)));
 
-	function ownerHref(val) {
-		const u = new URLSearchParams(page.url.search);
-		u.delete('page');
-		if (val === 'approved') u.delete('owner');
-		else u.set('owner', val);
-		return '?' + u;
-	}
 	const SORTS = [['month', 'Rekap 30 hari'], ['total', 'Total rekap'], ['last', 'Terakhir rekap'], ['accounts', 'Jumlah akun'], ['owner', 'Nama']];
-	function sortTo(key) {
-		const u = new URLSearchParams(page.url.search);
-		u.delete('page');
-		u.set('sort', key);
-		u.set('dir', key === 'owner' ? 'asc' : 'desc');
-		return '?' + u;
-	}
 	const DAY = 86400000;
 	const idle = (d) => (d ? Math.floor((Date.now() - new Date(d)) / DAY) : null);
 </script>
@@ -85,38 +73,25 @@
 </PageHeader>
 
 <!-- status pemilik akun -->
-<div class="mb-4 flex flex-wrap gap-1.5">
-	{#each [['approved', 'Pemilik aktif', UserCheck], ['suspended', 'Pemilik ditangguhkan', Ban], ['all', 'Semua', Users]] as [val, lbl, Icon]}
-		{@const active = data.owner === val}
-		<a
-			href={ownerHref(val)}
-			class="inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm font-medium transition {active
-				? val === 'suspended'
-					? 'bg-amber-500 text-white shadow-sm'
-					: 'bg-slate-900 text-white shadow-sm'
-				: 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}"
-		>
-			<Icon class="size-4" />{lbl}
-			<span class="rounded-full px-1.5 text-xs {active ? 'bg-white/20' : 'bg-slate-100 text-slate-500'}">{fmtNum(data.ownerCounts[val])}</span>
-		</a>
-	{/each}
-</div>
+<FilterTabs
+	param="owner"
+	current={data.owner === 'approved' ? null : data.owner}
+	items={[
+		{ value: null, label: 'Pemilik aktif', count: data.ownerCounts.approved, icon: UserCheck },
+		{ value: 'suspended', label: 'Pemilik ditangguhkan', count: data.ownerCounts.suspended, icon: Ban, alert: 'amber' },
+		{ value: 'all', label: 'Semua', count: data.ownerCounts.all, icon: Users }
+	]}
+/>
 
-<AccountListToolbar f={data.f} keep={{ owner: data.owner === 'approved' ? null : data.owner }} />
+<AccountListToolbar f={data.f} extra={['sort', 'dir']} uncounted={['sort', 'dir']}>
+	<FilterSelect name="sort" value={data.f.sort.key === 'month' ? '' : data.f.sort.key} all="Urut: rekap 30 hari" label="Urutkan" options={SORTS.filter(([k]) => k !== 'month').map(([k, l]) => [k, `Urut: ${l.toLowerCase()}`])} />
+</AccountListToolbar>
 <Flash {form} />
 
 {#if data.groups.length}
 	<!-- urutan & buka/tutup semua -->
 	<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-		<div class="flex flex-wrap items-center gap-1.5 text-sm">
-			<span class="mr-1 flex items-center gap-1.5 text-slate-500"><ArrowDownUp class="size-4" /> Urutkan</span>
-			{#each SORTS as [key, lbl]}
-				<a
-					href={sortTo(key)}
-					class="rounded-full px-3 py-1 font-medium transition {data.f.sort.key === key ? 'bg-brand-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}">{lbl}</a
-				>
-			{/each}
-		</div>
+		<span class="text-sm text-slate-500">{fmtNum(data.total)} user · {fmtNum(data.accounts)} akun</span>
 		{#if !data.f.q}
 			<button type="button" class="btn btn-secondary btn-sm" onclick={toggleAll}>
 				{#if allOpen}<ChevronsDownUp /> Tutup semua{:else}<ChevronsUpDown /> Buka semua{/if}

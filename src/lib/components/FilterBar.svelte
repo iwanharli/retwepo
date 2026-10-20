@@ -122,7 +122,7 @@
 			inert={!open}
 		>
 			<!-- kepala -->
-			<div class="relative flex items-start gap-3 overflow-hidden bg-gradient-to-br from-brand-600 to-violet-700 px-5 pt-5 pb-6 text-white">
+			<div class="relative flex items-start gap-3 overflow-hidden bg-gradient-to-br from-brand-600 to-violet-700 px-5 py-5 text-white">
 				<div class="pointer-events-none absolute -top-10 -right-10 size-40 rounded-full bg-white/10"></div>
 				<span class="relative flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25"><SlidersHorizontal class="size-5" /></span>
 				<div class="relative min-w-0 flex-1">
@@ -132,7 +132,7 @@
 				<button type="button" class="relative -mt-1 -mr-1 flex size-9 items-center justify-center rounded-lg text-white/80 hover:bg-white/15 hover:text-white" onclick={() => (open = false)} aria-label="Tutup"><X class="size-5" /></button>
 			</div>
 
-			<div class="-mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-4">
+			<div class="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
 				{#if dates}
 					<section class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200/70">
 						<h3 class="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900"><span class="flex size-7 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><CalendarDays class="size-4" /></span>Periode</h3>

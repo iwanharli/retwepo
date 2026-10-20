@@ -70,8 +70,8 @@
 		all="Semua aksi"
 		label="Jenis aksi"
 		options={Object.entries(data.actions)
-			.filter(([k]) => data.counts[k])
-			.map(([k, label]) => [k, `${label} (${data.counts[k]})`])}
+			.filter(([k]) => data.counts[k] || k === data.f.action)
+			.map(([k, label]) => [k, `${label} (${data.counts[k] ?? 0})`])}
 	/>
 </RangeFilter>
 

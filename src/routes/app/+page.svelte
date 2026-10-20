@@ -27,6 +27,14 @@
 	const c = $derived(data.counts);
 	// 7 hari terakhir (postingan + panel) untuk grafik batang kecil
 	const last7 = $derived(data.last7);
+	// tujuan klik kartu: riwayat rekap dengan filter yang sama
+	function recapsHref(from, to) {
+		const u = new URLSearchParams({ from, to });
+		if (data.campaign) u.set('campaign', data.campaign);
+		if (data.platform) u.set('platform', data.platform);
+		return `/app/recaps?${u}`;
+	}
+	const todayYmd = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date());
 	const max7 = $derived(Math.max(1, ...last7));
 	const canRecap = $derived(!data.missingProfile.length && data.perAccount.some((a) => a.status === 'approved'));
 
@@ -135,7 +143,7 @@
 <!-- KPI -->
 <div class="grid grid-cols-2 gap-4 lg:gap-6 xl:grid-cols-4">
 	<!-- kartu utama: hari ini -->
-	<section class="relative col-span-2 overflow-hidden rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 via-white to-white p-5 shadow-sm xl:col-span-1">
+	<a href={recapsHref(todayYmd, todayYmd)} class="relative col-span-2 block overflow-hidden rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 via-white to-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md xl:col-span-1">
 		<div class="flex items-start justify-between gap-2">
 			<div>
 				<span class="block text-sm font-semibold text-brand-700">Hari ini</span>
@@ -156,10 +164,10 @@
 				<div class="flex-1 rounded-sm {i === 6 ? 'bg-brand-600' : 'bg-brand-200'}" style="height:{Math.max(8, (n / max7) * 100)}%" title="{n} rekap"></div>
 			{/each}
 		</div>
-	</section>
-	<Stat label="Rekap periode" desc={periodText} value={c.period} prev={c.prev_period} icon={CalendarRange} tone="sky" />
-	<Stat label="Rata-rata / hari" desc="Rekap per hari di periode terpilih" value={Math.round((c.period / data.range.days) * 10) / 10} icon={CalendarDays} tone="violet" hint="{c.active_days} dari {data.range.days} hari aktif" />
-	<div class="card flex flex-col gap-3">
+	</a>
+	<Stat label="Rekap periode" href={recapsHref(data.range.from, data.range.to)} desc={periodText} value={c.period} prev={c.prev_period} icon={CalendarRange} tone="sky" />
+	<Stat label="Rata-rata / hari" href={recapsHref(data.range.from, data.range.to)} desc="Rekap per hari di periode terpilih" value={Math.round((c.period / data.range.days) * 10) / 10} icon={CalendarDays} tone="violet" hint="{c.active_days} dari {data.range.days} hari aktif" />
+	<a href={recapsHref('', '')} class="card flex flex-col gap-3 transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md">
 		<div class="flex items-start justify-between gap-2">
 			<div>
 				<span class="block text-sm font-medium text-slate-500">Total rekap</span>
@@ -167,7 +175,7 @@
 			</div>
 			<span class="flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600"><Layers class="size-[18px]" /></span>
 		</div>
-		<div class="text-3xl font-semibold tracking-tight">{fmtNum(c.total)}</div>
+		<div class="mt-auto pt-2 text-3xl font-semibold tracking-tight">{fmtNum(c.total)}</div>
 		<div>
 			<div class="flex h-1.5 overflow-hidden rounded-full bg-slate-100">
 				<div class="bg-brand-500" style="width:{c.total ? (c.posts / c.total) * 100 : 0}%"></div>
@@ -177,7 +185,7 @@
 				<span>{fmtNum(c.posts)} postingan</span><span>{fmtNum(c.replies)} panel</span>
 			</div>
 		</div>
-	</div>
+	</a>
 </div>
 
 <div class="mt-6 grid gap-6 lg:mt-8 xl:grid-cols-3">

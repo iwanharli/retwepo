@@ -258,6 +258,15 @@
 		}
 	}
 
+	// ---- tujuan klik kartu: daftar rekap dengan filter yang sama
+	function recapsHref(extra = {}) {
+		const u = new URLSearchParams({ from: data.range.from, to: data.range.to });
+		if (data.campaign) u.set('campaign', data.campaign);
+		if (data.platform) u.set('platform', data.platform);
+		for (const [key, v] of Object.entries(extra)) u.set(key, v);
+		return `/admin/recaps?${u}`;
+	}
+
 	// ---- kartu utama
 	const change = (v, p) => (p === 0 ? (v > 0 ? 100 : 0) : Math.round(((v - p) / p) * 100));
 	const totalDelta = $derived(change(k.total, s.prev.total));
@@ -358,7 +367,7 @@
 {@render divider('Aktivitas rekap', 'periode terpilih')}
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
 	<!-- kartu utama: total rekap -->
-	<section class="relative col-span-2 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-violet-800 p-6 text-white shadow-lg shadow-brand-900/20">
+	<a href={recapsHref()} class="group relative col-span-2 block overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-violet-800 p-6 text-white shadow-lg shadow-brand-900/20 transition hover:-translate-y-0.5 hover:shadow-xl">
 		<div class="pointer-events-none absolute -top-16 -right-16 size-56 rounded-full bg-white/10 blur-2xl"></div>
 		<div class="relative flex items-start justify-between gap-4">
 			<div>
@@ -385,9 +394,9 @@
 				<span><span class="mr-1.5 inline-block size-2 rounded-full bg-sky-300 align-middle"></span>Panel <b class="text-white">{fmtNum(k.replies)}</b></span>
 			</div>
 		</div>
-	</section>
-	<Stat label="Postingan" desc="Konten yang diunggah sendiri oleh user" value={k.posts} prev={data.stats.prev.posts} icon={FileText} tone="violet" />
-	<Stat label="Panel" desc="Reply, like, retweet & share di postingan lain" value={k.replies} prev={data.stats.prev.replies} icon={Reply} tone="sky" />
+	</a>
+	<Stat label="Postingan" href={recapsHref({ type: 'post' })} desc="Konten yang diunggah sendiri oleh user" value={k.posts} prev={data.stats.prev.posts} icon={FileText} tone="violet" />
+	<Stat label="Panel" href={recapsHref({ type: 'reply' })} desc="Reply, like, retweet & share di postingan lain" value={k.replies} prev={data.stats.prev.replies} icon={Reply} tone="sky" />
 </div>
 
 <!-- 2. siapa yang bekerja -->
@@ -395,7 +404,7 @@
 	{@render divider('Partisipasi user', 'dari user terverifikasi')}
 	<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
 		<!-- kartu utama kedua: user aktif + cincin partisipasi -->
-		<section class="col-span-2 flex items-center gap-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-white p-6 shadow-sm">
+		<a href="/admin/members?sort=month&dir=desc" class="col-span-2 flex items-center gap-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md">
 			<div class="relative size-28 shrink-0">
 				<svg viewBox="0 0 36 36" class="size-full -rotate-90">
 					<circle cx="18" cy="18" r="15.5" fill="none" class="stroke-emerald-100" stroke-width="3.5" />
@@ -417,7 +426,7 @@
 				</div>
 				<p class="mt-2 text-xs text-slate-500">User terverifikasi yang membuat minimal 1 rekap di periode ini. Partisipasi = user aktif ÷ user terverifikasi.</p>
 			</div>
-		</section>
+		</a>
 		<!-- perlu perhatian -->
 		<a href="/admin/members?status=approved&sort=last&dir=asc" class="card group flex flex-col gap-3 border-rose-200 bg-rose-50/40 transition hover:border-rose-300 hover:shadow-md">
 			<div class="flex items-start justify-between gap-2">
@@ -430,7 +439,7 @@
 			<div class="text-3xl font-semibold tracking-tight text-rose-600">{fmtNum(s.totals.inactive_users)}</div>
 			<div class="flex items-center gap-1 text-xs text-rose-700/80">perlu ditindaklanjuti <ArrowRight class="size-3.5 transition group-hover:translate-x-0.5" /></div>
 		</a>
-		<Stat label="Rata-rata / user" desc="Rekap per user aktif di periode ini" value={k.active_users ? Math.round((k.total / k.active_users) * 10) / 10 : 0} hint="rekap per user aktif" icon={Gauge} tone="violet" />
+		<Stat label="Rata-rata / user" href="/admin/members?sort=month&dir=desc" desc="Rekap per user aktif di periode ini" value={k.active_users ? Math.round((k.total / k.active_users) * 10) / 10 : 0} hint="rekap per user aktif" icon={Gauge} tone="violet" />
 	</div>
 </div>
 
@@ -439,15 +448,15 @@
 	<div class="flex flex-col lg:col-span-3">
 		{@render divider('User & akun', 'total terverifikasi')}
 		<div class="grid flex-1 grid-cols-2 gap-4 md:grid-cols-3">
-			<Stat label="User disetujui" desc="User yang sudah diverifikasi admin" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar periode ini" icon={Users} tone="sky" />
-			<Stat label="Akun sosmed disetujui" desc="Akun yang boleh dipakai untuk rekap" value={s.totals.approved_accounts} hint={s.totals.pending_accounts ? `+${fmtNum(s.totals.pending_accounts)} menunggu verifikasi` : 'total akun terverifikasi'} icon={BadgeCheck} tone="emerald" />
-			<Stat label="Akun aktif" desc="Akun yang dipakai merekap di periode ini" value={k.active_accounts} hint="{pct(k.active_accounts, s.totals.approved_accounts)}% akun dipakai periode ini" icon={AtSign} tone="amber" />
+			<Stat label="User disetujui" href="/admin/members" desc="User yang sudah diverifikasi admin" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar periode ini" icon={Users} tone="sky" />
+			<Stat label="Akun sosmed disetujui" href="/admin/social" desc="Akun yang boleh dipakai untuk rekap" value={s.totals.approved_accounts} hint={s.totals.pending_accounts ? `+${fmtNum(s.totals.pending_accounts)} menunggu verifikasi` : 'total akun terverifikasi'} icon={BadgeCheck} tone="emerald" />
+			<Stat label="Akun aktif" href="/admin/social?sort=last&dir=desc" desc="Akun yang dipakai merekap di periode ini" value={k.active_accounts} hint="{pct(k.active_accounts, s.totals.approved_accounts)}% akun dipakai periode ini" icon={AtSign} tone="amber" />
 		</div>
 	</div>
 	<div class="flex flex-col">
 		{@render divider('Kualitas bukti', 'periode ini')}
 		<!-- screenshot & URL dalam satu kartu -->
-		<div class="card flex flex-1 flex-col gap-3">
+		<a href={recapsHref({ evidence: 'shot' })} class="card flex flex-1 flex-col gap-3 transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md">
 			<div class="flex items-start justify-between gap-2">
 				<div>
 					<span class="block text-sm font-medium text-slate-500">Rekap dengan bukti</span>
@@ -467,7 +476,7 @@
 					</div>
 				{/each}
 			</div>
-		</div>
+		</a>
 	</div>
 </div>
 

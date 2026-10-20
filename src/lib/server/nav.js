@@ -4,9 +4,10 @@ import { db } from './db/index.js';
 // `icon` adalah kunci ikon Lucide yang dipetakan di Shell.svelte
 // `cta`: tidak tampil di daftar menu, tapi sebagai tombol mencolok di bawah sidebar
 const USER_NAV = [
-	{ section: 'Menu' },
+	{ section: 'Rekap' },
 	{ href: '/app', label: 'Dashboard', icon: 'dashboard' },
 	{ href: '/app/recaps', label: 'Riwayat Rekap', icon: 'history' },
+	{ section: 'Akun Saya' },
 	{ href: '/app/accounts', label: 'Akun Sosmed', icon: 'accounts' },
 	{ href: '/app/notifications', label: 'Notifikasi', icon: 'bell' },
 	{ href: '/app/profile', label: 'Profil', icon: 'profile' },

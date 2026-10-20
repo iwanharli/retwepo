@@ -1,7 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
-import { csvResponse } from '#lib/server/csv.js';
-import { exportParams, wib, campaignTag } from '#lib/server/export-common.js';
+import { exportParams, wib, campaignTag, exportResponse } from '#lib/server/export-common.js';
 import { ACCOUNT_EXPORT_COLUMNS, ACCOUNT_STATUS, USER_STATUS, PLATFORMS } from '#lib/constants.js';
 
 /**
@@ -52,8 +51,9 @@ export async function GET({ url }) {
 	};
 
 	const tag = await campaignTag(o.campaign);
-	return csvResponse(
-		`akun-sosmed${tag}-${o.rangeLabel}.csv`,
+	return exportResponse(
+		url,
+		{ title: 'Data akun sosmed', filename: `akun-sosmed${tag}-${o.rangeLabel}.csv` },
 		o.cols.flatMap((c) => DEF[c][0]),
 		[...rows].map((r) => o.cols.flatMap((c) => DEF[c][1](r))),
 		o.sep

@@ -1,4 +1,4 @@
-import { TZ } from '#lib/constants.js';
+import { TZ, PLATFORMS, parsePlatforms } from '#lib/constants.js';
 import { eq } from 'drizzle-orm';
 import { startOfDay, addDays, ymd } from './dates.js';
 import { db } from './db/index.js';
@@ -29,7 +29,7 @@ export function exportParams(url, columns, allowedStatuses) {
 		end: to ? startOfDay(addDays(to, 1)).toISOString() : null,
 		statuses,
 		q: (p.get('q') ?? '').trim().slice(0, 100),
-		platform: p.get('platform') || null,
+		platforms: parsePlatforms(p),
 		// ?campaign=ID → jumlah rekap hanya dari kampanye ini
 		campaign: Number(p.get('campaign')) || null,
 		rangeLabel: from || to ? `${from ?? 'awal'}_${to ?? ymd()}` : 'semua-waktu'
@@ -58,7 +58,8 @@ export async function describeFilters(url) {
 	const to = DATE_RE.test(p.get('to') ?? '') ? p.get('to') : null;
 	const fmt = (d) => new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${d}T00:00:00Z`));
 	out.push(`Periode: ${from || to ? `${from ? fmt(from) : 'awal'} – ${to ? fmt(to) : 'sekarang'}` : 'semua waktu'}`);
-	if (p.get('platform')) out.push(`Platform: ${p.get('platform')}`);
+	const pl = parsePlatforms(p);
+	if (pl.length) out.push(`Platform: ${pl.map((k) => PLATFORMS[k].label).join(', ')}`);
 	if (p.get('type') === 'post') out.push('Tipe: postingan');
 	if (p.get('type') === 'reply') out.push('Tipe: panel');
 	if (p.getAll('status').length) out.push(`Status: ${p.getAll('status').join(', ')}`);

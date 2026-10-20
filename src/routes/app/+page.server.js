@@ -1,7 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
 import { ymd, addDays, startOfDay, dayList, parseRange } from '#lib/server/dates.js';
-import { TZ, PLATFORMS } from '#lib/constants.js';
+import { TZ, parsePlatforms } from '#lib/constants.js';
+import { platformCond } from '#lib/server/filters.js';
 import { listCampaigns } from '#lib/server/campaigns.js';
 import { missingProfile } from '#lib/server/profile.js';
 
@@ -18,9 +19,9 @@ export async function load({ locals, url }) {
 	const [start, end, prevStart, prevEnd] = [range.start, range.end, range.prevStart, range.prevEnd].map(iso);
 	const campaigns = await listCampaigns();
 	const campaign = campaigns.find((c) => c.id === Number(url.searchParams.get('campaign')))?.id ?? null;
-	const platform = PLATFORMS[url.searchParams.get('platform')] ? url.searchParams.get('platform') : null;
+	const platforms = parsePlatforms(url.searchParams);
 	// kondisi untuk rekap alias r (butuh join social_accounts a)
-	const F = sql`${campaign ? sql`AND r.campaign_id = ${campaign}` : sql``} ${platform ? sql`AND a.platform = ${platform}` : sql``}`;
+	const F = sql`${campaign ? sql`AND r.campaign_id = ${campaign}` : sql``} ${platformCond(platforms)}`;
 	const FROM = sql`FROM active_recaps r JOIN social_accounts a ON a.id = r.social_account_id WHERE r.user_id = ${uid} ${F}`;
 
 	const [counts] = await db.execute(sql`
@@ -58,7 +59,7 @@ export async function load({ locals, url }) {
 			max(r.posted_at) AS last_at
 		FROM social_accounts a
 		LEFT JOIN active_recaps r ON r.social_account_id = a.id ${campaign ? sql`AND r.campaign_id = ${campaign}` : sql``}
-		WHERE a.user_id = ${uid} ${platform ? sql`AND a.platform = ${platform}` : sql``}
+		WHERE a.user_id = ${uid} ${platformCond(platforms)}
 		GROUP BY a.id ORDER BY period DESC, total DESC`);
 
 	const recent = await db.execute(sql`
@@ -84,7 +85,7 @@ export async function load({ locals, url }) {
 		range: { from: range.from, to: range.to, days: range.days },
 		campaign,
 		campaigns,
-		platform,
+		platforms,
 		days,
 		series, perAccount: [...perAccount], recent: [...recent], missingProfile: missingProfile(locals.user) };
 }

@@ -31,7 +31,7 @@
 	{#if accounts}
 		<FilterSelect name="account" value={f.account ?? ''} all="Semua akun" options={accounts.map((a) => [a.id, `${PLATFORMS[a.platform].label} · @${a.username}`])} />
 	{:else}
-		<FilterSelect name="platform" value={f.platform ?? ''} all="Semua platform" options={PLATFORM_KEYS.map((k) => [k, PLATFORMS[k].label])} />
+		<FilterSelect name="platform" multiple value={f.platforms} all="Semua platform" options={PLATFORM_KEYS.map((k) => [k, PLATFORMS[k].label])} />
 	{/if}
 	<FilterSelect name="campaign" value={f.campaign ?? ''} all="Semua kampanye" options={campaigns.map((c) => [c.id, `#${c.name}`])} />
 	<FilterSelect name="type" value={f.type ?? ''} all="Semua tipe" options={[['post', 'Postingan'], ['reply', 'Panel']]} />

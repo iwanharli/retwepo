@@ -2,24 +2,24 @@ import { sql } from 'drizzle-orm';
 import { db } from './db/index.js';
 import { TZ } from '#lib/constants.js';
 import { dayList } from './dates.js';
+import { platformCond } from './filters.js';
 
 const rows = async (q) => [...(await db.execute(q))];
 const one = async (q) => (await db.execute(q))[0];
 
 /** Filter platform & kampanye opsional (alias "a" = social_accounts, "r" = rekap) */
-const pf = (platform, campaign) =>
-	sql`${platform ? sql`AND a.platform = ${platform}` : sql``} ${campaign ? sql`AND r.campaign_id = ${campaign}` : sql``}`;
+const pf = (platforms, campaign) => sql`${platformCond(platforms)} ${campaign ? sql`AND r.campaign_id = ${campaign}` : sql``}`;
 
 /** Parameter Date harus dikirim sebagai string ke query mentah */
 const iso = (d) => d.toISOString();
 
 export async function adminStats(range) {
-	const { from, to, platform, campaign = null } = range;
+	const { from, to, platforms = [], campaign = null } = range;
 	// rentang satu hari → tren per jam (24 titik), selain itu per hari
 	const hourly = from === to;
 	const bucketFmt = hourly ? 'HH24' : 'YYYY-MM-DD';
 	const [start, end, prevStart, prevEnd] = [range.start, range.end, range.prevStart, range.prevEnd].map(iso);
-	const P = pf(platform, campaign);
+	const P = pf(platforms, campaign);
 
 	const kpiQuery = (s, e) => sql`
 		SELECT count(*)::int AS total,
@@ -95,7 +95,7 @@ export async function adminStats(range) {
 					FROM users u
 					LEFT JOIN active_recaps r ON r.user_id = u.id AND r.posted_at >= ${start} AND r.posted_at < ${end}
 						AND (${campaign}::int IS NULL OR r.campaign_id = ${campaign})
-						AND (${platform}::text IS NULL OR EXISTS (SELECT 1 FROM social_accounts a WHERE a.id = r.social_account_id AND a.platform::text = ${platform}))
+						AND (${platforms.length === 0} OR EXISTS (SELECT 1 FROM social_accounts a WHERE a.id = r.social_account_id ${platformCond(platforms)}))
 					WHERE u.status = 'approved'
 					GROUP BY u.id
 				)
@@ -158,11 +158,11 @@ export async function adminStats(range) {
  * Filter platform tetap berlaku; filter kampanye diabaikan karena semua kampanye dibandingkan.
  */
 export async function campaignStats(range) {
-	const { from, to, platform } = range;
+	const { from, to, platforms = [] } = range;
 	const hourly = from === to;
 	const bucketFmt = hourly ? 'HH24' : 'YYYY-MM-DD';
 	const [start, end, prevStart, prevEnd] = [range.start, range.end, range.prevStart, range.prevEnd].map(iso);
-	const P = pf(platform, null);
+	const P = pf(platforms, null);
 
 	const [summary, daily, byPlatform, topUsers] = await Promise.all([
 		rows(sql`

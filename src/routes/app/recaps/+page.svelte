@@ -27,7 +27,7 @@
 </PageHeader>
 
 <RecapStatusTabs counts={data.statusCounts} status={data.f.status} />
-<RecapFilters f={data.f} accounts={data.accounts} view={data.view} presets={RANGE_PRESETS} />
+<RecapFilters f={data.f} campaigns={data.campaigns} accounts={data.accounts} view={data.view} presets={RANGE_PRESETS} />
 <Flash {form} />
 
 <RecapFeed list={data.list} feedUrl="/app/recaps/feed" detailBase="/app/recaps" sort={data.sort} view={data.view} canEdit bind:total>

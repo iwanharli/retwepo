@@ -147,9 +147,9 @@
 <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
 	<div>
 		<h1 class="text-2xl font-bold">Statistik</h1>
-		<p class="text-sm text-slate-500">{fmtDate(data.range.from)} – {fmtDate(data.range.to)} · {data.range.days} hari</p>
+		<p class="text-sm text-slate-500">{fmtDate(data.range.from)} – {fmtDate(data.range.to)} · {data.range.days} hari{#if data.campaign} · <b class="text-violet-700">#{data.campaigns.find((c) => c.id === data.campaign)?.name}</b>{/if}</p>
 	</div>
-	<RangeFilter from={data.range.from} to={data.range.to} platform={data.platform} />
+	<RangeFilter from={data.range.from} to={data.range.to} platform={data.platform} campaign={data.campaign} campaigns={data.campaigns} />
 </div>
 
 {#if s.totals.pending_users || s.totals.pending_accounts}

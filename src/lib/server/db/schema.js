@@ -10,7 +10,8 @@ import {
 	index,
 	uniqueIndex,
 	check,
-	jsonb
+	jsonb,
+	boolean
 } from 'drizzle-orm/pg-core';
 
 export const roleEnum = pgEnum('role', ['user', 'admin']);
@@ -102,6 +103,15 @@ export const socialAccounts = pgTable(
 	]
 );
 
+// Kelompok kampanye: setiap rekap masuk ke satu kampanye
+export const campaigns = pgTable('campaigns', {
+	id: serial('id').primaryKey(),
+	name: varchar('name', { length: 60 }).notNull().unique(), // tanpa '#', mis. EconomicFrontline
+	active: boolean('active').notNull().default(true), // nonaktif = tidak muncul di form rekap
+	sortOrder: integer('sort_order').notNull().default(0),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
 export const recaps = pgTable(
 	'recaps',
 	{
@@ -112,6 +122,9 @@ export const recaps = pgTable(
 		socialAccountId: integer('social_account_id')
 			.notNull()
 			.references(() => socialAccounts.id, { onDelete: 'cascade' }),
+		campaignId: integer('campaign_id')
+			.notNull()
+			.references(() => campaigns.id),
 		type: recapTypeEnum('type').notNull(),
 		url: text('url'),
 		// URL ternormalisasi untuk mendeteksi rekap duplikat (lihat urlKey di constants.js)
@@ -134,7 +147,8 @@ export const recaps = pgTable(
 		index('recaps_user_posted_idx').on(t.userId, t.postedAt),
 		index('recaps_account_idx').on(t.socialAccountId),
 		index('recaps_deleted_idx').on(t.userId, t.deletedAt),
-		index('recaps_url_key_idx').on(t.urlKey)
+		index('recaps_url_key_idx').on(t.urlKey),
+		index('recaps_campaign_idx').on(t.campaignId, t.postedAt)
 	]
 );
 

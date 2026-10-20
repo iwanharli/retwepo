@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from './db/index.js';
-import { socialAccounts } from './db/schema.js';
+import { socialAccounts, campaigns } from './db/schema.js';
 import { urlKey } from '#lib/constants.js';
 
 function cleanUrl(v) {
@@ -18,9 +18,11 @@ function cleanUrl(v) {
 /**
  * Baca & validasi form rekap (dipakai halaman tambah dan edit).
  * hasExistingShot: rekap lama sudah punya screenshot yang tetap dipertahankan.
+ * currentCampaignId: kampanye rekap lama (edit) — boleh tetap dipakai walau kampanyenya sudah nonaktif.
  * Hasil: { error } atau { values, file, account }
  */
-export async function parseRecapForm(form, user, { hasExistingShot = false } = {}) {
+export async function parseRecapForm(form, user, { hasExistingShot = false, currentCampaignId = null } = {}) {
+	const campaignId = Number(form.get('campaignId')) || 0;
 	const accountId = Number(form.get('accountId'));
 	const type = String(form.get('type'));
 	const url = cleanUrl(form.get('url'));
@@ -36,6 +38,9 @@ export async function parseRecapForm(form, user, { hasExistingShot = false } = {
 		.where(and(eq(socialAccounts.id, accountId), eq(socialAccounts.userId, user.id)));
 	if (!account) return { error: 'Pilih akun media sosial' };
 	if (account.status !== 'approved') return { error: 'Akun ini belum disetujui admin' };
+	const [campaign] = await db.select().from(campaigns).where(eq(campaigns.id, campaignId));
+	if (!campaign) return { error: 'Pilih kelompok kampanye' };
+	if (!campaign.active && campaign.id !== currentCampaignId) return { error: `Kampanye #${campaign.name} sudah ditutup` };
 	if (!['post', 'reply'].includes(type)) return { error: 'Pilih tipe rekap' };
 	if (url === undefined) return { error: 'URL postingan tidak valid' };
 	if (targetUrl === undefined) return { error: 'URL postingan yang dibalas tidak valid' };
@@ -48,5 +53,5 @@ export async function parseRecapForm(form, user, { hasExistingShot = false } = {
 		if (postedAt.getTime() > Date.now() + 5 * 60000) return { error: 'Tanggal posting tidak boleh di masa depan' };
 	}
 
-	return { values: { socialAccountId: account.id, type, url, urlKey: urlKey(url), targetUrl, note, postedAt }, file, account };
+	return { values: { socialAccountId: account.id, campaignId: campaign.id, type, url, urlKey: urlKey(url), targetUrl, note, postedAt }, file, account };
 }

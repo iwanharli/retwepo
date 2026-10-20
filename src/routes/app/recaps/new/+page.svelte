@@ -26,5 +26,5 @@
 	</EmptyState>
 {:else}
 	<Flash {form} />
-	<RecapForm accounts={data.accounts} {form} initial={{ accountId: data.preselect }} />
+	<RecapForm accounts={data.accounts} campaigns={data.campaigns} {form} initial={{ accountId: data.preselect, campaignId: data.lastCampaign }} />
 {/if}

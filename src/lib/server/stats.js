@@ -6,19 +6,20 @@ import { dayList } from './dates.js';
 const rows = async (q) => [...(await db.execute(q))];
 const one = async (q) => (await db.execute(q))[0];
 
-/** Filter platform opsional (pakai alias "a" untuk social_accounts) */
-const pf = (platform) => (platform ? sql`AND a.platform = ${platform}` : sql``);
+/** Filter platform & kampanye opsional (alias "a" = social_accounts, "r" = rekap) */
+const pf = (platform, campaign) =>
+	sql`${platform ? sql`AND a.platform = ${platform}` : sql``} ${campaign ? sql`AND r.campaign_id = ${campaign}` : sql``}`;
 
 /** Parameter Date harus dikirim sebagai string ke query mentah */
 const iso = (d) => d.toISOString();
 
 export async function adminStats(range) {
-	const { from, to, platform } = range;
+	const { from, to, platform, campaign = null } = range;
 	// rentang satu hari → tren per jam (24 titik), selain itu per hari
 	const hourly = from === to;
 	const bucketFmt = hourly ? 'HH24' : 'YYYY-MM-DD';
 	const [start, end, prevStart, prevEnd] = [range.start, range.end, range.prevStart, range.prevEnd].map(iso);
-	const P = pf(platform);
+	const P = pf(platform, campaign);
 
 	const kpiQuery = (s, e) => sql`
 		SELECT count(*)::int AS total,
@@ -93,6 +94,7 @@ export async function adminStats(range) {
 					SELECT u.id, count(r.id) AS n
 					FROM users u
 					LEFT JOIN active_recaps r ON r.user_id = u.id AND r.posted_at >= ${start} AND r.posted_at < ${end}
+						AND (${campaign}::int IS NULL OR r.campaign_id = ${campaign})
 						AND (${platform}::text IS NULL OR EXISTS (SELECT 1 FROM social_accounts a WHERE a.id = r.social_account_id AND a.platform::text = ${platform}))
 					WHERE u.status = 'approved'
 					GROUP BY u.id

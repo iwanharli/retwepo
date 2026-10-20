@@ -2,7 +2,8 @@
 	import { page } from '$app/state';
 	import { CalendarDays } from '@lucide/svelte';
 	import { PLATFORMS, PLATFORM_KEYS } from '#lib/constants.js';
-	let { from, to, platform = undefined } = $props();
+	/** platform / campaign: undefined = filter tidak ditampilkan; campaigns: pilihan kampanye */
+	let { from, to, platform = undefined, campaign = undefined, campaigns = [] } = $props();
 
 	const fmt = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(d);
 	const today = fmt(new Date());
@@ -37,6 +38,12 @@
 	<input class="input w-auto {activeDays === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="from" value={from} />
 	<span class="pb-2 text-slate-400">–</span>
 	<input class="input w-auto {activeDays === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="to" value={to} />
+	{#if campaign !== undefined}
+		<select class="input w-auto {campaign ? 'border-brand-400 bg-brand-50 font-medium text-brand-700 ring-2 ring-brand-500/15' : ''}" name="campaign" value={campaign ?? ''}>
+			<option value="">Semua kampanye</option>
+			{#each campaigns as c (c.id)}<option value={c.id}>#{c.name}</option>{/each}
+		</select>
+	{/if}
 	{#if platform !== undefined}
 		<select class="input w-auto {platform ? 'border-brand-400 bg-brand-50 font-medium text-brand-700 ring-2 ring-brand-500/15' : ''}" name="platform" value={platform ?? ''}>
 			<option value="">Semua platform</option>

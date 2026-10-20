@@ -57,6 +57,13 @@
       "when": 1792510914377,
       "tag": "0007_tiktok",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792511720589,
+      "tag": "0008_campaigns",
+      "breakpoints": true
     }
   ]
 }

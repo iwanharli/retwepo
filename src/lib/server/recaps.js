@@ -134,9 +134,10 @@ export function pageNum(url) {
 	return Math.max(1, Number(url.searchParams.get('page')) || 1);
 }
 
-/** Ringkasan rekap per user (untuk export laporan / pembayaran). */
-export function recapSummaryByUser(where) {
+/** Ringkasan rekap per user (untuk export laporan / pembayaran). perCampaign: satu baris per user × kampanye */
+export function recapSummaryByUser(where, { perCampaign = false } = {}) {
 	return base({
+		...(perCampaign ? { campaign: campaigns.name } : {}),
 		userId: users.id,
 		nickname: users.nickname,
 		email: users.email,
@@ -151,8 +152,8 @@ export function recapSummaryByUser(where) {
 		lastAt: sql`max(${recaps.postedAt})`
 	})
 		.where(where)
-		.groupBy(users.id)
-		.orderBy(sql`count(*) DESC`);
+		.groupBy(...(perCampaign ? [users.id, campaigns.id] : [users.id]))
+		.orderBy(...(perCampaign ? [campaigns.name, sql`count(*) DESC`] : [sql`count(*) DESC`]));
 }
 
 /** Satu rekap lengkap untuk halaman detail. userId: batasi ke rekap milik user tersebut. */

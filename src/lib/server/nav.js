@@ -19,6 +19,7 @@ const ADMIN_NAV = [
 	{ href: '/admin', label: 'Statistik', icon: 'stats' },
 	{ href: '/admin/recaps', label: 'Semua Rekap', icon: 'gallery' },
 	{ href: '/admin/campaigns', label: 'Kelompok Kampanye', icon: 'campaign' },
+	{ href: '/admin/export', label: 'Export Data', icon: 'export' },
 	{ section: 'Pengguna' },
 	{ href: '/admin/members', label: 'User Terverifikasi', icon: 'users' },
 	{ href: '/admin/social', label: 'Akun Terverifikasi', icon: 'badgeCheck' },

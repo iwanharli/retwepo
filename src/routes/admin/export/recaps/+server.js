@@ -2,6 +2,7 @@ import { error } from '@sveltejs/kit';
 import { recapFilters, allRecaps, recapSummaryByUser } from '#lib/server/recaps.js';
 import { csvResponse } from '#lib/server/csv.js';
 import { ymd } from '#lib/server/dates.js';
+import { campaignTag } from '#lib/server/export-common.js';
 import { PLATFORMS, TZ, EXPORT_COLUMNS } from '#lib/constants.js';
 
 const wib = (d) => (d ? new Intl.DateTimeFormat('sv-SE', { timeZone: TZ, dateStyle: 'short', timeStyle: 'short' }).format(new Date(d)) : '');
@@ -15,14 +16,17 @@ export async function GET({ url }) {
 	const p = url.searchParams;
 	const { f, where } = recapFilters(url);
 	const sep = p.get('sep') === 'semicolon' ? ';' : ',';
-	const range = f.from || f.to ? `${f.from ?? 'awal'}_${f.to ?? ymd()}` : 'semua';
+	const range = `${await campaignTag(f.campaign)}-${f.from || f.to ? `${f.from ?? 'awal'}_${f.to ?? ymd()}` : 'semua'}`;
 
-	if (p.get('mode') === 'summary') {
-		const rows = await recapSummaryByUser(where);
+	// ringkasan per user (pembayaran); summary_campaign = dipisah per kampanye
+	const mode = p.get('mode');
+	if (mode === 'summary' || mode === 'summary_campaign') {
+		const perCampaign = mode === 'summary_campaign';
+		const rows = await recapSummaryByUser(where, { perCampaign });
 		return csvResponse(
-			`ringkasan-rekap-${range}.csv`,
-			['Nickname', 'Email', 'E-wallet', 'Nomor e-wallet', 'Total rekap', 'Postingan', 'Panel', 'Akun dipakai', 'Hari aktif', 'Rekap pertama (WIB)', 'Rekap terakhir (WIB)'],
-			rows.map((r) => [r.nickname, r.email, r.ewalletProvider, r.ewalletNumber, r.total, r.posts, r.replies, r.accounts, r.activeDays, wib(r.firstAt), wib(r.lastAt)]),
+			`ringkasan-rekap${perCampaign ? '-per-kampanye' : ''}${range}.csv`,
+			[...(perCampaign ? ['Kampanye'] : []), 'Nickname', 'Email', 'E-wallet', 'Nomor e-wallet', 'Total rekap', 'Postingan', 'Panel', 'Akun dipakai', 'Hari aktif', 'Rekap pertama (WIB)', 'Rekap terakhir (WIB)'],
+			rows.map((r) => [...(perCampaign ? [`#${r.campaign}`] : []), r.nickname, r.email, r.ewalletProvider, r.ewalletNumber, r.total, r.posts, r.replies, r.accounts, r.activeDays, wib(r.firstAt), wib(r.lastAt)]),
 			sep
 		);
 	}
@@ -52,7 +56,7 @@ export async function GET({ url }) {
 
 	const rows = await allRecaps(where);
 	return csvResponse(
-		`rekap-${range}.csv`,
+		`rekap${range}.csv`,
 		cols.flatMap((c) => DEF[c][0]),
 		rows.map((r) => cols.flatMap((c) => DEF[c][1](r))),
 		sep

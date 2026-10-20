@@ -19,7 +19,8 @@
 		PanelLeftClose,
 		PanelLeftOpen,
 		Megaphone,
-		Send
+		Send,
+		FileSpreadsheet
 	} from '@lucide/svelte';
 	import { untrack } from 'svelte';
 	import { Tooltip } from 'bits-ui';
@@ -59,6 +60,7 @@
 		logs: ScrollText,
 		campaign: Megaphone,
 		announce: Send,
+		export: FileSpreadsheet,
 		bell: Bell,
 		verify: ShieldCheck,
 		gallery: Images

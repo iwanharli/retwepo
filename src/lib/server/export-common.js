@@ -1,5 +1,8 @@
 import { TZ } from '#lib/constants.js';
+import { eq } from 'drizzle-orm';
 import { startOfDay, addDays, ymd } from './dates.js';
+import { db } from './db/index.js';
+import { campaigns } from './db/schema.js';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -26,6 +29,15 @@ export function exportParams(url, columns, allowedStatuses) {
 		statuses,
 		q: (p.get('q') ?? '').trim().slice(0, 100),
 		platform: p.get('platform') || null,
+		// ?campaign=ID → jumlah rekap hanya dari kampanye ini
+		campaign: Number(p.get('campaign')) || null,
 		rangeLabel: from || to ? `${from ?? 'awal'}_${to ?? ymd()}` : 'semua-waktu'
 	};
+}
+
+/** Potongan nama file untuk kampanye terpilih, mis. "-rosatom" ('' bila semua kampanye) */
+export async function campaignTag(id) {
+	if (!id) return '';
+	const [c] = await db.select({ name: campaigns.name }).from(campaigns).where(eq(campaigns.id, id));
+	return c ? `-${c.name.toLowerCase()}` : '';
 }

@@ -1,7 +1,7 @@
 <script>
 	import { Link2, CornerDownRight, ImageOff, Clock, StickyNote, Eye } from '@lucide/svelte';
-	import { fmtDate } from '#lib/constants.js';
-	import PlatformTag from './PlatformTag.svelte';
+	import { fmtDate, PLATFORMS } from '#lib/constants.js';
+	import PlatformIcon from './PlatformIcon.svelte';
 	import TypeBadge from './TypeBadge.svelte';
 	import CampaignBadge from './CampaignBadge.svelte';
 	import EditedBadge from './EditedBadge.svelte';
@@ -24,42 +24,52 @@
 </script>
 
 <article class="group flex flex-col overflow-hidden rounded-xl border bg-white shadow-card transition hover:-translate-y-0.5 hover:shadow-md {r.deletedAt ? 'border-rose-200' : 'border-slate-200/80'}">
-	{#if shot}
-		<a href={href ?? `/uploads/${shot}`} target={href ? undefined : '_blank'} class="relative block aspect-[16/10] overflow-hidden bg-slate-100">
-			<img src="/uploads/{shot}" alt="screenshot" loading="lazy" class="size-full object-cover object-top transition duration-300 group-hover:scale-[1.03] {r.deletedAt ? 'opacity-50 grayscale' : ''}" />
-		</a>
-	{:else}
-		<a href={href} class="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 text-slate-300">
-			<ImageOff class="size-8" />
-		</a>
-	{/if}
-	<div class="flex flex-1 flex-col gap-2.5 p-4">
-		<div class="flex items-center justify-between gap-2">
-			<PlatformTag platform={r.platform} username={r.username} />
-			<span class="flex shrink-0 items-center gap-1.5"><CampaignBadge name={r.campaign} /><TypeBadge type={r.type} /></span>
+	<!-- bukti + label kampanye & tipe melayang di atasnya -->
+	<div class="relative">
+		{#if shot}
+			<a href={href ?? `/uploads/${shot}`} target={href ? undefined : '_blank'} class="block aspect-[16/10] overflow-hidden bg-slate-100">
+				<img src="/uploads/{shot}" alt="screenshot" loading="lazy" class="size-full object-cover object-top transition duration-300 group-hover:scale-[1.03] {r.deletedAt ? 'opacity-50 grayscale' : ''}" />
+			</a>
+		{:else}
+			<a href={href} class="flex aspect-[16/10] flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-slate-50 to-slate-100 text-slate-300">
+				<ImageOff class="size-8" /><span class="text-xs text-slate-400">Tanpa screenshot</span>
+			</a>
+		{/if}
+		<div class="pointer-events-none absolute inset-x-2.5 top-2.5 flex flex-wrap items-start justify-between gap-1.5">
+			{#if r.campaign}<span class="rounded-md shadow-sm [&>span]:bg-white/95 [&>span]:backdrop-blur"><CampaignBadge name={r.campaign} /></span>{:else}<span></span>{/if}
+			<span class="rounded-md shadow-sm [&>span]:bg-white/95 [&>span]:backdrop-blur"><TypeBadge type={r.type} /></span>
+		</div>
+	</div>
+
+	<div class="flex flex-1 flex-col gap-3 p-4">
+		<!-- akun & pemilik: tidak dipotong, boleh turun baris -->
+		<div class="flex items-start gap-3">
+			<PlatformIcon platform={r.platform} size={36} />
+			<div class="min-w-0 flex-1">
+				<div class="text-sm font-semibold break-all text-slate-900">@{r.username}</div>
+				<div class="text-xs text-slate-500">
+					{PLATFORMS[r.platform]?.label}{#if owner} · oleh <b class="font-medium text-slate-700">{owner}</b>{/if}
+				</div>
+			</div>
 		</div>
 		{#if r.deletedAt}<DeletedNotice {r} compact />{/if}
-		{#if owner || edited || r.dupCount}
-			<div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-				{#if owner}<span>oleh <b class="text-slate-700">{owner}</b></span>{/if}
-				<EditedBadge at={edited} />
-				<DuplicateBadge count={r.dupCount} />
-			</div>
+		{#if edited || r.dupCount}
+			<div class="flex flex-wrap items-center gap-2 text-xs"><EditedBadge at={edited} /><DuplicateBadge count={r.dupCount} /></div>
 		{/if}
 		{#if r.url}
-			<a href={r.url} target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-sm text-brand-600 hover:underline">
-				<Link2 class="size-3.5 shrink-0" /><span class="truncate">{host(r.url)}</span>
+			<a href={r.url} target="_blank" rel="noopener noreferrer" class="flex items-start gap-1.5 rounded-lg bg-slate-50 px-2.5 py-2 text-xs text-brand-600 hover:bg-brand-50 hover:underline">
+				<Link2 class="mt-px size-3.5 shrink-0" /><span class="break-all">{host(r.url)}</span>
 			</a>
 		{/if}
 		{#if target}
-			<a href={target} target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-xs text-slate-500 hover:underline">
-				<CornerDownRight class="size-3.5 shrink-0" /><span class="truncate">membalas {host(target)}</span>
+			<a href={target} target="_blank" rel="noopener noreferrer" class="flex items-start gap-1.5 text-xs text-slate-500 hover:underline">
+				<CornerDownRight class="mt-px size-3.5 shrink-0" /><span class="break-all">target: {host(target)}</span>
 			</a>
 		{/if}
 		{#if r.note}
-			<p class="flex gap-1.5 text-sm text-slate-600"><StickyNote class="mt-0.5 size-3.5 shrink-0 text-slate-400" /><span class="line-clamp-2">{r.note}</span></p>
+			<p class="flex gap-1.5 text-sm text-slate-600"><StickyNote class="mt-0.5 size-3.5 shrink-0 text-slate-400" /><span class="break-words whitespace-pre-line">{r.note}</span></p>
 		{/if}
-		<div class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2.5 text-xs text-slate-500">
+		<div class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500">
 			{#if href}
 				<a {href} class="flex items-center gap-1 hover:text-brand-600 hover:underline"><Clock class="size-3.5" />{fmtDate(at, true)}</a>
 			{:else}

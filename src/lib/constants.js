@@ -3,7 +3,8 @@ export const PLATFORMS = {
 	instagram: { label: 'Instagram', color: '#f97316', short: 'IG', profile: (u) => `https://instagram.com/${u}` },
 	threads: { label: 'Threads', color: '#52525b', short: 'TH', profile: (u) => `https://threads.net/@${u}` },
 	youtube: { label: 'YouTube', color: '#ef4444', short: 'YT', profile: (u) => `https://youtube.com/@${u}` },
-	facebook: { label: 'Facebook', color: '#0866ff', short: 'FB', profile: (u) => `https://facebook.com/${u}` }
+	facebook: { label: 'Facebook', color: '#0866ff', short: 'FB', profile: (u) => `https://facebook.com/${u}` },
+	tiktok: { label: 'TikTok', color: '#06b6d4', short: 'TT', profile: (u) => `https://tiktok.com/@${u}` }
 };
 
 export const PLATFORM_KEYS = Object.keys(PLATFORMS);
@@ -169,6 +170,11 @@ export function urlKey(raw) {
 		host = 'facebook.com';
 		const id = v('story_fbid') || v('fbid') || v('v');
 		if (id) return `facebook.com/${id}${v('comment_id') ? `/c/${v('comment_id')}` : ''}`;
+	}
+	if (host === 'tiktok.com') {
+		// ID video unik secara global → abaikan username
+		const i = parts.findIndex((p) => p === 'video' || p === 'photo');
+		if (i >= 0 && parts[i + 1]) return `tiktok.com/video/${parts[i + 1]}`;
 	}
 	// umum: host + path (tanpa query, hash, dan "/" akhir); path dibiarkan peka huruf besar/kecil
 	return `${host}/${parts.join('/')}`;

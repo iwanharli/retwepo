@@ -50,6 +50,13 @@
       "when": 1792169581633,
       "tag": "0006_ewallet_check",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792510914377,
+      "tag": "0007_tiktok",
+      "breakpoints": true
     }
   ]
 }

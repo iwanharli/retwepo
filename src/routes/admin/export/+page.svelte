@@ -1,7 +1,7 @@
 <script>
 	import { untrack } from 'svelte';
 	import { page } from '$app/state';
-	import { Download, FileSpreadsheet, ListChecks, Wallet, Megaphone, Users, AtSign, Hash, Layers, CalendarDays, SlidersHorizontal, Columns3, X, Info, FileText, Eye, LoaderCircle } from '@lucide/svelte';
+	import { Download, FileSpreadsheet, ListChecks, Wallet, Megaphone, Users, AtSign, Hash, Layers, CalendarDays, SlidersHorizontal, Columns3, X, Info, FileText, Eye, LoaderCircle, Check } from '@lucide/svelte';
 	import {
 		PLATFORMS,
 		PLATFORM_KEYS,
@@ -107,6 +107,19 @@
 
 	const CARRY_LABEL = { q: 'Cari', user: 'User #', account: 'Akun #', evidence: 'Bukti' };
 
+	const pill = (on) =>
+		`inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition ${on ? 'border-brand-600 bg-brand-600 text-white shadow-sm shadow-brand-600/25' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'}`;
+	// pilihan cepat yang sedang aktif (null = tanggal kustom)
+	const activeRange = $derived.by(() => {
+		if (!from && !to) return 'all';
+		if (to === today && from === today.slice(0, 8) + '01') return 'month';
+		const first = new Date(`${today.slice(0, 8)}01T00:00:00+07:00`);
+		const end = ymd(new Date(first.getTime() - 86400000));
+		if (to === end && from === end.slice(0, 8) + '01') return 'lastmonth';
+		if (to === today) for (const n of [7, 30, 90]) if (from === ymd(new Date(Date.now() - (n - 1) * 86400000))) return n;
+		return null;
+	});
+	const rangeDays = $derived(from && to ? Math.round((new Date(`${to}T00:00:00Z`) - new Date(`${from}T00:00:00Z`)) / 86400000) + 1 : null);
 	const chip = (on) =>
 		`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${on ? 'border-brand-200 bg-brand-50/60 text-slate-900' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`;
 </script>
@@ -161,87 +174,114 @@
 		{/if}
 	</section>
 
-	<div class="grid gap-6 xl:grid-cols-2">
-		<!-- 3. tanggal -->
-		<section class="card p-0">
-			<div class="card-header"><div class="card-title"><CalendarDays /> 3. Rentang tanggal</div></div>
-			<div class="space-y-3 p-5">
-				<div class="flex flex-wrap gap-1.5">
+	<!-- 3. tanggal -->
+	<section class="card p-0">
+		<div class="card-header"><div class="card-title"><CalendarDays /> 3. Rentang tanggal</div><span class="text-xs text-slate-500">{isRecap ? 'berdasarkan waktu posting' : 'untuk menghitung jumlah rekap'}</span></div>
+		<div class="grid gap-5 p-5 lg:grid-cols-5">
+			<!-- pilihan cepat -->
+			<div class="lg:col-span-3">
+				<span class="mb-2 block text-xs font-semibold tracking-wide text-slate-500 uppercase">Pilihan cepat</span>
+				<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
 					{#each RANGES as [k, lbl]}
-						<button type="button" class="inline-flex h-8 items-center rounded-full bg-slate-100 px-3.5 text-xs font-medium text-slate-600 hover:bg-slate-200" onclick={() => setRange(k)}>{lbl}</button>
+						{@const on = activeRange === k}
+						<button
+							type="button"
+							onclick={() => setRange(k)}
+							class="flex h-11 items-center justify-center gap-1.5 rounded-xl border text-sm font-medium transition {on ? 'border-brand-600 bg-brand-600 text-white shadow-sm shadow-brand-600/25' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'}"
+							>{#if on}<Check class="size-4" />{/if}{lbl}</button
+						>
 					{/each}
 				</div>
-				<div class="flex items-center gap-2">
-					<input class="input" type="date" name="from" bind:value={from} aria-label="Dari tanggal" />
-					<span class="text-slate-400">–</span>
-					<input class="input" type="date" name="to" bind:value={to} aria-label="Sampai tanggal" />
+			</div>
+			<!-- tanggal kustom + ringkasan -->
+			<div class="flex flex-col gap-3 lg:col-span-2">
+				<span class="block text-xs font-semibold tracking-wide text-slate-500 uppercase">Atau tentukan sendiri</span>
+				<div class="grid grid-cols-2 gap-2">
+					<label class="block"><span class="mb-1 block text-xs text-slate-500">Dari</span><input class="input {activeRange === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="from" bind:value={from} /></label>
+					<label class="block"><span class="mb-1 block text-xs text-slate-500">Sampai</span><input class="input {activeRange === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="to" bind:value={to} /></label>
 				</div>
-				<p class="hint">Dipilih: <b class="text-slate-700">{rangeText}</b>{isRecap ? ' · berdasarkan waktu posting' : ' · untuk menghitung jumlah rekap'}</p>
+				<div class="mt-auto flex items-center gap-3 rounded-xl bg-brand-50/70 px-4 py-3 ring-1 ring-brand-100">
+					<span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white text-brand-600 shadow-sm"><CalendarDays class="size-[18px]" /></span>
+					<div class="min-w-0">
+						<div class="text-xs text-brand-700/70">Periode terpilih</div>
+						<div class="font-semibold text-brand-900">{rangeText}{#if rangeDays} <span class="text-sm font-normal text-brand-700/70">· {rangeDays} hari</span>{/if}</div>
+					</div>
+				</div>
 			</div>
-		</section>
+		</div>
+	</section>
 
-		<!-- 4. filter -->
-		<section class="card p-0">
-			<div class="card-header"><div class="card-title"><SlidersHorizontal /> 4. Filter</div></div>
-			<div class="space-y-4 p-5">
-				{#if type !== 'users'}
-					<div>
-						<span class="label">Platform <span class="font-normal text-slate-400">· boleh lebih dari satu</span></span>
-						<div class="flex flex-wrap gap-2">
-							<button type="button" class={chip(platforms.length === 0)} onclick={() => (platforms = [])}>Semua</button>
-							{#each PLATFORM_KEYS as k}
-								<label class={chip(platforms.includes(k))}><input type="checkbox" name="platform" value={k} bind:group={platforms} class="size-4 accent-brand-600" /><PlatformIcon platform={k} size={18} />{PLATFORMS[k].label}</label>
-							{/each}
-						</div>
+	<!-- 4. filter -->
+	<section class="card p-0">
+		<div class="card-header"><div class="card-title"><SlidersHorizontal /> 4. Filter</div>{#if type === 'users'}<span class="text-xs text-slate-500">data user tidak difilter per platform</span>{/if}</div>
+		<div class="divide-y divide-slate-100">
+			{#if type !== 'users'}
+				<div class="grid gap-3 px-5 py-4 md:grid-cols-[11rem_1fr] md:items-start">
+					<div><div class="text-sm font-medium text-slate-800">Platform</div><div class="text-xs text-slate-500">Boleh lebih dari satu</div></div>
+					<div class="flex flex-wrap gap-2">
+						<button type="button" class={pill(platforms.length === 0)} onclick={() => (platforms = [])}>{#if platforms.length === 0}<Check class="size-3.5" />{/if}Semua</button>
+						{#each PLATFORM_KEYS as k}
+							{@const on = platforms.includes(k)}
+							<label class={pill(on)}>
+								<input type="checkbox" name="platform" value={k} bind:group={platforms} class="sr-only" />
+								<PlatformIcon platform={k} size={18} class="rounded-full {on ? 'ring-2 ring-white/70' : ''}" />{PLATFORMS[k].label}{#if on}<Check class="size-3.5" />{/if}
+							</label>
+						{/each}
 					</div>
-					<div class="grid gap-3 sm:grid-cols-2">
-						{#if isRecap}
-							<select class="input" name="type" bind:value={rtype}>
-								<option value="">Postingan & panel</option>
-								<option value="post">Postingan saja</option>
-								<option value="reply">Panel saja</option>
-							</select>
-						{/if}
-					</div>
-				{/if}
-				{#if type === 'users'}
-					<div>
-						<span class="label">Status user</span>
-						<div class="flex flex-wrap gap-2">
-							{#each Object.entries(USER_STATUS) as [v, s]}
-								<label class={chip(userStatuses.includes(v))}><input type="checkbox" name="status" value={v} bind:group={userStatuses} class="size-4 accent-brand-600" />{s.label}</label>
+				</div>
+				{#if isRecap}
+					<div class="grid gap-3 px-5 py-4 md:grid-cols-[11rem_1fr] md:items-center">
+						<div><div class="text-sm font-medium text-slate-800">Tipe rekap</div><div class="text-xs text-slate-500">Postingan dan/atau panel</div></div>
+						<div class="inline-flex w-full max-w-md rounded-xl bg-slate-100 p-1 ring-1 ring-slate-200">
+							{#each [['', 'Semua'], ['post', 'Postingan'], ['reply', 'Panel']] as [v, lbl]}
+								<label class="flex-1 cursor-pointer rounded-lg px-3 py-2 text-center text-sm font-medium transition {rtype === v ? 'bg-white text-brand-700 shadow-sm ring-1 ring-slate-200' : 'text-slate-600 hover:text-slate-900'}">
+									<input type="radio" name="type" value={v} bind:group={rtype} class="sr-only" />{lbl}
+								</label>
 							{/each}
 						</div>
 					</div>
 				{/if}
-				{#if type === 'accounts'}
-					<div>
-						<span class="label">Status akun</span>
+			{/if}
+			{#if type === 'users'}
+				<div class="grid gap-3 px-5 py-4 md:grid-cols-[11rem_1fr] md:items-start">
+					<div><div class="text-sm font-medium text-slate-800">Status user</div><div class="text-xs text-slate-500">Minimal satu</div></div>
+					<div class="flex flex-wrap gap-2">
+						{#each Object.entries(USER_STATUS) as [v, st]}
+							{@const on = userStatuses.includes(v)}
+							<label class={pill(on)}><input type="checkbox" name="status" value={v} bind:group={userStatuses} class="sr-only" />{st.label}{#if on}<Check class="size-3.5" />{/if}</label>
+						{/each}
+					</div>
+				</div>
+			{/if}
+			{#if type === 'accounts'}
+				<div class="grid gap-3 px-5 py-4 md:grid-cols-[11rem_1fr] md:items-start">
+					<div><div class="text-sm font-medium text-slate-800">Status akun</div><div class="text-xs text-slate-500">Minimal satu</div></div>
+					<div class="space-y-3">
 						<div class="flex flex-wrap gap-2">
-							{#each Object.entries(ACCOUNT_STATUS) as [v, s]}
-								<label class={chip(accountStatuses.includes(v))}><input type="checkbox" name="status" value={v} bind:group={accountStatuses} class="size-4 accent-brand-600" />{s.label}</label>
+							{#each Object.entries(ACCOUNT_STATUS) as [v, st]}
+								{@const on = accountStatuses.includes(v)}
+								<label class={pill(on)}><input type="checkbox" name="status" value={v} bind:group={accountStatuses} class="sr-only" />{st.label}{#if on}<Check class="size-3.5" />{/if}</label>
 							{/each}
 						</div>
+						<label class="flex w-fit cursor-pointer items-center gap-2.5 text-sm text-slate-700"><input type="checkbox" name="owner" value="verified" bind:checked={verifiedOwners} class="size-4 rounded accent-brand-600" /> Hanya akun milik user terverifikasi</label>
 					</div>
-					<label class="flex cursor-pointer items-center gap-2.5 text-sm"><input type="checkbox" name="owner" value="verified" bind:checked={verifiedOwners} class="size-4 accent-brand-600" /> Hanya akun milik user terverifikasi</label>
-				{/if}
-				{#if Object.keys(carried).length}
-					<div>
-						<span class="label">Dari halaman sebelumnya</span>
-						<div class="flex flex-wrap gap-2">
-							{#each Object.entries(carried) as [k, v] (k)}
-								<input type="hidden" name={k} value={v} />
-								<button type="button" class="inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-50 pr-2 pl-3 text-xs font-medium text-brand-700 ring-1 ring-brand-200 hover:bg-brand-100" onclick={() => delete carried[k]}>
-									{CARRY_LABEL[k]}{k === 'q' ? `: "${v}"` : k === 'evidence' ? `: ${v}` : v}<X class="size-3.5 opacity-60" />
-								</button>
-							{/each}
-						</div>
+				</div>
+			{/if}
+			{#if Object.keys(carried).length}
+				<div class="grid gap-3 px-5 py-4 md:grid-cols-[11rem_1fr] md:items-center">
+					<div><div class="text-sm font-medium text-slate-800">Dari halaman lain</div><div class="text-xs text-slate-500">Klik untuk menghapus</div></div>
+					<div class="flex flex-wrap gap-2">
+						{#each Object.entries(carried) as [k, v] (k)}
+							<input type="hidden" name={k} value={v} />
+							<button type="button" class="inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-50 pr-2 pl-3 text-xs font-medium text-brand-700 hover:bg-brand-100" onclick={() => delete carried[k]}>
+								{CARRY_LABEL[k]}{k === 'q' ? `: "${v}"` : k === 'evidence' ? `: ${v}` : v}<X class="size-3.5 opacity-60" />
+							</button>
+						{/each}
 					</div>
-				{/if}
-				{#if type === 'users'}<p class="hint">Data user tidak difilter per platform.</p>{/if}
-			</div>
-		</section>
-	</div>
+				</div>
+			{/if}
+		</div>
+	</section>
 
 	<!-- 5. kolom -->
 	{#if colList}

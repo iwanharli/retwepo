@@ -368,7 +368,7 @@
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
 	<!-- kartu utama: total rekap -->
 	<a href={recapsHref()} class="group relative col-span-2 block overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-violet-800 p-6 text-white shadow-lg shadow-brand-900/20 transition hover:-translate-y-0.5 hover:shadow-xl">
-		<div class="pointer-events-none absolute -top-16 -right-16 size-56 rounded-full bg-white/10 blur-2xl"></div>
+		<div class="pointer-events-none absolute -top-16 -right-16 size-56 rounded-full bg-white/10 [filter:none] [mask-image:radial-gradient(closest-side,#000,transparent)]"></div>
 		<div class="relative flex items-start justify-between gap-4">
 			<div>
 				<p class="flex items-center gap-2 text-sm font-medium text-white/80"><Layers class="size-4" /> Total rekap</p>

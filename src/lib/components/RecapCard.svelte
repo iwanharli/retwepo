@@ -36,8 +36,8 @@
 			</a>
 		{/if}
 		<div class="pointer-events-none absolute inset-x-2.5 top-2.5 flex flex-wrap items-start justify-between gap-1.5">
-			{#if r.campaign}<span class="rounded-md shadow-sm [&>span]:bg-white/95 [&>span]:backdrop-blur"><CampaignBadge name={r.campaign} /></span>{:else}<span></span>{/if}
-			<span class="rounded-md shadow-sm [&>span]:bg-white/95 [&>span]:backdrop-blur"><TypeBadge type={r.type} /></span>
+			{#if r.campaign}<span class="rounded-md shadow-sm [&>span]:bg-white/95"><CampaignBadge name={r.campaign} /></span>{:else}<span></span>{/if}
+			<span class="rounded-md shadow-sm [&>span]:bg-white/95"><TypeBadge type={r.type} /></span>
 		</div>
 	</div>
 

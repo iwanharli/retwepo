@@ -21,6 +21,8 @@
 </script>
 
 <form method="GET" class="flex flex-wrap items-end gap-2">
+	<!-- pertahankan tab yang sedang dibuka -->
+	{#if page.url.searchParams.get('tab')}<input type="hidden" name="tab" value={page.url.searchParams.get('tab')} />{/if}
 	<div class="flex rounded-lg bg-slate-100 p-1 ring-1 ring-slate-200">
 		{#each presets as [lbl, n]}
 			<a

@@ -131,7 +131,7 @@
 					<!-- 2. Akun -->
 					<section>
 						<span class="label">Platform</span>
-						<div class="grid grid-cols-5 gap-2">
+						<div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
 							{#each PLATFORM_KEYS as k}
 								<label
 									class="flex cursor-pointer flex-col items-center gap-1.5 rounded-xl border p-2.5 text-[11px] font-medium transition {platform === k

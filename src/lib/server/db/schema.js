@@ -29,7 +29,8 @@ export const platformEnum = pgEnum('platform', [
 	'instagram',
 	'threads',
 	'youtube',
-	'facebook'
+	'facebook',
+	'tiktok'
 ]);
 
 export const accountStatusEnum = pgEnum('account_status', ['pending', 'approved', 'rejected']);

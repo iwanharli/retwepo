@@ -12,10 +12,10 @@ if (process.argv.includes('--clean')) {
 }
 
 const NAMES = ['Andi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fajar', 'Gita', 'Hadi', 'Indah', 'Joko', 'Kiki', 'Lina', 'Maya', 'Nanda', 'Oki', 'Putri', 'Rina', 'Sari', 'Tono', 'Umar', 'Vina', 'Wawan', 'Yuni', 'Zaki'];
-const PLATFORMS = ['twitter', 'instagram', 'threads', 'youtube', 'facebook'];
+const PLATFORMS = ['twitter', 'instagram', 'threads', 'youtube', 'facebook', 'tiktok'];
 const PWEIGHT = [0.4, 0.25, 0.15, 0.08, 0.12];
 const WALLETS = ['DANA', 'OVO', 'GoPay', 'ShopeePay'];
-const HOST = { twitter: 'x.com', instagram: 'instagram.com', threads: 'threads.net', youtube: 'youtube.com', facebook: 'facebook.com' };
+const HOST = { twitter: 'x.com', instagram: 'instagram.com', threads: 'threads.net', youtube: 'youtube.com', facebook: 'facebook.com', tiktok: 'tiktok.com' };
 
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const wpick = (a, w) => {

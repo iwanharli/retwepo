@@ -1,7 +1,7 @@
 # Retwepo — Rekap Postingan & Panel Media Sosial
 
 Aplikasi web untuk mencatat (merekap) postingan dan panel yang dibuat user di akun media sosial mereka
-(X/Twitter, Instagram, Threads, YouTube, Facebook), lengkap dengan bukti URL/screenshot, verifikasi admin,
+(X/Twitter, Instagram, Threads, YouTube, Facebook, TikTok), lengkap dengan bukti URL/screenshot, verifikasi admin,
 statistik, dan export untuk keperluan pembayaran.
 
 **Stack:** SvelteKit 3 · Svelte 5 · PostgreSQL + Drizzle ORM · Google OAuth (Arctic) · Tailwind CSS 4 ·

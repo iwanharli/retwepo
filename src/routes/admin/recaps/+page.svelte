@@ -4,7 +4,6 @@
 	import RecapFilters from '#lib/components/RecapFilters.svelte';
 	import RecapStatusTabs from '#lib/components/RecapStatusTabs.svelte';
 	import ViewToggle from '#lib/components/ViewToggle.svelte';
-	import ExportLink from '#lib/components/ExportLink.svelte';
 	import Flash from '#lib/components/Flash.svelte';
 	import PageHeader from '#lib/components/PageHeader.svelte';
 	import EmptyState from '#lib/components/EmptyState.svelte';
@@ -23,7 +22,6 @@
 <PageHeader title="Semua Rekap" description="{fmtNum(total)} rekap dari semua user · {rangeLabel}" icon={Images}>
 	{#snippet actions()}
 		<ViewToggle />
-		<ExportLink params={{ type: 'detail', from: data.f.from, to: data.f.to, campaign: data.f.campaign, platform: data.f.platform, rtype: data.f.type, q: data.f.q, user: data.f.user, account: data.f.account, evidence: data.f.evidence }} />
 	{/snippet}
 </PageHeader>
 

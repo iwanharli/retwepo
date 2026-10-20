@@ -10,18 +10,13 @@
 	import EmptyState from '#lib/components/EmptyState.svelte';
 	import UserActions from '#lib/components/UserActions.svelte';
 	import UserListToolbar from '#lib/components/UserListToolbar.svelte';
-	import ExportLink from '#lib/components/ExportLink.svelte';
 	import SortTh from '#lib/components/SortTh.svelte';
 	let { data, form } = $props();
 </script>
 
 <svelte:head><title>Pendaftaran User · Admin Retwepo</title></svelte:head>
 
-<PageHeader title="Pendaftaran User" description={data.f.status === 'rejected' ? 'User yang ditolak bisa memperbaiki data dan mendaftar ulang; mereka akan kembali ke tab Menunggu.' : data.f.status === 'incomplete' ? 'User yang sudah login Google tapi belum mengisi form pendaftaran.' : 'Tinjau dan setujui user baru beserta akun sosmed yang mereka ajukan.'} icon={UserPlus}>
-	{#snippet actions()}
-		<ExportLink params={{ type: 'users', q: data.f.q, status: data.f.status ? [data.f.status] : [] }} />
-	{/snippet}
-</PageHeader>
+<PageHeader title="Pendaftaran User" description={data.f.status === 'rejected' ? 'User yang ditolak bisa memperbaiki data dan mendaftar ulang; mereka akan kembali ke tab Menunggu.' : data.f.status === 'incomplete' ? 'User yang sudah login Google tapi belum mengisi form pendaftaran.' : 'Tinjau dan setujui user baru beserta akun sosmed yang mereka ajukan.'} icon={UserPlus} />
 
 <UserListToolbar
 	f={data.f}

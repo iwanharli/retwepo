@@ -60,7 +60,13 @@ PREV=\$(git rev-parse HEAD)
 
 rebuild() {
 	if [ "$NEED_INSTALL" = 1 ]; then npm ci --no-audit --no-fund >/dev/null 2>&1; fi
-	npm run build >/dev/null 2>&1
+	# build ke folder terpisah agar server yang sedang jalan tidak kehilangan file di tengah build,
+	# lalu tukar folder sekaligus tepat sebelum restart
+	rm -rf build-next
+	BUILD_OUT=build-next npm run build >/dev/null 2>&1
+	rm -rf build-prev
+	[ -d build ] && mv build build-prev
+	mv build-next build
 	pm2 restart "$DEPLOY_PM2" --update-env >/dev/null
 }
 healthy() {

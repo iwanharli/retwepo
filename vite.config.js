@@ -9,7 +9,8 @@ export default defineConfig({
 	plugins: [
 		tailwindcss(),
 		sveltekit({
-			adapter: adapter({ bodySize: '12M' })
+			// BUILD_OUT: folder hasil build (deploy membangun ke folder lain dulu, lalu ditukar sekaligus)
+			adapter: adapter({ bodySize: '12M', out: process.env.BUILD_OUT || 'build' })
 		})
 	]
 });

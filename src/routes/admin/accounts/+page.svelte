@@ -47,10 +47,8 @@
 <PageHeader
 	title="Pengajuan Akun Sosmed"
 	description="Akun sosmed tambahan dari user yang sudah terverifikasi. Akun milik user baru ditinjau di Pendaftaran User."
-	icon={ShieldCheck}>
-	{#snippet actions()}
-	{/snippet}
-</PageHeader>
+	icon={ShieldCheck}
+/>
 
 <AccountListToolbar
 	f={data.f}

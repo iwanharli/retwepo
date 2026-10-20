@@ -18,6 +18,7 @@ const ADMIN_NAV = [
 	{ section: 'Pemantauan' },
 	{ href: '/admin', label: 'Statistik', icon: 'stats' },
 	{ href: '/admin/recaps', label: 'Semua Rekap', icon: 'gallery' },
+	{ href: '/admin/campaigns', label: 'Kelompok Kampanye', icon: 'campaign' },
 	{ section: 'Pengguna' },
 	{ href: '/admin/members', label: 'User Terverifikasi', icon: 'users' },
 	{ href: '/admin/social', label: 'Akun Terverifikasi', icon: 'badgeCheck' },
@@ -25,7 +26,6 @@ const ADMIN_NAV = [
 	{ href: '/admin/users', label: 'Pendaftaran User', icon: 'userPlus' },
 	{ href: '/admin/accounts', label: 'Pengajuan Akun', icon: 'verify' },
 	{ section: 'Sistem' },
-	{ href: '/admin/campaigns', label: 'Kelompok Kampanye', icon: 'campaign' },
 	{ href: '/admin/logs', label: 'Log Aktivitas', icon: 'logs' },
 	{ section: 'Akun' },
 	{ href: '/app/profile', label: 'Profil', icon: 'profile' }

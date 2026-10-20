@@ -1,5 +1,5 @@
 <script>
-	import { Trash2, RotateCcw, BadgeCheck, ShieldX, ShieldOff, UserCheck, UserX, Ban, Bell, UserPen } from '@lucide/svelte';
+	import { Trash2, RotateCcw, BadgeCheck, ShieldX, ShieldOff, UserCheck, UserX, Ban, Bell, UserPen, AlarmClock, MoonStar, Megaphone, Lock, Hash } from '@lucide/svelte';
 	let { type, size = 36 } = $props();
 	const MAP = {
 		recap_deleted: [Trash2, 'bg-rose-50 text-rose-600'],
@@ -11,7 +11,12 @@
 		user_rejected: [UserX, 'bg-rose-50 text-rose-600'],
 		user_suspended: [Ban, 'bg-amber-50 text-amber-600'],
 		user_reactivated: [RotateCcw, 'bg-emerald-50 text-emerald-600'],
-		profile_edited: [UserPen, 'bg-brand-50 text-brand-600']
+		profile_edited: [UserPen, 'bg-brand-50 text-brand-600'],
+		reminder_daily: [AlarmClock, 'bg-amber-50 text-amber-600'],
+		reminder_inactive: [MoonStar, 'bg-slate-100 text-slate-600'],
+		campaign_opened: [Hash, 'bg-violet-50 text-violet-600'],
+		campaign_closed: [Lock, 'bg-slate-100 text-slate-600'],
+		announcement: [Megaphone, 'bg-brand-50 text-brand-600']
 	};
 	const [Icon, cls] = $derived(MAP[type] ?? [Bell, 'bg-slate-100 text-slate-600']);
 </script>

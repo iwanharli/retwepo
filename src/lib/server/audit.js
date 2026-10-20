@@ -33,5 +33,6 @@ export const LOG_ACTIONS = {
 	createCampaign: 'Menambah kampanye',
 	renameCampaign: 'Mengganti nama kampanye',
 	closeCampaign: 'Menutup kampanye',
-	openCampaign: 'Membuka kembali kampanye'
+	openCampaign: 'Membuka kembali kampanye',
+	announce: 'Mengirim pengumuman'
 };

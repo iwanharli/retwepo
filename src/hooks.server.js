@@ -3,6 +3,7 @@ import { SESSION_COOKIE, validateSessionToken, setSessionCookie, deleteSessionCo
 import { db } from '#lib/server/db/index.js';
 import { uploadRoot } from '#lib/server/uploads.js';
 import { purgeDeletedRecaps } from '#lib/server/purge-core.js';
+import { runReminders } from '#lib/server/reminders.js';
 import { DELETED_RETENTION_DAYS } from '#lib/constants.js';
 
 // halaman yang bisa dibuka tanpa login
@@ -58,6 +59,16 @@ async function runPurge() {
 	}
 }
 
+// ---- Tugas terjadwal: pengingat rekap ke user (dicek tiap 15 menit; query idempoten)
+async function runReminderJob() {
+	try {
+		const res = await runReminders();
+		if (res.daily || res.inactive) console.log(`[pengingat] ${res.daily} belum rekap hari ini, ${res.inactive} tidak aktif`);
+	} catch (e) {
+		console.error('[pengingat] gagal:', e.message);
+	}
+}
+
 export function init() {
 	void db; // memastikan koneksi database sudah dibuat
 	// cegah timer ganda saat dev server memuat ulang modul
@@ -65,6 +76,8 @@ export function init() {
 	clearInterval(globalThis.__retwepoPurgeTimer);
 	globalThis.__retwepoPurgeStart = setTimeout(runPurge, 60 * 1000); // 1 menit setelah server menyala
 	globalThis.__retwepoPurgeTimer = setInterval(runPurge, DAY_MS);
+	clearInterval(globalThis.__retwepoReminderTimer);
+	globalThis.__retwepoReminderTimer = setInterval(runReminderJob, 15 * 60 * 1000);
 }
 
 // ---- Error tak terduga: catat di log server dengan kode referensi yang juga ditampilkan ke user

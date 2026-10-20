@@ -26,7 +26,7 @@
 </PageHeader>
 
 <RecapStatusTabs counts={data.statusCounts} status={data.f.status} />
-<RecapFilters f={data.f} campaigns={data.campaigns} filterUser={data.filterUser} placeholder="Cari nama user, email, username sosmed, URL, catatan…" exportable view={data.view} presets={RANGE_PRESETS} />
+<RecapFilters f={data.f} campaigns={data.campaigns} filterUser={data.filterUser} filterAccount={data.filterAccount} placeholder="Cari nama user, email, username sosmed, URL, catatan…" exportable view={data.view} presets={RANGE_PRESETS} />
 <Flash {form} />
 
 <RecapFeed list={data.list} feedUrl="/admin/recaps/feed" detailBase="/admin/recaps" sort={data.sort} view={data.view} showOwner canDelete bind:total>

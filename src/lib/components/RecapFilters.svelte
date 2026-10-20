@@ -3,14 +3,16 @@
 	import { Search, FunnelX, SlidersHorizontal, CalendarDays, UserRound, X } from '@lucide/svelte';
 	import { PLATFORMS, PLATFORM_KEYS } from '#lib/constants.js';
 	import ExportDialog from './ExportDialog.svelte';
+	import PlatformIcon from './PlatformIcon.svelte';
 	/** presets: pilihan cepat rentang tanggal, mis. [[7, '7 hari'], [30, '30 hari'], [null, 'Semua']] */
 	/** filterUser: user yang sedang difilter lewat ?user= (admin), tampil sebagai chip; placeholder: teks kotak cari */
 	/** campaigns: daftar kampanye untuk filter */
-	let { f, campaigns = [], accounts = null, filterUser = null, exportable = false, view = null, presets = null, placeholder = 'Cari URL, catatan, username…' } = $props();
+	/** filterAccount: akun sosmed yang difilter lewat ?account= (admin), tampil sebagai chip */
+	let { f, campaigns = [], accounts = null, filterUser = null, filterAccount = null, exportable = false, view = null, presets = null, placeholder = 'Cari URL, catatan, username…' } = $props();
 
-	function withoutUser() {
+	function withoutUser(key = 'user') {
 		const u = new URLSearchParams(page.url.search);
-		u.delete('user');
+		u.delete(key);
 		u.delete('page');
 		return '?' + u.toString();
 	}
@@ -38,7 +40,7 @@
 </script>
 
 <form method="GET" class="card mb-6 p-4 lg:p-5">
-	{#if presets || filterUser || exportable}
+	{#if presets || filterUser || filterAccount || exportable}
 		<div class="mb-4 flex flex-wrap items-center gap-2 border-b border-slate-100 pb-4">
 			{#if presets}
 				<CalendarDays class="size-4 text-slate-400" />
@@ -61,6 +63,16 @@
 					<UserRound class="size-3.5" />{filterUser.nickname ?? filterUser.email}<X class="size-3.5 opacity-60" />
 				</a>
 			{/if}
+			{#if filterAccount}
+				<span class="mx-1 hidden h-5 w-px bg-slate-200 sm:block"></span>
+				<a
+					href={withoutUser('account')}
+					class="inline-flex h-7 items-center gap-1.5 rounded-full bg-brand-50 pr-2 pl-1.5 text-xs font-medium text-brand-700 ring-1 ring-brand-200 hover:bg-brand-100"
+					title="Hapus filter akun"
+				>
+					<PlatformIcon platform={filterAccount.platform} size={18} class="rounded-full" />@{filterAccount.username}<X class="size-3.5 opacity-60" />
+				</a>
+			{/if}
 			{#if exportable}<ExportDialog {f} {campaigns} />{/if}
 		</div>
 	{/if}
@@ -69,6 +81,7 @@
 	{#if page.url.searchParams.get('sort')}<input type="hidden" name="sort" value={page.url.searchParams.get('sort')} />{/if}
 	{#if page.url.searchParams.get('dir')}<input type="hidden" name="dir" value={page.url.searchParams.get('dir')} />{/if}
 	{#if filterUser}<input type="hidden" name="user" value={filterUser.id} />{/if}
+	{#if filterAccount}<input type="hidden" name="account" value={filterAccount.id} />{/if}
 
 	<!-- Grid 12 kolom: cari (4) + 4 dropdown (2 × 4); tanggal (6) + tombol (6) -->
 	<div class="grid grid-cols-2 gap-3 md:grid-cols-6 xl:grid-cols-12">

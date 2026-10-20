@@ -1,5 +1,5 @@
 <script>
-	import { Link2, CornerDownRight, ImageOff, Clock, StickyNote, Eye } from '@lucide/svelte';
+	import { Link2, CornerDownRight, ImageOff, Clock, Eye } from '@lucide/svelte';
 	import { fmtDate, PLATFORMS } from '#lib/constants.js';
 	import PlatformIcon from './PlatformIcon.svelte';
 	import TypeBadge from './TypeBadge.svelte';
@@ -65,9 +65,6 @@
 			<a href={target} target="_blank" rel="noopener noreferrer" class="flex items-start gap-1.5 text-xs text-slate-500 hover:underline">
 				<CornerDownRight class="mt-px size-3.5 shrink-0" /><span class="break-all">target: {host(target)}</span>
 			</a>
-		{/if}
-		{#if r.note}
-			<p class="flex gap-1.5 text-sm text-slate-600"><StickyNote class="mt-0.5 size-3.5 shrink-0 text-slate-400" /><span class="break-words whitespace-pre-line">{r.note}</span></p>
 		{/if}
 		<div class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500">
 			{#if href}

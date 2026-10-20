@@ -4,7 +4,9 @@
 	import RangeFilter from '#lib/components/RangeFilter.svelte';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
-	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper, Eye, Layers, FileText, Reply, UserCheck, CalendarDays, Gauge, Users, Activity, AtSign, Image, Link2 } from '@lucide/svelte';
+	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper, Eye, Layers, FileText, Reply, UserCheck, CalendarDays, Gauge, Users, Activity, AtSign, Image, Link2, LayoutDashboard, Clock, Megaphone, Hash, TrendingUp, TrendingDown } from '@lucide/svelte';
+	import { page } from '$app/state';
+	import CampaignBadge from '#lib/components/CampaignBadge.svelte';
 	import { PLATFORMS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 
 	let { data } = $props();
@@ -138,6 +140,101 @@
 		series: [{ type: 'bar', data: s.growth.map((g) => g.n), itemStyle: { color: '#8b5cf6', borderRadius: [4, 4, 0, 0] } }]
 	});
 
+	// ---- tab
+	const TABS = [
+		['ringkasan', 'Ringkasan', LayoutDashboard],
+		['pengguna', 'User & Akun', Users],
+		['waktu', 'Waktu', Clock],
+		['kampanye', 'Kampanye', Megaphone]
+	];
+	function tabHref(t) {
+		const u = new URLSearchParams(page.url.search);
+		if (t === 'ringkasan') u.delete('tab');
+		else u.set('tab', t);
+		const q = u.toString();
+		return q ? `?${q}` : '/admin';
+	}
+
+	// ---- tab Waktu: postingan vs panel per hari/jam
+	const typeTrendOption = $derived({
+		tooltip: { trigger: 'axis' },
+		legend: { top: 0 },
+		grid: { left: 40, right: 16, top: 36, bottom: 30 },
+		xAxis: { type: 'category', data: s.hourly ? s.days.map((h) => `${h}:00`) : s.days.map(label) },
+		yAxis: { type: 'value', minInterval: 1 },
+		series: [
+			{ name: 'Postingan', type: 'bar', stack: 't', data: s.dailyType.post, itemStyle: { color: '#6366f1' } },
+			{ name: 'Panel', type: 'bar', stack: 't', data: s.dailyType.reply, itemStyle: { color: '#38bdf8', borderRadius: [3, 3, 0, 0] } }
+		]
+	});
+
+	// ---- tab Kampanye
+	const CAMP_COLORS = ['#8b5cf6', '#f59e0b', '#14b8a6', '#f43f5e', '#0ea5e9', '#84cc16'];
+	const cs = $derived(data.cstats);
+	const campColor = (id) => CAMP_COLORS[(cs?.campaigns.findIndex((c) => c.id === id) ?? 0) % CAMP_COLORS.length];
+	const campSum = $derived(cs ? cs.campaigns.reduce((t, c) => t + c.total, 0) : 0);
+	const delta = (v, p) => (p === 0 ? (v > 0 ? 100 : 0) : Math.round(((v - p) / p) * 100));
+
+	const campTrendOption = $derived(
+		cs && {
+			tooltip: { trigger: 'axis' },
+			legend: { top: 0 },
+			grid: { left: 40, right: 16, top: 36, bottom: 50 },
+			dataZoom: cs.days.length > 45 ? [{ type: 'slider', height: 16, bottom: 8 }] : [],
+			xAxis: { type: 'category', data: cs.hourly ? cs.days.map((h) => `${h}:00`) : cs.days.map(label), boundaryGap: false },
+			yAxis: { type: 'value', minInterval: 1 },
+			series: cs.campaigns.map((c) => ({
+				name: `#${c.name}`,
+				type: 'line',
+				smooth: true,
+				showSymbol: false,
+				data: cs.series[c.id],
+				itemStyle: { color: campColor(c.id) },
+				lineStyle: { width: 2.5 },
+				areaStyle: { opacity: 0.08 }
+			}))
+		}
+	);
+
+	const campDonutOption = $derived(
+		cs && {
+			tooltip: { trigger: 'item', formatter: '{b}: <b>{c}</b> ({d}%)' },
+			title: {
+				text: fmtNum(campSum),
+				subtext: 'rekap',
+				left: 'center',
+				top: '38%',
+				textStyle: { fontSize: 26, fontWeight: 600, color: '#0f172a', fontFamily: 'Inter' },
+				subtextStyle: { fontSize: 12, color: '#64748b', fontFamily: 'Inter' },
+				itemGap: 2
+			},
+			series: [
+				{
+					type: 'pie',
+					radius: ['64%', '90%'],
+					padAngle: 2,
+					itemStyle: { borderRadius: 6 },
+					label: { show: false },
+					data: cs.campaigns.filter((c) => c.total).map((c) => ({ name: `#${c.name}`, value: c.total, itemStyle: { color: campColor(c.id) } }))
+				}
+			]
+		}
+	);
+
+	const campPlatformOption = $derived.by(() => {
+		if (!cs) return null;
+		const ps = [...new Set(cs.byPlatform.map((r) => r.platform))];
+		const get = (cid, p) => cs.byPlatform.find((r) => r.campaign_id === cid && r.platform === p)?.n ?? 0;
+		return {
+			tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+			legend: { top: 0 },
+			grid: { left: 90, right: 20, top: 30, bottom: 20 },
+			xAxis: { type: 'value', minInterval: 1 },
+			yAxis: { type: 'category', data: ps.map((p) => PLATFORMS[p].label), inverse: true },
+			series: cs.campaigns.map((c) => ({ name: `#${c.name}`, type: 'bar', data: ps.map((p) => get(c.id, p)), itemStyle: { color: campColor(c.id), borderRadius: [0, 4, 4, 0] } }))
+		};
+	});
+
 	const maxUser = $derived(Math.max(1, ...s.topUsers.map((u) => u.total)));
 	const maxAcc = $derived(Math.max(1, ...s.topAccounts.map((a) => a.total)));
 </script>
@@ -152,6 +249,37 @@
 	<RangeFilter from={data.range.from} to={data.range.to} platform={data.platform} campaign={data.campaign} campaigns={data.campaigns} />
 </div>
 
+{#snippet head(Icon, title, sub = '', link = null, tone = 'bg-brand-50 text-brand-600')}
+	<div class="card-header">
+		<div class="flex min-w-0 items-center gap-3">
+			<span class="flex size-9 shrink-0 items-center justify-center rounded-lg {tone}"><Icon class="size-[18px]" /></span>
+			<div class="min-w-0">
+				<h2 class="truncate text-sm font-semibold text-slate-900">{title}</h2>
+				{#if sub}<p class="truncate text-xs text-slate-500">{sub}</p>{/if}
+			</div>
+		</div>
+		{#if link}<a href={link} class="btn btn-ghost btn-sm shrink-0">Semua <ArrowRight /></a>{/if}
+	</div>
+{/snippet}
+
+<!-- tab -->
+<nav class="mb-6 flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-200" aria-label="Bagian statistik">
+	{#each TABS as [key, lbl, Icon]}
+		{@const active = data.tab === key}
+		<a
+			href={tabHref(key)}
+			aria-current={active ? 'page' : undefined}
+			data-sveltekit-noscroll
+			class="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium whitespace-nowrap transition {active
+				? 'bg-brand-600 text-white shadow-sm'
+				: 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}"
+		>
+			<Icon class="size-4" />{lbl}
+		</a>
+	{/each}
+</nav>
+
+{#if data.tab === 'ringkasan'}
 {#if s.totals.pending_users || s.totals.pending_accounts}
 	<div class="mb-6 flex flex-wrap gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
 		<span>⚠ Perlu ditinjau:</span>
@@ -178,18 +306,6 @@
 	<Stat label="Dengan URL" value="{pct(k.with_url, k.total)}%" hint="{fmtNum(k.with_url)} rekap" icon={Link2} tone="violet" />
 </div>
 
-{#snippet head(Icon, title, sub = '', link = null, tone = 'bg-brand-50 text-brand-600')}
-	<div class="card-header">
-		<div class="flex min-w-0 items-center gap-3">
-			<span class="flex size-9 shrink-0 items-center justify-center rounded-lg {tone}"><Icon class="size-[18px]" /></span>
-			<div class="min-w-0">
-				<h2 class="truncate text-sm font-semibold text-slate-900">{title}</h2>
-				{#if sub}<p class="truncate text-xs text-slate-500">{sub}</p>{/if}
-			</div>
-		</div>
-		{#if link}<a href={link} class="btn btn-ghost btn-sm shrink-0">Semua <ArrowRight /></a>{/if}
-	</div>
-{/snippet}
 
 <div class="card mt-6 p-0">
 	{@render head(ChartLine, s.hourly ? 'Tren rekap per jam per platform' : 'Tren rekap harian per platform', s.hourly ? `Jumlah rekap per jam (WIB) · ${fmtDate(data.range.from)}` : 'Jumlah rekap per hari pada periode terpilih')}
@@ -228,7 +344,10 @@
 	</div>
 </div>
 
-<div class="mt-6 grid gap-6 xl:grid-cols-2">
+{/if}
+
+{#if data.tab === 'pengguna'}
+<div class="grid gap-6 xl:grid-cols-2">
 	<!-- User teraktif -->
 	<div class="card p-0">
 		{@render head(Trophy, 'User teraktif', 'Peringkat jumlah rekap periode ini', '/admin/members?sort=month&dir=desc', 'bg-amber-50 text-amber-600')}
@@ -305,10 +424,7 @@
 	</div>
 </div>
 
-<div class="card mt-6 p-0">
-	{@render head(Grid3x3, 'Waktu paling aktif (WIB)', 'Jumlah rekap berdasarkan hari dan jam posting', null, 'bg-indigo-50 text-indigo-600')}
-	<div class="p-5"><Chart option={heatOption} height="300px" /></div>
-</div>
+
 
 <div class="mt-6 grid gap-6 lg:grid-cols-3">
 	<!-- grafik mengisi tinggi kartu (mengikuti kartu tertinggi di baris ini) -->
@@ -355,3 +471,111 @@
 		{/if}
 	</div>
 </div>
+{/if}
+
+{#if data.tab === 'waktu'}
+<div class="card p-0">
+	{@render head(Grid3x3, 'Waktu paling aktif (WIB)', 'Jumlah rekap berdasarkan hari dan jam posting', null, 'bg-indigo-50 text-indigo-600')}
+	<div class="p-5"><Chart option={heatOption} height="300px" /></div>
+</div>
+
+<div class="card mt-6 p-0">
+	{@render head(ChartBarStacked, s.hourly ? 'Postingan vs panel per jam' : 'Postingan vs panel per hari', 'Komposisi tipe rekap sepanjang periode', null, 'bg-sky-50 text-sky-600')}
+	<div class="p-5"><Chart option={typeTrendOption} height="300px" /></div>
+</div>
+{/if}
+
+{#if data.tab === 'kampanye' && cs}
+	{#if data.campaign}
+		<p class="mb-4 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm text-violet-800">Tab ini membandingkan semua kampanye, jadi filter kampanye tidak dipakai di sini.</p>
+	{/if}
+
+	<!-- kartu per kampanye -->
+	<div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+		{#each cs.campaigns as c (c.id)}
+			{@const d = delta(c.total, c.prev_total)}
+			{@const share = campSum ? Math.round((c.total / campSum) * 100) : 0}
+			<section class="card flex flex-col gap-4">
+				<div class="flex items-start justify-between gap-3">
+					<div class="flex min-w-0 items-center gap-3">
+						<span class="flex size-10 shrink-0 items-center justify-center rounded-xl text-white" style="background:{campColor(c.id)}"><Hash class="size-5" /></span>
+						<div class="min-w-0">
+							<h2 class="truncate font-semibold">#{c.name}</h2>
+							<p class="text-xs text-slate-500">{c.active ? 'Aktif' : 'Ditutup'} · {fmtNum(c.all_time)} rekap sepanjang waktu</p>
+						</div>
+					</div>
+					<a href="/admin/recaps?campaign={c.id}&from={data.range.from}&to={data.range.to}" class="btn btn-soft-brand btn-sm shrink-0"><Eye /> Rekap</a>
+				</div>
+				<div class="flex items-end justify-between gap-3">
+					<div>
+						<div class="text-3xl font-semibold tracking-tight">{fmtNum(c.total)}</div>
+						<div class="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
+							<span class="inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 font-medium {d > 0 ? 'bg-emerald-50 text-emerald-700' : d < 0 ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-600'}">
+								{#if d > 0}<TrendingUp class="size-3" />{:else if d < 0}<TrendingDown class="size-3" />{/if}{Math.abs(d)}%
+							</span>
+							vs periode sebelumnya
+						</div>
+					</div>
+					<div class="text-right">
+						<div class="text-2xl font-semibold" style="color:{campColor(c.id)}">{share}%</div>
+						<div class="text-xs text-slate-500">porsi periode ini</div>
+					</div>
+				</div>
+				<div class="h-2 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full" style="width:{share}%;background:{campColor(c.id)}"></div></div>
+				<dl class="grid grid-cols-4 gap-2 rounded-xl bg-slate-50 p-3 text-center text-sm">
+					<div><dt class="text-xs text-slate-500">Postingan</dt><dd class="font-semibold">{fmtNum(c.posts)}</dd></div>
+					<div><dt class="text-xs text-slate-500">Panel</dt><dd class="font-semibold">{fmtNum(c.replies)}</dd></div>
+					<div><dt class="text-xs text-slate-500">User</dt><dd class="font-semibold">{fmtNum(c.users)}</dd></div>
+					<div><dt class="text-xs text-slate-500">Akun</dt><dd class="font-semibold">{fmtNum(c.accounts)}</dd></div>
+				</dl>
+			</section>
+		{/each}
+	</div>
+
+	<div class="card mt-6 p-0">
+		{@render head(ChartLine, cs.hourly ? 'Tren per jam per kampanye' : 'Tren harian per kampanye', 'Jumlah rekap tiap kampanye pada periode terpilih', null, 'bg-violet-50 text-violet-600')}
+		<div class="p-5"><Chart option={campTrendOption} height="340px" /></div>
+	</div>
+
+	<div class="mt-6 grid gap-6 lg:grid-cols-3">
+		<div class="card flex flex-col p-0">
+			{@render head(ChartPie, 'Porsi kampanye', 'Pembagian rekap antar kampanye', null, 'bg-violet-50 text-violet-600')}
+			{#if campSum}
+				<div class="flex-1 p-5"><Chart option={campDonutOption} height="260px" /></div>
+			{:else}
+				<p class="p-10 text-center text-sm text-slate-500">Belum ada rekap pada periode ini.</p>
+			{/if}
+		</div>
+		<div class="card p-0 lg:col-span-2">
+			{@render head(ChartBarStacked, 'Kampanye per platform', 'Jumlah rekap tiap kampanye di setiap platform', null, 'bg-sky-50 text-sky-600')}
+			<div class="p-5"><Chart option={campPlatformOption} height="320px" /></div>
+		</div>
+	</div>
+
+	<!-- user teratas per kampanye -->
+	<div class="mt-6 grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
+		{#each cs.campaigns as c (c.id)}
+			{@const list = cs.topUsers.filter((u) => u.campaign_id === c.id)}
+			<div class="card p-0">
+				{@render head(Trophy, `User teraktif #${c.name}`, '5 teratas periode ini', null, 'bg-amber-50 text-amber-600')}
+				<ol class="divide-y divide-slate-100">
+					{#each list as u, i}
+						<li class="flex items-center gap-3 px-5 py-2.5">
+							{#if i < 3}
+								<span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br text-[11px] font-bold shadow-sm {MEDAL[i]}">{i + 1}</span>
+							{:else}
+								<span class="flex size-6 shrink-0 items-center justify-center text-xs font-medium text-slate-400">{i + 1}</span>
+							{/if}
+							<Avatar user={{ nickname: u.nickname, email: u.email, avatarUrl: u.avatar_url }} size={30} />
+							<span class="min-w-0 flex-1 truncate text-sm font-medium">{u.nickname ?? u.email}</span>
+							<span class="text-sm font-semibold tabular-nums" style="color:{campColor(c.id)}">{fmtNum(u.total)}</span>
+							<a href="/admin/members/{u.id}" class="btn btn-soft-brand btn-sm shrink-0"><Eye /> Detail</a>
+						</li>
+					{:else}
+						<li class="p-8 text-center text-sm text-slate-500">Belum ada rekap.</li>
+					{/each}
+				</ol>
+			</div>
+		{/each}
+	</div>
+{/if}

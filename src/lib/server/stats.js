@@ -153,6 +153,64 @@ export async function adminStats(range) {
 	};
 }
 
+/**
+ * Perbandingan antar kampanye (tab Kampanye di Statistik).
+ * Filter platform tetap berlaku; filter kampanye diabaikan karena semua kampanye dibandingkan.
+ */
+export async function campaignStats(range) {
+	const { from, to, platform } = range;
+	const hourly = from === to;
+	const bucketFmt = hourly ? 'HH24' : 'YYYY-MM-DD';
+	const [start, end, prevStart, prevEnd] = [range.start, range.end, range.prevStart, range.prevEnd].map(iso);
+	const P = pf(platform, null);
+
+	const [summary, daily, byPlatform, topUsers] = await Promise.all([
+		rows(sql`
+			SELECT c.id, c.name, c.active,
+				count(r.id) FILTER (WHERE r.posted_at >= ${start} AND r.posted_at < ${end})::int AS total,
+				count(r.id) FILTER (WHERE r.posted_at >= ${start} AND r.posted_at < ${end} AND r.type = 'post')::int AS posts,
+				count(r.id) FILTER (WHERE r.posted_at >= ${start} AND r.posted_at < ${end} AND r.type = 'reply')::int AS replies,
+				count(DISTINCT r.user_id) FILTER (WHERE r.posted_at >= ${start} AND r.posted_at < ${end})::int AS users,
+				count(DISTINCT r.social_account_id) FILTER (WHERE r.posted_at >= ${start} AND r.posted_at < ${end})::int AS accounts,
+				count(r.id) FILTER (WHERE r.posted_at >= ${prevStart} AND r.posted_at < ${prevEnd})::int AS prev_total,
+				count(r.id)::int AS all_time
+			FROM campaigns c
+			LEFT JOIN (active_recaps r JOIN social_accounts a ON a.id = r.social_account_id) ON r.campaign_id = c.id ${P}
+			GROUP BY c.id ORDER BY c.sort_order, c.id`),
+
+		rows(sql`
+			SELECT to_char(r.posted_at AT TIME ZONE ${TZ}, ${bucketFmt}) AS day, r.campaign_id, count(*)::int AS n
+			FROM active_recaps r JOIN social_accounts a ON a.id = r.social_account_id
+			WHERE r.posted_at >= ${start} AND r.posted_at < ${end} ${P}
+			GROUP BY 1, 2`),
+
+		rows(sql`
+			SELECT r.campaign_id, a.platform, count(*)::int AS n
+			FROM active_recaps r JOIN social_accounts a ON a.id = r.social_account_id
+			WHERE r.posted_at >= ${start} AND r.posted_at < ${end} ${P}
+			GROUP BY 1, 2`),
+
+		// 5 user teratas di tiap kampanye
+		rows(sql`
+			SELECT * FROM (
+				SELECT r.campaign_id, u.id, u.nickname, u.email, u.avatar_url, count(*)::int AS total,
+					row_number() OVER (PARTITION BY r.campaign_id ORDER BY count(*) DESC, u.id) AS rank
+				FROM active_recaps r JOIN social_accounts a ON a.id = r.social_account_id JOIN users u ON u.id = r.user_id
+				WHERE r.posted_at >= ${start} AND r.posted_at < ${end} ${P}
+				GROUP BY r.campaign_id, u.id
+			) t WHERE rank <= 5 ORDER BY campaign_id, rank`)
+	]);
+
+	const days = hourly ? Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0')) : dayList(from, to);
+	const idx = new Map(days.map((d, i) => [d, i]));
+	const series = Object.fromEntries(summary.map((c) => [c.id, days.map(() => 0)]));
+	for (const r of daily) {
+		const i = idx.get(r.day);
+		if (i !== undefined && series[r.campaign_id]) series[r.campaign_id][i] += r.n;
+	}
+	return { hourly, days, campaigns: summary, series, byPlatform, topUsers };
+}
+
 /** Statistik satu user (halaman detail admin) */
 export async function userStats(userId, range) {
 	const { from, to } = range;

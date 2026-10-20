@@ -19,7 +19,7 @@
 		u.delete('page');
 		return '?' + u;
 	}
-	const chipCls = 'inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-50 pr-2 text-xs font-medium text-brand-700 ring-1 ring-brand-200 hover:bg-brand-100';
+	const chipCls = 'inline-flex h-7 items-center gap-1.5 rounded-full bg-brand-50 pr-2 text-xs font-medium text-brand-700 hover:bg-brand-100';
 </script>
 
 <FilterBar

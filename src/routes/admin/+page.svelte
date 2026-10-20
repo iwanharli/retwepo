@@ -4,7 +4,7 @@
 	import RangeFilter from '#lib/components/RangeFilter.svelte';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
-	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper, Eye, Layers, FileText, Reply, UserCheck, CalendarDays, Gauge, Users, Activity, AtSign, Image, Link2, LayoutDashboard, Clock, Megaphone, Hash, TrendingUp, TrendingDown } from '@lucide/svelte';
+	import { ChartLine, ChartPie, ChartBarStacked, Trophy, Flame, Grid3x3, ChartColumn, UserPlus, MoonStar, ArrowRight, PartyPopper, Eye, Layers, FileText, Reply, UserCheck, CalendarDays, Gauge, Users, Activity, AtSign, Image, Link2, LayoutDashboard, Clock, Megaphone, Hash, TrendingUp, TrendingDown, BadgeCheck, ShieldCheck } from '@lucide/svelte';
 	import { page } from '$app/state';
 	import CampaignBadge from '#lib/components/CampaignBadge.svelte';
 	import { PLATFORMS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
@@ -317,19 +317,34 @@
 </div>
 
 <!-- 3. basis user & akun · 4. kualitas bukti -->
-<div class="mt-8 grid gap-x-4 gap-y-8 lg:grid-cols-2">
-	<div>
+<div class="mt-8 grid gap-x-4 gap-y-8 lg:grid-cols-4">
+	<div class="lg:col-span-3">
 		{@render divider('User & akun', 'total terverifikasi')}
-		<div class="grid grid-cols-2 gap-4">
+		<div class="grid grid-cols-2 gap-4 md:grid-cols-3">
 			<Stat label="User disetujui" value={s.totals.approved_users} hint="+{s.totals.new_users} daftar periode ini" icon={Users} tone="sky" />
-			<Stat label="Akun aktif" value={k.active_accounts} hint="dari {fmtNum(s.totals.approved_accounts)} disetujui" icon={AtSign} tone="amber" />
+			<Stat label="Akun sosmed disetujui" value={s.totals.approved_accounts} hint={s.totals.pending_accounts ? `+${fmtNum(s.totals.pending_accounts)} menunggu verifikasi` : 'total akun terverifikasi'} icon={BadgeCheck} tone="emerald" />
+			<Stat label="Akun aktif" value={k.active_accounts} hint="{pct(k.active_accounts, s.totals.approved_accounts)}% akun dipakai periode ini" icon={AtSign} tone="amber" />
 		</div>
 	</div>
-	<div>
-		{@render divider('Kualitas bukti', 'porsi rekap periode ini')}
-		<div class="grid grid-cols-2 gap-4">
-			<Stat label="Dengan screenshot" value="{pct(k.with_shot, k.total)}%" hint="{fmtNum(k.with_shot)} rekap" icon={Image} tone="sky" />
-			<Stat label="Dengan URL" value="{pct(k.with_url, k.total)}%" hint="{fmtNum(k.with_url)} rekap" icon={Link2} tone="violet" />
+	<div class="flex flex-col">
+		{@render divider('Kualitas bukti', 'periode ini')}
+		<!-- screenshot & URL dalam satu kartu -->
+		<div class="card flex flex-1 flex-col gap-4">
+			<div class="flex items-start justify-between gap-2">
+				<span class="text-sm font-medium text-slate-500">Rekap dengan bukti</span>
+				<span class="flex size-9 items-center justify-center rounded-lg bg-sky-50 text-sky-600"><ShieldCheck class="size-[18px]" /></span>
+			</div>
+			{#each [['Screenshot', k.with_shot, Image, 'bg-sky-500'], ['URL', k.with_url, Link2, 'bg-violet-500']] as [lbl, n, Icon, bar]}
+				{@const v = pct(n, k.total)}
+				<div>
+					<div class="flex items-baseline justify-between gap-2">
+						<span class="flex items-center gap-1.5 text-sm text-slate-600"><Icon class="size-4 text-slate-400" />{lbl}</span>
+						<span class="text-2xl font-semibold tracking-tight">{v}%</span>
+					</div>
+					<div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full {bar}" style="width:{v}%"></div></div>
+					<div class="mt-1 text-xs text-slate-500">{fmtNum(n)} dari {fmtNum(k.total)} rekap</div>
+				</div>
+			{/each}
 		</div>
 	</div>
 </div>

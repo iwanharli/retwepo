@@ -71,7 +71,7 @@
 />
 
 <AccountListToolbar f={data.f} extra={['sort', 'dir']} uncounted={['sort', 'dir']}>
-	<FilterSelect name="sort" value={data.f.sort.key === 'month' ? '' : data.f.sort.key} all="Urut: rekap 30 hari" label="Urutkan" options={SORTS.filter(([k]) => k !== 'month').map(([k, l]) => [k, `Urut: ${l.toLowerCase()}`])} />
+	<FilterSelect variant="select" name="sort" value={data.f.sort.key === 'month' ? '' : data.f.sort.key} all="Urut: rekap 30 hari" label="Urutkan" options={SORTS.filter(([k]) => k !== 'month').map(([k, l]) => [k, `Urut: ${l.toLowerCase()}`])} />
 </AccountListToolbar>
 <Flash {form} />
 

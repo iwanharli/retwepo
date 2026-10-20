@@ -26,7 +26,7 @@
 		{ key: 'users', label: 'Data user', desc: 'Profil, e-wallet & jumlah rekap tiap user', icon: Users, url: '/admin/export/users' },
 		{ key: 'accounts', label: 'Akun sosmed', desc: 'Akun, pemilik & jumlah rekap tiap akun', icon: AtSign, url: '/admin/export/accounts' }
 	];
-	let type = $state(TYPES.some((t) => t.key === pre.type) ? pre.type : 'summary');
+	let type = $state(TYPES.some((t) => t.key === pre.type) ? pre.type : 'detail');
 	const T = $derived(TYPES.find((t) => t.key === type));
 	const isRecap = $derived(T.url === '/admin/export/recaps');
 

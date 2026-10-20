@@ -45,3 +45,22 @@ export function toastResult(result) {
 			: null
 	});
 }
+
+/**
+ * Popup gaya SweetAlert di tengah layar (ditampilkan oleh AlertHost di layout utama).
+ * tone: success (tutup otomatis setelah `timer` ms) | error | warning | info (perlu ditutup dengan tombol)
+ * Hasil: Promise yang selesai saat popup ditutup.
+ */
+export const alerts = $state([]);
+export function showAlert({ tone = 'info', title = null, message, timer = tone === 'success' ? 2500 : 0 }) {
+	return new Promise((resolve) => {
+		const id = ++seq;
+		const close = () => {
+			const i = alerts.findIndex((a) => a.id === id);
+			if (i >= 0) alerts.splice(i, 1);
+			resolve();
+		};
+		alerts.push({ id, tone, title, message, timer, close });
+		if (timer) setTimeout(close, timer);
+	});
+}

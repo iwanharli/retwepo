@@ -25,7 +25,6 @@
 	import { untrack } from 'svelte';
 	import { Tooltip } from 'bits-ui';
 	import UserMenu from './UserMenu.svelte';
-	import Toaster from './Toaster.svelte';
 	import NotificationBell from './NotificationBell.svelte';
 
 	/** sidebarCollapsed: nilai awal dari cookie (dibaca di server agar tidak berkedip) */
@@ -225,5 +224,4 @@
 	</header>
 
 	<main class="w-full px-4 py-6 lg:px-8 lg:py-8">{@render children()}</main>
-	<Toaster />
 </div>

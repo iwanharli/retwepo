@@ -1,6 +1,5 @@
 <script>
 	import LegalPage from '#lib/components/LegalPage.svelte';
-	const CONTACT = 'harlicuan@gmail.com';
 </script>
 
 <svelte:head>
@@ -51,6 +50,6 @@
 
 	<section>
 		<h2>6. Kontak</h2>
-		<p>Hubungi <a href="mailto:{CONTACT}">{CONTACT}</a> untuk pertanyaan seputar syarat penggunaan.</p>
+		<p>Hubungi <b>Admin Retwepo</b> untuk pertanyaan seputar syarat penggunaan.</p>
 	</section>
 </LegalPage>

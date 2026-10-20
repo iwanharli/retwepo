@@ -21,6 +21,9 @@
 	import { Check, X, ShieldX, CalendarDays, FileText, Reply, Clock, Layers } from '@lucide/svelte';
 
 	let { data, form } = $props();
+	// tujuan klik kartu statistik: Semua Rekap milik user ini
+	const recapsHref = (extra = {}, all = false) =>
+		`/admin/recaps?${new URLSearchParams({ user: String(data.u.id), from: all ? '' : data.range.from, to: all ? '' : data.range.to, ...extra })}`;
 	const u = $derived(data.u);
 	const st = $derived(data.stats);
 
@@ -176,11 +179,11 @@
 </div>
 
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
-	<Stat label="Rekap periode" desc="Rekap pada rentang tanggal terpilih" value={st.summary.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />
-	<Stat label="Postingan" desc="Konten yang diunggah sendiri" value={st.summary.posts} icon={FileText} tone="violet" />
-	<Stat label="Panel" desc="Reply, like, retweet & share" value={st.summary.replies} icon={Reply} tone="sky" />
-	<Stat label="Hari aktif" desc="Hari dengan minimal 1 rekap" value="{st.summary.active_days} / {data.range.days}" icon={Clock} tone="emerald" />
-	<Stat label="Total semua" desc="Seluruh rekap user ini" value={st.summary.total} hint="pertama {fmtDate(st.summary.first_at)}" icon={Layers} tone="amber" />
+	<Stat label="Rekap periode" href={recapsHref()} desc="Rekap pada rentang tanggal terpilih" value={st.summary.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />
+	<Stat label="Postingan" href={recapsHref({ type: 'post' })} desc="Konten yang diunggah sendiri" value={st.summary.posts} icon={FileText} tone="violet" />
+	<Stat label="Panel" href={recapsHref({ type: 'reply' })} desc="Reply, like, retweet & share" value={st.summary.replies} icon={Reply} tone="sky" />
+	<Stat label="Hari aktif" href={recapsHref()} desc="Hari dengan minimal 1 rekap" value="{st.summary.active_days} / {data.range.days}" icon={Clock} tone="emerald" />
+	<Stat label="Total semua" href={recapsHref({}, true)} desc="Seluruh rekap user ini" value={st.summary.total} hint="pertama {fmtDate(st.summary.first_at)}" icon={Layers} tone="amber" />
 </div>
 
 <div class="card mt-6">

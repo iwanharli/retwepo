@@ -17,6 +17,9 @@
 	import Flash from '#lib/components/Flash.svelte';
 
 	let { data, form } = $props();
+	// tujuan klik kartu statistik: Semua Rekap milik akun ini
+	const recapsHref = (extra = {}, all = false) =>
+		`/admin/recaps?${new URLSearchParams({ account: String(data.account.id), from: all ? '' : data.range.from, to: all ? '' : data.range.to, ...extra })}`;
 	const a = $derived(data.account);
 	const s = $derived(data.summary);
 	const p = $derived(PLATFORMS[a.platform]);
@@ -116,11 +119,11 @@
 	<RangeFilter from={data.range.from} to={data.range.to} />
 </div>
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-5 lg:gap-6">
-	<Stat label="Rekap periode" desc="Rekap pada rentang tanggal terpilih" value={s.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />
-	<Stat label="Postingan" desc="Konten yang diunggah sendiri" value={s.posts} icon={FileText} tone="violet" />
-	<Stat label="Panel" desc="Reply, like, retweet & share" value={s.replies} icon={Reply} tone="sky" />
-	<Stat label="Hari aktif" desc="Hari dengan minimal 1 rekap" value="{s.active_days} / {data.range.days}" icon={Clock} tone="emerald" />
-	<Stat label="Total semua" desc="Seluruh rekap akun ini" value={s.total} icon={Layers} tone="amber" hint={s.deleted ? `${s.deleted} dihapus admin (tidak dihitung)` : `sejak ${fmtDate(s.first_at)}`} />
+	<Stat label="Rekap periode" href={recapsHref()} desc="Rekap pada rentang tanggal terpilih" value={s.in_range} icon={CalendarDays} tone="brand" hint="{data.range.days} hari" />
+	<Stat label="Postingan" href={recapsHref({ type: 'post' })} desc="Konten yang diunggah sendiri" value={s.posts} icon={FileText} tone="violet" />
+	<Stat label="Panel" href={recapsHref({ type: 'reply' })} desc="Reply, like, retweet & share" value={s.replies} icon={Reply} tone="sky" />
+	<Stat label="Hari aktif" href={recapsHref()} desc="Hari dengan minimal 1 rekap" value="{s.active_days} / {data.range.days}" icon={Clock} tone="emerald" />
+	<Stat label="Total semua" href={recapsHref({}, true)} desc="Seluruh rekap akun ini" value={s.total} icon={Layers} tone="amber" hint={s.deleted ? `${s.deleted} dihapus admin (tidak dihitung)` : `sejak ${fmtDate(s.first_at)}`} />
 </div>
 
 <div class="mt-6 grid gap-6 xl:grid-cols-3">

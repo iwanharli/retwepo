@@ -10,8 +10,7 @@
 	import EmptyState from '#lib/components/EmptyState.svelte';
 	import UserActions from '#lib/components/UserActions.svelte';
 	import UserListToolbar from '#lib/components/UserListToolbar.svelte';
-	import CsvExportDialog from '#lib/components/CsvExportDialog.svelte';
-	import { USER_EXPORT_COLUMNS, ACCOUNT_EXPORT_COLUMNS } from '#lib/constants.js';
+	import ExportLink from '#lib/components/ExportLink.svelte';
 	import SortTh from '#lib/components/SortTh.svelte';
 	let { data, form } = $props();
 </script>
@@ -20,15 +19,7 @@
 
 <PageHeader title="Pendaftaran User" description={data.f.status === 'rejected' ? 'User yang ditolak bisa memperbaiki data dan mendaftar ulang; mereka akan kembali ke tab Menunggu.' : data.f.status === 'incomplete' ? 'User yang sudah login Google tapi belum mengisi form pendaftaran.' : 'Tinjau dan setujui user baru beserta akun sosmed yang mereka ajukan.'} icon={UserPlus}>
 	{#snippet actions()}
-		<CsvExportDialog
-			action="/admin/export/users"
-			title="Export pendaftaran ke CSV"
-			description="Data pendaftar beserta akun sosmed yang diajukan."
-			statuses={[['approved', 'Aktif'], ['suspended', 'Ditangguhkan'], ['pending', 'Menunggu'], ['rejected', 'Ditolak'], ['incomplete', 'Belum isi form']]}
-			defaultStatuses={[data.f.status ?? 'pending']}
-			columns={USER_EXPORT_COLUMNS}
-			q={data.f.q}
-		/>
+		<ExportLink params={{ type: 'users', q: data.f.q, status: data.f.status ? [data.f.status] : [] }} />
 	{/snippet}
 </PageHeader>
 

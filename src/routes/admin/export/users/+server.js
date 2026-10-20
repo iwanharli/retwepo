@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
 import { csvResponse } from '#lib/server/csv.js';
-import { exportParams, wib } from '#lib/server/export-common.js';
+import { exportParams, wib, campaignTag } from '#lib/server/export-common.js';
 import { USER_EXPORT_COLUMNS, USER_STATUS, PLATFORMS } from '#lib/constants.js';
 
 const ROLE = { user: 'User', admin: 'Admin' };
@@ -14,7 +14,8 @@ export async function GET({ url }) {
 	const o = exportParams(url, USER_EXPORT_COLUMNS, Object.keys(USER_STATUS));
 	const like = `%${o.q.replace(/[%_\\]/g, '\\$&')}%`;
 	const inStatuses = sql.join(o.statuses.map((s) => sql`${s}`), sql`, `);
-	const range = sql`(${o.start}::timestamptz IS NULL OR r.posted_at >= ${o.start}::timestamptz) AND (${o.end}::timestamptz IS NULL OR r.posted_at < ${o.end}::timestamptz)`;
+	const range = sql`(${o.start}::timestamptz IS NULL OR r.posted_at >= ${o.start}::timestamptz) AND (${o.end}::timestamptz IS NULL OR r.posted_at < ${o.end}::timestamptz)
+		AND (${o.campaign}::int IS NULL OR r.campaign_id = ${o.campaign}::int)`;
 
 	const rows = await db.execute(sql`
 		SELECT u.id, u.nickname, u.email, u.role, u.status, u.status_note, u.ewallet_provider, u.ewallet_number,
@@ -58,8 +59,9 @@ export async function GET({ url }) {
 		status_note: [['Catatan status'], (r) => [r.status_note]]
 	};
 
+	const tag = await campaignTag(o.campaign);
 	return csvResponse(
-		`users-${o.rangeLabel}.csv`,
+		`users${tag}-${o.rangeLabel}.csv`,
 		o.cols.flatMap((c) => DEF[c][0]),
 		[...rows].map((r) => o.cols.flatMap((c) => DEF[c][1](r))),
 		o.sep

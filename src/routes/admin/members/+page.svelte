@@ -11,8 +11,7 @@
 	import UserActions from '#lib/components/UserActions.svelte';
 	import UserListToolbar from '#lib/components/UserListToolbar.svelte';
 	import CreateUserDialog from '#lib/components/CreateUserDialog.svelte';
-	import CsvExportDialog from '#lib/components/CsvExportDialog.svelte';
-	import { USER_EXPORT_COLUMNS, ACCOUNT_EXPORT_COLUMNS } from '#lib/constants.js';
+	import ExportLink from '#lib/components/ExportLink.svelte';
 	import SortTh from '#lib/components/SortTh.svelte';
 	let { data, form } = $props();
 
@@ -24,15 +23,7 @@
 
 <PageHeader title="User Terverifikasi" description="User yang sudah disetujui beserta aktivitas rekapnya." icon={Users}>
 	{#snippet actions()}
-		<CsvExportDialog
-			action="/admin/export/users"
-			title="Export user ke CSV"
-			description="Data user beserta jumlah rekap pada rentang tanggal yang dipilih — cocok untuk rekap pembayaran."
-			statuses={[['approved', 'Aktif'], ['suspended', 'Ditangguhkan'], ['pending', 'Menunggu'], ['rejected', 'Ditolak'], ['incomplete', 'Belum isi form']]}
-			defaultStatuses={data.f.status === 'all' ? ['approved', 'suspended'] : [data.f.status]}
-			columns={USER_EXPORT_COLUMNS}
-			q={data.f.q}
-		/>
+		<ExportLink params={{ type: 'users', q: data.f.q, status: data.f.status ? [data.f.status] : [] }} />
 		<CreateUserDialog />
 	{/snippet}
 </PageHeader>

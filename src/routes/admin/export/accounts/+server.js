@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
 import { csvResponse } from '#lib/server/csv.js';
-import { exportParams, wib } from '#lib/server/export-common.js';
+import { exportParams, wib, campaignTag } from '#lib/server/export-common.js';
 import { ACCOUNT_EXPORT_COLUMNS, ACCOUNT_STATUS, USER_STATUS, PLATFORMS } from '#lib/constants.js';
 
 /**
@@ -14,7 +14,8 @@ export async function GET({ url }) {
 	const verifiedOwners = url.searchParams.get('owner') === 'verified';
 	const like = `%${o.q.replace(/[%_\\]/g, '\\$&')}%`;
 	const inStatuses = sql.join(o.statuses.map((s) => sql`${s}`), sql`, `);
-	const range = sql`(${o.start}::timestamptz IS NULL OR r.posted_at >= ${o.start}::timestamptz) AND (${o.end}::timestamptz IS NULL OR r.posted_at < ${o.end}::timestamptz)`;
+	const range = sql`(${o.start}::timestamptz IS NULL OR r.posted_at >= ${o.start}::timestamptz) AND (${o.end}::timestamptz IS NULL OR r.posted_at < ${o.end}::timestamptz)
+		AND (${o.campaign}::int IS NULL OR r.campaign_id = ${o.campaign}::int)`;
 
 	const rows = await db.execute(sql`
 		SELECT a.id, a.platform, a.username, a.status, a.status_note, a.created_at, a.reviewed_at,
@@ -50,8 +51,9 @@ export async function GET({ url }) {
 		reviewed_at: [['Ditinjau (WIB)'], (r) => [wib(r.reviewed_at)]]
 	};
 
+	const tag = await campaignTag(o.campaign);
 	return csvResponse(
-		`akun-sosmed-${o.rangeLabel}.csv`,
+		`akun-sosmed${tag}-${o.rangeLabel}.csv`,
 		o.cols.flatMap((c) => DEF[c][0]),
 		[...rows].map((r) => o.cols.flatMap((c) => DEF[c][1](r))),
 		o.sep

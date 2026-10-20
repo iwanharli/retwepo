@@ -1,7 +1,7 @@
 <script>
 	import { BadgeCheck, SearchX, ShieldOff, Images, UserCheck, Ban, Users, Eye, ChevronDown, ChevronsUpDown, ChevronsDownUp, Wallet } from '@lucide/svelte';
 	import { page } from '$app/state';
-	import { USER_STATUS, fmtDate, fmtNum, adminUserHref, ACCOUNT_EXPORT_COLUMNS } from '#lib/constants.js';
+	import { USER_STATUS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 	import Badge from '#lib/components/Badge.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import PlatformTag from '#lib/components/PlatformTag.svelte';
@@ -15,7 +15,7 @@
 	import FilterSelect from '#lib/components/FilterSelect.svelte';
 	import ActionDialog from '#lib/components/ActionDialog.svelte';
 	import AddAccountDialog from '#lib/components/AddAccountDialog.svelte';
-	import CsvExportDialog from '#lib/components/CsvExportDialog.svelte';
+	import ExportLink from '#lib/components/ExportLink.svelte';
 	import AccountSummary from '#lib/components/AccountSummary.svelte';
 
 	let { data, form } = $props();
@@ -56,18 +56,7 @@
 	icon={BadgeCheck}
 >
 	{#snippet actions()}
-		<CsvExportDialog
-			action="/admin/export/accounts"
-			title="Export akun sosmed ke CSV"
-			description="Daftar akun beserta pemilik dan jumlah rekap pada rentang tanggal yang dipilih."
-			statuses={[['approved', 'Terverifikasi'], ['pending', 'Menunggu'], ['rejected', 'Ditolak / dicabut']]}
-			defaultStatuses={['approved']}
-			columns={ACCOUNT_EXPORT_COLUMNS}
-			platformFilter
-			ownerFilter={data.owner === 'approved'}
-			q={data.f.q}
-			platform={data.f.platform}
-		/>
+		<ExportLink params={{ type: 'accounts', q: data.f.q, platform: data.f.platform, status: ['approved'] }} />
 		<AddAccountDialog />
 	{/snippet}
 </PageHeader>

@@ -12,8 +12,7 @@
 	import AccountListToolbar from '#lib/components/AccountListToolbar.svelte';
 	import SortTh from '#lib/components/SortTh.svelte';
 	import ActionDialog from '#lib/components/ActionDialog.svelte';
-	import CsvExportDialog from '#lib/components/CsvExportDialog.svelte';
-	import { USER_EXPORT_COLUMNS, ACCOUNT_EXPORT_COLUMNS } from '#lib/constants.js';
+	import ExportLink from '#lib/components/ExportLink.svelte';
 	import AccountSummary from '#lib/components/AccountSummary.svelte';
 
 	let { data, form } = $props();
@@ -51,18 +50,7 @@
 	description="Akun sosmed tambahan dari user yang sudah terverifikasi. Akun milik user baru ditinjau di Pendaftaran User."
 	icon={ShieldCheck}>
 	{#snippet actions()}
-		<CsvExportDialog
-			action="/admin/export/accounts"
-			title="Export pengajuan akun ke CSV"
-			description="Akun sosmed yang diajukan beserta pemiliknya."
-			statuses={[['approved', 'Terverifikasi'], ['pending', 'Menunggu'], ['rejected', 'Ditolak / dicabut']]}
-			defaultStatuses={[data.f.status ?? 'pending']}
-			columns={ACCOUNT_EXPORT_COLUMNS}
-			platformFilter
-			ownerFilter={true}
-			q={data.f.q}
-			platform={data.f.platform}
-		/>
+		<ExportLink params={{ type: 'accounts', q: data.f.q, platform: data.f.platform, status: data.f.status ? [data.f.status] : [] }} />
 	{/snippet}
 </PageHeader>
 

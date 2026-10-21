@@ -50,3 +50,22 @@ export function takenMessage(taken) {
 export function isUniqueViolation(e) {
 	return e?.code === '23505' || e?.cause?.code === '23505';
 }
+
+/**
+ * Apakah username baru bisa dipakai akun `accountId` di platform tsb:
+ * tidak boleh sama dengan akun lain yang aktif/menunggu, maupun pengajuan ganti username akun lain.
+ */
+export async function usernameTaken(tx, platform, username, accountId) {
+	const [row] = await tx
+		.select({ id: socialAccounts.id })
+		.from(socialAccounts)
+		.where(
+			and(
+				eq(socialAccounts.platform, platform),
+				ne(socialAccounts.id, accountId),
+				or(and(ne(socialAccounts.status, 'rejected'), eq(socialAccounts.username, username)), eq(socialAccounts.pendingUsername, username))
+			)
+		)
+		.limit(1);
+	return Boolean(row);
+}

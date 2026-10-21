@@ -56,7 +56,8 @@ export async function shellData({ locals, cookies }) {
 		const [c] = await db.execute(sql`
 			SELECT (SELECT count(*) FROM users WHERE status = 'pending')::int AS users,
 				(SELECT count(*) FROM social_accounts a JOIN users u ON u.id = a.user_id
-					WHERE a.status = 'pending' AND u.status = 'approved')::int AS accounts`);
+					WHERE a.status = 'pending' AND u.status = 'approved')::int
+					+ (SELECT count(*) FROM social_accounts WHERE pending_username IS NOT NULL)::int AS accounts`);
 		badges = { '/admin/users': c.users, '/admin/accounts': c.accounts };
 	}
 	return {

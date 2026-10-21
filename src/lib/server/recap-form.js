@@ -1,18 +1,13 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from './db/index.js';
 import { socialAccounts, campaigns } from './db/schema.js';
-import { urlKey } from '#lib/constants.js';
+import { urlKey, checkRecapUrl, cleanRecapUrl } from '#lib/constants.js';
 
 function cleanUrl(v) {
 	const s = String(v ?? '').trim();
 	if (!s) return null;
-	try {
-		const u = new URL(s);
-		if (!['http:', 'https:'].includes(u.protocol)) throw 0;
-		return u.toString();
-	} catch {
-		return undefined; // tidak valid
-	}
+	if (checkRecapUrl(s).error) return undefined; // tidak valid (rusak / bukan alamat web)
+	return cleanRecapUrl(s);
 }
 
 /**
@@ -42,8 +37,11 @@ export async function parseRecapForm(form, user, { hasExistingShot = false, curr
 	if (!campaign) return { error: 'Pilih kelompok kampanye' };
 	if (!campaign.active && campaign.id !== currentCampaignId) return { error: `Kampanye #${campaign.name} sudah ditutup` };
 	if (!['post', 'reply'].includes(type)) return { error: 'Pilih tipe rekap' };
-	if (url === undefined) return { error: 'URL postingan tidak valid' };
-	if (targetUrl === undefined) return { error: 'URL postingan yang dibalas tidak valid' };
+	if (url === undefined) return { error: checkRecapUrl(form.get('url')).error ?? 'URL postingan tidak valid' };
+	if (targetUrl === undefined) return { error: `URL postingan target: ${checkRecapUrl(form.get('targetUrl')).error ?? 'tidak valid'}` };
+	// link harus dari platform akun yang dipilih (peringatan username tidak menghalangi)
+	const urlCheck = url ? checkRecapUrl(url, account) : {};
+	if (urlCheck.error) return { error: urlCheck.error };
 	if (type === 'reply' && !file && !hasExistingShot) return { error: 'Rekap panel wajib menyertakan screenshot' };
 	if (!url && !file && !hasExistingShot) return { error: 'Isi minimal URL atau screenshot' };
 

@@ -15,6 +15,7 @@
 	} from '@lucide/svelte';
 	import { PLATFORMS, ACCOUNT_STATUS, fmtDate } from '#lib/constants.js';
 	import PlatformIcon from './PlatformIcon.svelte';
+	import UrlIssueBadge from './UrlIssueBadge.svelte';
 	import TypeBadge from './TypeBadge.svelte';
 	import CampaignBadge from './CampaignBadge.svelte';
 	import EditedBadge from './EditedBadge.svelte';
@@ -120,6 +121,7 @@
 							<a href={r.url} target="_blank" rel="noopener noreferrer" class="inline-flex max-w-full items-center gap-1.5 text-brand-600 hover:underline">
 								<span class="break-all">{pretty(r.url)}</span><ExternalLink class="size-3.5 shrink-0" />
 							</a>
+							<UrlIssueBadge url={r.url} platform={r.platform} username={r.username} full />
 						{:else}<span class="text-slate-400">Tidak diisi</span>{/if}
 					</dd>
 				</div>

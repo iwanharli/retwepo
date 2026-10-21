@@ -7,6 +7,7 @@
 	import Stat from '#lib/components/Stat.svelte';
 	import Chart from '#lib/components/Chart.svelte';
 	import PlatformTag from '#lib/components/PlatformTag.svelte';
+	import ProfileLink from '#lib/components/ProfileLink.svelte';
 	import RecapCard from '#lib/components/RecapCard.svelte';
 	import RangeFilter from '#lib/components/RangeFilter.svelte';
 	import Pagination from '#lib/components/Pagination.svelte';
@@ -127,13 +128,13 @@
 				<SortTh key="in_range" label="Rekap (periode / total)" sort={accSort} onsort={sortAccounts} defaultDir="desc" align="right" class="w-48" />
 				<SortTh key="last_at" label="Terakhir" sort={accSort} onsort={sortAccounts} defaultDir="desc" class="w-36" />
 				<SortTh key="created_at" label="Diajukan" sort={accSort} onsort={sortAccounts} defaultDir="desc" class="w-36" />
-				<th class="w-56"></th>
+				<th class="w-72"></th>
 			</tr>
 		</thead>
 		<tbody>
 			{#each accounts as a (a.id)}
 				<tr>
-					<td data-label=""><a href="/admin/social/{a.id}" class="hover:underline"><PlatformTag platform={a.platform} username={a.username} /></a></td>
+					<td data-label=""><div class="flex items-center gap-1"><a href="/admin/social/{a.id}" class="min-w-0 hover:underline"><PlatformTag platform={a.platform} username={a.username} /></a><ProfileLink platform={a.platform} username={a.username} icon /></div></td>
 					<td data-label="Status">
 						<Badge cls={ACCOUNT_STATUS[a.status].cls}>{ACCOUNT_STATUS[a.status].label}</Badge>
 						{#if a.status_note}<div class="text-xs text-slate-500">{a.status_note}</div>{/if}
@@ -143,6 +144,7 @@
 					<td class="text-slate-500" data-label="Diajukan">{fmtDate(a.created_at)}</td>
 					<td class="text-right" data-cell="actions">
 						<div class="flex justify-end gap-1.5">
+							<ProfileLink platform={a.platform} username={a.username} />
 							{#if a.status !== 'approved'}
 								<form method="POST" action="?/approveAccount" use:enhance={approved}>
 									<input type="hidden" name="id" value={a.id} /><button class="btn btn-success btn-sm" aria-label="Setujui akun" title="Setujui akun"><Check /></button>

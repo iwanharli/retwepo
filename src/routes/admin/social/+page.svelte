@@ -5,6 +5,7 @@
 	import Badge from '#lib/components/Badge.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import PlatformTag from '#lib/components/PlatformTag.svelte';
+	import ProfileLink from '#lib/components/ProfileLink.svelte';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
 	import Pagination from '#lib/components/Pagination.svelte';
 	import Flash from '#lib/components/Flash.svelte';
@@ -133,7 +134,7 @@
 							<tbody>
 								{#each g.accounts as a (a.id)}
 									<tr class="hover:bg-white">
-										<td data-label=""><PlatformTag platform={a.platform} username={a.username} size={28} /></td>
+										<td data-label=""><div class="flex items-center gap-1"><PlatformTag platform={a.platform} username={a.username} size={28} /><ProfileLink platform={a.platform} username={a.username} icon /></div></td>
 										<td class="text-right text-base font-semibold" data-label="Rekap 30 hari">{fmtNum(a.month)}</td>
 										<td class="text-right text-slate-500" data-label="Total">{fmtNum(a.total)}</td>
 										<td class="whitespace-nowrap" data-label="Terakhir dipakai">{@render lastUsed(a.last_at)}</td>

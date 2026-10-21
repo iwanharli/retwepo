@@ -18,7 +18,8 @@
 		campaign_closed: [Lock, 'bg-slate-100 text-slate-600'],
 		announcement: [Megaphone, 'bg-brand-50 text-brand-600'],
 		account_renamed: [AtSign, 'bg-emerald-50 text-emerald-600'],
-		rename_rejected: [AtSign, 'bg-rose-50 text-rose-600']
+		rename_rejected: [AtSign, 'bg-rose-50 text-rose-600'],
+		username_suggestion: [AtSign, 'bg-amber-50 text-amber-600']
 	};
 	const [Icon, cls] = $derived(MAP[type] ?? [Bell, 'bg-slate-100 text-slate-600']);
 </script>

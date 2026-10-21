@@ -212,6 +212,18 @@ export const withScheme = (raw) => {
 	return s && !/^[a-z][a-z0-9+.-]*:/i.test(s) && /^[\w-]+(\.[\w-]+)+(\/|$)/i.test(s) ? `https://${s}` : s;
 };
 
+/** Username di link rekap yang BERBEDA dari akunnya (huruf kecil), atau null */
+export function mismatchedUsername(raw, { platform, username }) {
+	try {
+		const u = new URL(withScheme(raw));
+		if (platformOfUrl(u) !== platform) return null;
+		const x = usernameInUrl(u, platform);
+		return x && username && x.toLowerCase() !== username.toLowerCase() ? x.toLowerCase() : null;
+	} catch {
+		return null;
+	}
+}
+
 export function checkRecapUrl(raw, { platform = null, username = null } = {}) {
 	const s = withScheme(raw);
 	if (!s) return {};

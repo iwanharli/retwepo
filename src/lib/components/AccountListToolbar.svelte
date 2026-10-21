@@ -12,7 +12,7 @@
 </script>
 
 {#if tabs}
-	<FilterTabs current={f.status} items={tabs.map(([st, label]) => ({ value: st, label, count: counts[st] ?? 0, alert: st === 'pending' ? 'amber' : undefined }))} />
+	<FilterTabs current={f.status} items={tabs.map(([st, label]) => ({ value: st, label, count: counts[st] ?? 0, alert: st === 'pending' || st === 'rename' ? 'amber' : undefined }))} />
 {/if}
 <FilterBar search={{ value: f.q, placeholder: 'Cari username sosmed, nama atau email pemilik…' }} managed={['platform', ...extra]} {uncounted}>
 	<FilterSelect name="platform" multiple value={f.platforms} all="Semua platform" options={PLATFORM_KEYS.map((k) => [k, PLATFORMS[k].label])} />

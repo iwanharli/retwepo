@@ -52,7 +52,9 @@
 		renameCampaign: [Megaphone, 'bg-violet-50 text-violet-600 ring-violet-200'],
 		closeCampaign: [Megaphone, 'bg-slate-100 text-slate-600 ring-slate-200'],
 		openCampaign: [Megaphone, 'bg-emerald-50 text-emerald-600 ring-emerald-200'],
-		announce: [Megaphone, 'bg-brand-50 text-brand-600 ring-brand-200']
+		announce: [Megaphone, 'bg-brand-50 text-brand-600 ring-brand-200'],
+		approveRename: [BadgeCheck, 'bg-emerald-50 text-emerald-600 ring-emerald-200'],
+		rejectRename: [ShieldX, 'bg-rose-50 text-rose-600 ring-rose-200']
 	};
 	// aksi yang belum punya gaya khusus tetap tampil dengan ikon umum
 	const styleOf = (k) => STYLE[k] ?? [ScrollText, 'bg-slate-100 text-slate-600 ring-slate-200'];

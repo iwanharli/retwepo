@@ -91,6 +91,10 @@ export const socialAccounts = pgTable(
 		statusNote: text('status_note'),
 		reviewedBy: integer('reviewed_by'),
 		reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+		// pengajuan ganti username oleh user (menunggu persetujuan admin); null = tidak ada pengajuan
+		pendingUsername: varchar('pending_username', { length: 100 }),
+		renameNote: text('rename_note'),
+		renameRequestedAt: timestamp('rename_requested_at', { withTimezone: true }),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 	},
 	(t) => [

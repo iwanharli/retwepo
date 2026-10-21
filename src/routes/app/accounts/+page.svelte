@@ -1,6 +1,6 @@
 <script>
 	import { enhance } from '$app/forms';
-	import { Link2, Plus, ExternalLink, Trash2, Clock, CircleCheck, CircleX, ShieldCheck, Send, Layers, CalendarClock } from '@lucide/svelte';
+	import { Link2, Plus, ExternalLink, Trash2, Clock, CircleCheck, CircleX, ShieldCheck, Send, Layers, CalendarClock, AtSign } from '@lucide/svelte';
 	import { ACCOUNT_STATUS, PLATFORMS, fmtDate, fmtNum } from '#lib/constants.js';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
 	import Badge from '#lib/components/Badge.svelte';
@@ -43,6 +43,20 @@
 					{#if a.status_note}
 						<p class="mx-5 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">Catatan admin: {a.status_note}</p>
 					{/if}
+					{#if a.pending_username}
+						<!-- pengajuan ganti username menunggu admin -->
+						<div class="mx-5 flex items-center gap-3 rounded-lg bg-amber-50 px-3 py-2.5 text-xs text-amber-800 ring-1 ring-amber-200">
+							<Clock class="size-4 shrink-0" />
+							<div class="min-w-0 flex-1">
+								<div class="font-medium">Menunggu persetujuan ganti username</div>
+								<div class="break-all">@{a.username} → <b>@{a.pending_username}</b></div>
+							</div>
+							<form method="POST" action="?/cancelRename" use:enhance>
+								<input type="hidden" name="id" value={a.id} />
+								<button class="rounded-md px-2 py-1 font-medium text-amber-900 hover:bg-amber-100">Batalkan</button>
+							</form>
+						</div>
+					{/if}
 
 					<div class="mx-5 grid grid-cols-2 gap-3">
 						<div class="rounded-lg bg-slate-50 px-3 py-2.5">
@@ -57,6 +71,29 @@
 
 					<div class="mt-auto flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-3">
 						{#if a.status === 'approved'}
+							{#if !a.pending_username}
+								<ActionDialog
+									action="requestRename"
+									fields={{ id: a.id }}
+									tone="brand"
+									icon={AtSign}
+									title="Ganti username akun?"
+									description="Username baru akan aktif setelah disetujui admin. Selama menunggu, akun tetap bisa dipakai dan rekap lama tetap tersimpan."
+									confirmLabel="Ajukan"
+									note={{ label: 'Alasan', presets: ['Salah ketik saat mendaftar', 'Username diganti di aplikasi'], required: true }}
+									triggerClass="btn btn-ghost btn-sm mr-auto"
+								>
+									{#snippet trigger()}<AtSign /> Ubah username{/snippet}
+									<div class="space-y-1.5">
+										<div class="flex items-center gap-2 text-sm text-slate-500"><PlatformIcon platform={a.platform} size={18} />{PLATFORMS[a.platform].label} · sekarang <b class="text-slate-700">@{a.username}</b></div>
+										<label class="block text-sm font-medium text-slate-700" for="rn-{a.id}">Username baru</label>
+										<div class="relative">
+											<span class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-slate-400">@</span>
+											<input id="rn-{a.id}" name="username" class="input pl-7" maxlength="100" autocomplete="off" placeholder="username_baru" required />
+										</div>
+									</div>
+								</ActionDialog>
+							{/if}
 							<a href="/app/recaps?account={a.id}" class="btn btn-ghost btn-sm">Lihat rekap</a>
 							<a href="/app/recaps/new?account={a.id}" class="btn btn-soft-brand btn-sm"><Plus /> Rekap</a>
 						{:else}

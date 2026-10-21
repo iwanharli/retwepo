@@ -2,7 +2,8 @@ import { fail } from '@sveltejs/kit';
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
 import { socialAccounts } from '#lib/server/db/schema.js';
-import { parseAccounts, findTaken, takenMessage, isUniqueViolation } from '#lib/server/accounts.js';
+import { parseAccounts, findTaken, takenMessage, isUniqueViolation, usernameTaken } from '#lib/server/accounts.js';
+import { normalizeUsername, PLATFORMS } from '#lib/constants.js';
 import { checkLimits, waitText } from '#lib/server/ratelimit.js';
 
 export async function load({ locals }) {
@@ -39,6 +40,35 @@ export const actions = {
 			throw e;
 		}
 		return { success: 'Akun ditambahkan dan menunggu verifikasi admin' };
+	},
+
+	// ajukan ganti username akun yang sudah terverifikasi (disetujui admin)
+	requestRename: async ({ request, locals }) => {
+		const form = await request.formData();
+		const id = Number(form.get('id'));
+		const username = normalizeUsername(String(form.get('username') ?? ''));
+		const note = String(form.get('note') ?? '').trim().slice(0, 500);
+		const [a] = await db.select().from(socialAccounts).where(and(eq(socialAccounts.id, id), eq(socialAccounts.userId, locals.user.id)));
+		if (!a || a.status !== 'approved') return fail(400, { error: 'Hanya akun yang sudah terverifikasi yang bisa diganti username-nya' });
+		if (!/^[a-z0-9._-]{1,100}$/.test(username)) return fail(400, { error: 'Username tidak valid (huruf kecil, angka, titik, garis bawah, atau strip)' });
+		if (username === a.username) return fail(400, { error: 'Username baru sama dengan yang sekarang' });
+		if (note.length < 5) return fail(400, { error: 'Jelaskan alasannya (minimal 5 karakter)' });
+		const limit = checkLimits([[`account-rename:${locals.user.id}`, 5, 60 * 60 * 1000]]);
+		if (!limit.ok) return fail(429, { error: `Terlalu banyak pengajuan. Coba lagi dalam ${waitText(limit.retryAfter)}.` });
+		if (await usernameTaken(db, a.platform, username, a.id)) return fail(400, { error: `${PLATFORMS[a.platform].label} @${username} sudah dipakai akun lain` });
+		await db.update(socialAccounts).set({ pendingUsername: username, renameNote: note, renameRequestedAt: new Date() }).where(eq(socialAccounts.id, a.id));
+		return { success: `Pengajuan ganti username ke @${username} dikirim. Menunggu persetujuan admin.` };
+	},
+
+	cancelRename: async ({ request, locals }) => {
+		const id = Number((await request.formData()).get('id'));
+		const [row] = await db
+			.update(socialAccounts)
+			.set({ pendingUsername: null, renameNote: null, renameRequestedAt: null })
+			.where(and(eq(socialAccounts.id, id), eq(socialAccounts.userId, locals.user.id)))
+			.returning({ id: socialAccounts.id });
+		if (!row) return fail(400, { error: 'Pengajuan tidak ditemukan' });
+		return { success: 'Pengajuan ganti username dibatalkan' };
 	},
 
 	remove: async ({ request, locals }) => {

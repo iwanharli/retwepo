@@ -2,7 +2,7 @@
 	import { toastResult } from '#lib/toast.svelte.js';
 	import { enhance } from '$app/forms';
 	import { invalidate, invalidateAll } from '$app/navigation';
-	import { ShieldCheck, ShieldX, BadgeCheck, Check, X, Inbox, CalendarClock, Eye, UserRound } from '@lucide/svelte';
+	import { ShieldCheck, ShieldX, BadgeCheck, Check, X, Inbox, CalendarClock, Eye, UserRound, ArrowRight } from '@lucide/svelte';
 	import { fmtDate, adminUserHref } from '#lib/constants.js';
 	import PlatformTag from '#lib/components/PlatformTag.svelte';
 	import Pagination from '#lib/components/Pagination.svelte';
@@ -53,11 +53,72 @@
 <AccountListToolbar
 	f={data.f}
 	counts={data.counts}
-	tabs={[['pending', 'Menunggu'], ['rejected', 'Ditolak']]}
+	tabs={[['pending', 'Menunggu'], ['rejected', 'Ditolak'], ['rename', 'Ubah username']]}
 />
 <Flash {form} />
 
-{#if data.rows.length}
+{#if data.f.status === 'rename'}
+	<!-- pengajuan ganti username dari user -->
+	{#if data.renames.length}
+		<div class="card overflow-x-auto p-0">
+			<table class="table table-cards">
+				<thead>
+					<tr><th>Akun</th><th>Username baru</th><th>Pemilik</th><th>Alasan</th><th>Diajukan</th><th class="text-right">Aksi</th></tr>
+				</thead>
+				<tbody>
+					{#each data.renames as a (a.id)}
+						<tr class="hover:bg-slate-50/70">
+							<td data-label=""><PlatformTag platform={a.platform} username={a.username} size={28} /><div class="mt-0.5 ml-9 text-xs text-slate-500">{a.recaps} rekap tetap terhubung</div></td>
+							<td data-label="Username baru"><span class="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 text-sm font-semibold break-all text-emerald-700"><ArrowRight class="size-3.5 shrink-0" />@{a.pending_username}</span></td>
+							<td data-label="Pemilik">
+								<div class="flex items-center gap-2"><span class="font-medium">{a.nickname ?? a.email}</span><a href={adminUserHref(a.user_id, a.user_status)} class="btn btn-ghost btn-icon btn-sm size-7 text-slate-500 hover:text-brand-600" title="Detail user" aria-label="Detail user"><UserRound class="size-4" /></a></div>
+								<div class="text-xs text-slate-500">{a.email}</div>
+							</td>
+							<td class="max-w-64 text-sm text-slate-600" data-label="Alasan">{a.rename_note ?? '—'}</td>
+							<td class="whitespace-nowrap text-slate-500" data-label="Diajukan"><span class="flex items-center gap-1.5"><CalendarClock class="size-3.5" />{fmtDate(a.rename_requested_at, true)}</span></td>
+							<td data-cell="actions">
+								<div class="flex justify-end gap-1.5">
+									<a href="/admin/social/{a.id}" class="btn btn-soft-brand btn-sm"><Eye /> Detail</a>
+									<ActionDialog
+										action="approveRename"
+										fields={{ id: a.id }}
+										tone="success"
+										icon={BadgeCheck}
+										title="Setujui ganti username?"
+										description="Username akun langsung berganti. Semua rekap lama tetap terhubung ke akun ini."
+										confirmLabel="Setujui"
+										triggerClass="btn btn-success btn-sm"
+										onSuccess={done}
+									>
+										{#snippet trigger()}<Check /> Setujui{/snippet}
+										<p class="text-sm break-all">@{a.username} <span class="text-slate-400">→</span> <b>@{a.pending_username}</b></p>
+									</ActionDialog>
+									<ActionDialog
+										action="rejectRename"
+										fields={{ id: a.id }}
+										tone="danger"
+										icon={ShieldX}
+										title="Tolak ganti username?"
+										description="Username tetap @{a.username}. Alasan ditampilkan kepada user."
+										confirmLabel="Tolak"
+										note={{ label: 'Alasan penolakan', presets: ['Username baru tidak ditemukan', 'Akun bukan milik user ini', 'Username sudah benar'], required: true }}
+										triggerClass="btn btn-soft-danger btn-sm"
+										onSuccess={done}
+									>
+										{#snippet trigger()}<X /> Tolak{/snippet}
+										<p class="text-sm break-all">@{a.username} → @{a.pending_username}</p>
+									</ActionDialog>
+								</div>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+	{:else}
+		<EmptyState icon={Inbox} title="Tidak ada pengajuan ganti username" description="Pengajuan dari user akan muncul di sini." />
+	{/if}
+{:else if data.rows.length}
 	{#if pending}
 		<div class="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-card">
 			<span class="mr-auto text-slate-500"><b class="text-slate-900">{selected.length}</b> akun dipilih</span>

@@ -3,7 +3,7 @@ import { and, eq, gte, inArray, ne } from 'drizzle-orm';
 import { db } from './db/index.js';
 import { users, socialAccounts } from './db/schema.js';
 import { invalidateUserSessions } from './auth.js';
-import { isUniqueViolation, parseAccounts, findTaken, takenMessage } from './accounts.js';
+import { isUniqueViolation, parseAccounts, findTaken, takenMessage, usernameTaken } from './accounts.js';
 import { logAdmin } from './audit.js';
 import { checkAndStore } from './ewallet-check.js';
 import { notify, retractNotifications } from './notify.js';
@@ -324,6 +324,40 @@ export const accountActions = {
 		await logAdmin(locals.user, res.map((a) => ({ action: 'undoApproveAccount', targetType: 'account', targetId: a.id, targetLabel: accountLabel(a) })));
 		await retractNotifications([...new Set(res.map((a) => a.userId))], ['account_approved'], UNDO_WINDOW_MS);
 		return { success: `Persetujuan ${res.length} akun dibatalkan` };
+	},
+
+	// pengajuan ganti username dari user
+	approveRename: async ({ request, locals }) => {
+		const id = Number((await request.formData()).get('id'));
+		const [a] = await db.select().from(socialAccounts).where(eq(socialAccounts.id, id));
+		if (!a?.pendingUsername) return fail(404, { error: 'Pengajuan tidak ditemukan' });
+		if (await usernameTaken(db, a.platform, a.pendingUsername, a.id)) return fail(400, { error: `@${a.pendingUsername} sudah dipakai akun lain` });
+		const oldName = a.username;
+		try {
+			await db.transaction(async (tx) => {
+				await tx.update(socialAccounts).set({ username: a.pendingUsername, pendingUsername: null, renameNote: null, renameRequestedAt: null }).where(eq(socialAccounts.id, a.id));
+				await logAdmin(locals.user, { action: 'approveRename', targetType: 'account', targetId: a.id, targetLabel: accountLabel({ ...a, username: a.pendingUsername }), note: a.renameNote, meta: { before: oldName, after: a.pendingUsername } }, tx);
+				await notify({ userId: a.userId, type: 'account_renamed', title: `Username diganti: @${oldName} → @${a.pendingUsername}`, body: `Akun ${PLATFORMS[a.platform].label} Anda sekarang @${a.pendingUsername}. Rekap lama tetap tersimpan.`, link: '/app/accounts' }, tx);
+			});
+		} catch (e) {
+			if (isUniqueViolation(e)) return fail(400, { error: `@${a.pendingUsername} sudah dipakai akun lain` });
+			throw e;
+		}
+		return { success: `Username diganti menjadi @${a.pendingUsername}` };
+	},
+
+	rejectRename: async ({ request, locals }) => {
+		const form = await request.formData();
+		const id = Number(form.get('id'));
+		const note = String(form.get('note') ?? '').trim() || null;
+		const bad = requireReason(note);
+		if (bad) return bad;
+		const [a] = await db.select().from(socialAccounts).where(eq(socialAccounts.id, id));
+		if (!a?.pendingUsername) return fail(404, { error: 'Pengajuan tidak ditemukan' });
+		await db.update(socialAccounts).set({ pendingUsername: null, renameNote: null, renameRequestedAt: null }).where(eq(socialAccounts.id, a.id));
+		await logAdmin(locals.user, { action: 'rejectRename', targetType: 'account', targetId: a.id, targetLabel: accountLabel(a), note, meta: { requested: a.pendingUsername } });
+		await notify({ userId: a.userId, type: 'rename_rejected', title: `Ganti username ke @${a.pendingUsername} ditolak`, body: `Alasan: ${note}`, link: '/app/accounts' });
+		return { success: 'Pengajuan ganti username ditolak' };
 	},
 
 	rejectAccount: async ({ request, locals }) => {

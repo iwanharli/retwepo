@@ -34,5 +34,7 @@ export const LOG_ACTIONS = {
 	renameCampaign: 'Mengganti nama kampanye',
 	closeCampaign: 'Menutup kampanye',
 	openCampaign: 'Membuka kembali kampanye',
-	announce: 'Mengirim pengumuman'
+	announce: 'Mengirim pengumuman',
+	approveRename: 'Menyetujui ganti username',
+	rejectRename: 'Menolak ganti username'
 };

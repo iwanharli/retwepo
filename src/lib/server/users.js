@@ -9,7 +9,10 @@ export const USER_COLUMNS = {
 	ewallet: { expr: sql`u.ewallet_provider`, dir: 'asc' },
 	registered: { expr: sql`coalesce(u.registered_at, u.created_at)`, dir: 'desc' },
 	accounts: { expr: sql`(SELECT count(*) FROM social_accounts s WHERE s.user_id = u.id AND s.status = 'approved')`, dir: 'desc' },
+	today: { expr: sql`today`, dir: 'desc' },
+	week: { expr: sql`week`, dir: 'desc' },
 	month: { expr: sql`month`, dir: 'desc' },
+	active: { expr: sql`active_days`, dir: 'desc' },
 	total: { expr: sql`total`, dir: 'desc' },
 	last: { expr: sql`last_at`, dir: 'desc' },
 	status: { expr: sql`u.status`, dir: 'asc' }
@@ -43,11 +46,16 @@ export async function listUsers(url, { statuses, defaultStatus = null, defaultSo
 				u.ewallet_holder, u.registered_at, u.created_at, u.reviewed_at,
 				(SELECT json_agg(json_build_object('platform', s.platform, 'username', s.username, 'status', s.status) ORDER BY s.created_at)
 					FROM social_accounts s WHERE s.user_id = u.id) AS accounts,
-				coalesce(r.total, 0)::int AS total, coalesce(r.month, 0)::int AS month, r.last_at
+				coalesce(r.total, 0)::int AS total, coalesce(r.month, 0)::int AS month, r.last_at,
+				coalesce(r.today, 0)::int AS today, coalesce(r.week, 0)::int AS week, coalesce(r.active_days, 0)::int AS active_days
 			FROM users u
 			LEFT JOIN (
 				SELECT user_id, count(*) AS total,
 					count(*) FILTER (WHERE posted_at >= now() - interval '30 days') AS month,
+					-- hari ini (WIB) & 7 hari terakhir; hari aktif = jumlah hari berbeda dengan rekap dalam 30 hari
+					count(*) FILTER (WHERE posted_at >= date_trunc('day', now() AT TIME ZONE 'Asia/Jakarta') AT TIME ZONE 'Asia/Jakarta') AS today,
+					count(*) FILTER (WHERE posted_at >= now() - interval '7 days') AS week,
+					count(DISTINCT (posted_at AT TIME ZONE 'Asia/Jakarta')::date) FILTER (WHERE posted_at >= now() - interval '30 days') AS active_days,
 					max(posted_at) AS last_at
 				FROM active_recaps GROUP BY user_id
 			) r ON r.user_id = u.id

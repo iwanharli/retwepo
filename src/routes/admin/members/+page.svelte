@@ -41,8 +41,10 @@
 					<SortTh key="name" label="User" sort={data.f.sort} />
 					<SortTh key="ewallet" label="E-wallet" sort={data.f.sort} />
 					<SortTh key="accounts" label="Akun aktif" sort={data.f.sort} defaultDir="desc" />
-					<SortTh key="month" label="Rekap 30 hari" sort={data.f.sort} defaultDir="desc" align="right" />
-					<SortTh key="total" label="Total" sort={data.f.sort} defaultDir="desc" align="right" />
+					<SortTh key="today" label="Hari ini" sort={data.f.sort} defaultDir="desc" align="right" />
+					<SortTh key="week" label="7 hari" sort={data.f.sort} defaultDir="desc" align="right" />
+					<SortTh key="month" label="30 hari" sort={data.f.sort} defaultDir="desc" align="right" />
+					<SortTh key="active" label="Hari aktif" sort={data.f.sort} defaultDir="desc" align="right" />
 					<SortTh key="last" label="Terakhir rekap" sort={data.f.sort} defaultDir="desc" />
 					<SortTh key="status" label="Status" sort={data.f.sort} />
 					<th class="text-right">Aksi</th>
@@ -77,8 +79,13 @@
 								{:else}<span class="text-slate-300">—</span>{/each}
 							</div>
 						</td>
-						<td class="text-right text-base font-semibold" data-label="Rekap 30 hari">{fmtNum(u.month)}</td>
-						<td class="text-right text-slate-500" data-label="Total">{fmtNum(u.total)}</td>
+						<td class="text-right" data-label="Hari ini">{#if u.today}<span class="inline-flex min-w-7 justify-center rounded-md bg-emerald-50 px-1.5 py-0.5 font-semibold text-emerald-700">{fmtNum(u.today)}</span>{:else}<span class="text-slate-300">0</span>{/if}</td>
+						<td class="text-right font-medium text-slate-700" data-label="7 hari">{fmtNum(u.week)}</td>
+						<td class="text-right text-base font-semibold" data-label="30 hari">{fmtNum(u.month)}</td>
+						<td class="text-right" data-label="Hari aktif" title="Jumlah hari dengan minimal 1 rekap dalam 30 hari terakhir">
+							<span class="font-medium text-slate-700">{u.active_days}</span><span class="text-xs text-slate-400">/30</span>
+							<div class="mt-1 ml-auto h-1 w-12 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand-500" style="width:{(u.active_days / 30) * 100}%"></div></div>
+						</td>
 						<td class="whitespace-nowrap" data-label="Terakhir rekap">
 							{#if days === null}
 								<span class="text-xs text-rose-600">Belum pernah</span>

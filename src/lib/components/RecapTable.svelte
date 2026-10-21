@@ -49,8 +49,8 @@
 						{#if r.url}
 							<a href={r.url} target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-brand-600 hover:underline">
 								<Link2 class="size-3.5 shrink-0" /><span class="truncate">{r.url.replace(/^https?:\/\/(www\.)?/, '')}</span>
+								<UrlIssueBadge url={r.url} platform={r.platform} username={r.username} />
 							</a>
-							<div class="mt-0.5 empty:hidden"><UrlIssueBadge url={r.url} platform={r.platform} username={r.username} /></div>
 						{:else}<Minus class="size-4 text-slate-300" />{/if}
 					</td>
 					<td class="hidden max-w-44 truncate text-slate-600 2xl:table-cell" data-label="Catatan">{r.note ?? ''}</td>

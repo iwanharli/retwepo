@@ -265,3 +265,12 @@ export function cleanRecapUrl(raw) {
 	u.hash = '';
 	return u.toString();
 }
+
+/** Selisih HARI KALENDER (WIB) antara tanggal d dan hari ini: 0 = hari ini, 1 = kemarin, … (null bila kosong) */
+export function daysAgoWib(d) {
+	if (!d) return null;
+	const day = (x) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(x));
+	return Math.round((new Date(`${day(Date.now())}T00:00:00Z`) - new Date(`${day(d)}T00:00:00Z`)) / 86400000);
+}
+/** Label relatif: "hari ini", "kemarin", "N hari lalu" */
+export const daysAgoLabel = (n) => (n === 0 ? 'hari ini' : n === 1 ? 'kemarin' : `${n} hari lalu`);

@@ -8,7 +8,7 @@
 	import { page } from '$app/state';
 	import { fly } from 'svelte/transition';
 	import CampaignBadge from '#lib/components/CampaignBadge.svelte';
-	import { PLATFORMS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
+	import { PLATFORMS, fmtDate, fmtNum, adminUserHref, daysAgoWib } from '#lib/constants.js';
 
 	let { data } = $props();
 	const s = $derived(data.stats);
@@ -81,7 +81,7 @@
 
 	const MEDAL = ['from-amber-300 to-amber-500 text-amber-950', 'from-slate-200 to-slate-400 text-slate-800', 'from-orange-300 to-orange-500 text-orange-950'];
 	const DAY = 86400000;
-	const daysAgo = (d) => Math.floor((Date.now() - new Date(d)) / DAY);
+	const daysAgo = daysAgoWib; // hari kalender WIB
 
 	const typeByPlatformOption = $derived.by(() => {
 		const ps = platformTotals.map(([p]) => p);

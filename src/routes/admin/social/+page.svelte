@@ -1,7 +1,7 @@
 <script>
 	import { BadgeCheck, SearchX, ShieldOff, Images, UserCheck, Ban, Users, Eye, ChevronDown, ChevronsUpDown, ChevronsDownUp, Wallet } from '@lucide/svelte';
 	import { page } from '$app/state';
-	import { USER_STATUS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
+	import { USER_STATUS, fmtDate, fmtNum, adminUserHref, daysAgoWib, daysAgoLabel } from '#lib/constants.js';
 	import Badge from '#lib/components/Badge.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import PlatformTag from '#lib/components/PlatformTag.svelte';
@@ -32,8 +32,7 @@
 	const toggleAll = () => (open = allOpen ? new Set() : new Set(data.groups.map((g) => g.user_id)));
 
 	const SORTS = [['month', 'Rekap 30 hari'], ['total', 'Total rekap'], ['last', 'Terakhir rekap'], ['accounts', 'Jumlah akun'], ['owner', 'Nama']];
-	const DAY = 86400000;
-	const idle = (d) => (d ? Math.floor((Date.now() - new Date(d)) / DAY) : null);
+	const idle = daysAgoWib; // hari kalender WIB (bukan per 24 jam)
 </script>
 
 <svelte:head><title>Akun Terverifikasi · Admin Retwepo</title></svelte:head>
@@ -44,7 +43,7 @@
 		<span class="text-xs text-rose-600">Belum pernah</span>
 	{:else}
 		<div class="text-sm">{fmtDate(d)}</div>
-		<div class="text-xs {days >= 7 ? 'text-rose-600' : 'text-slate-400'}">{days === 0 ? 'hari ini' : `${days} hari lalu`}</div>
+		<div class="text-xs {days >= 7 ? 'text-rose-600' : 'text-slate-400'}">{daysAgoLabel(days)}</div>
 	{/if}
 {/snippet}
 
@@ -92,8 +91,9 @@
 			{@const expanded = isOpen(g.user_id)}
 			<section class="card overflow-hidden p-0 transition {expanded ? 'ring-2 ring-brand-500/15' : ''}">
 				<!-- kepala grup: info pemilik -->
-				<div class="flex flex-wrap items-center gap-x-5 gap-y-3 px-5 py-4">
-					<button type="button" class="flex min-w-0 flex-1 items-center gap-3 text-left" onclick={() => toggle(g.user_id)} aria-expanded={expanded}>
+				<!-- grid kolom tetap agar semua baris sejajar seperti tabel -->
+				<div class="grid grid-cols-[1fr_auto] items-center gap-x-5 gap-y-3 px-5 py-4 lg:grid-cols-[minmax(0,1fr)_10rem_4rem_5rem_4.5rem_8.5rem_8.5rem]">
+					<button type="button" class="col-span-2 flex min-w-0 items-center gap-3 text-left lg:col-span-1" onclick={() => toggle(g.user_id)} aria-expanded={expanded}>
 						<ChevronDown class="size-5 shrink-0 text-slate-400 transition {expanded ? '' : '-rotate-90'}" />
 						<Avatar user={{ nickname: g.nickname, email: g.email, avatarUrl: g.avatar_url }} size={40} />
 						<span class="min-w-0">
@@ -104,17 +104,18 @@
 							<span class="block truncate text-xs text-slate-500">{g.email}</span>
 						</span>
 					</button>
-					<div class="flex items-center -space-x-1.5">
-						{#each g.accounts.slice(0, 6) as a}<span title="@{a.username}" class="rounded-full ring-2 ring-white"><PlatformIcon platform={a.platform} size={26} class="rounded-full" /></span>{/each}
-						{#if g.accounts.length > 6}<span class="flex size-[26px] items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 ring-2 ring-white">+{g.accounts.length - 6}</span>{/if}
+					<div class="flex items-center -space-x-1.5 lg:justify-end">
+						{#each g.accounts.slice(0, 5) as a}<span title="@{a.username}" class="rounded-full ring-2 ring-white"><PlatformIcon platform={a.platform} size={26} class="rounded-full" /></span>{/each}
+						{#if g.accounts.length > 5}<span class="flex size-[26px] items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 ring-2 ring-white">+{g.accounts.length - 5}</span>{/if}
 					</div>
-					<dl class="grid grid-cols-4 gap-5 text-sm">
-						<div><dt class="text-xs text-slate-500">Akun</dt><dd class="font-semibold">{fmtNum(g.n)}</dd></div>
-						<div><dt class="text-xs text-slate-500">30 hari</dt><dd class="text-base font-semibold">{fmtNum(g.month)}</dd></div>
-						<div><dt class="text-xs text-slate-500">Total</dt><dd class="text-slate-600">{fmtNum(g.total)}</dd></div>
+					<!-- angka: rata kanan & sejajar antar baris; di layar kecil tampil berderet -->
+					<dl class="col-span-2 grid grid-cols-4 gap-4 text-sm tabular-nums lg:contents">
+						<div class="lg:text-right"><dt class="text-xs text-slate-500">Akun</dt><dd class="font-semibold">{fmtNum(g.n)}</dd></div>
+						<div class="lg:text-right"><dt class="text-xs text-slate-500">30 hari</dt><dd class="text-base font-semibold">{fmtNum(g.month)}</dd></div>
+						<div class="lg:text-right"><dt class="text-xs text-slate-500">Total</dt><dd class="text-slate-600">{fmtNum(g.total)}</dd></div>
 						<div class="whitespace-nowrap"><dt class="text-xs text-slate-500">Terakhir</dt><dd>{@render lastUsed(g.last_at)}</dd></div>
 					</dl>
-					<a href={adminUserHref(g.user_id, g.user_status)} class="btn btn-soft-brand btn-sm"><Eye /> Detail user</a>
+					<a href={adminUserHref(g.user_id, g.user_status)} class="btn btn-soft-brand btn-sm col-span-2 justify-self-end lg:col-span-1"><Eye /> Detail user</a>
 				</div>
 
 				<!-- isi grup: akun-akun milik user -->

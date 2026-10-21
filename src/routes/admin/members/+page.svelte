@@ -1,6 +1,6 @@
 <script>
 	import { Users, Download, SearchX, Wallet, Eye } from '@lucide/svelte';
-	import { USER_STATUS, fmtDate, fmtNum } from '#lib/constants.js';
+	import { USER_STATUS, fmtDate, fmtNum, daysAgoWib, daysAgoLabel } from '#lib/constants.js';
 	import Badge from '#lib/components/Badge.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
@@ -14,8 +14,7 @@
 	import SortTh from '#lib/components/SortTh.svelte';
 	let { data, form } = $props();
 
-	const DAY = 86400000;
-	const idle = (d) => (d ? Math.floor((Date.now() - new Date(d)) / DAY) : null);
+	const idle = daysAgoWib; // hari kalender WIB (bukan per 24 jam)
 </script>
 
 <svelte:head><title>User Terverifikasi · Admin Retwepo</title></svelte:head>
@@ -91,7 +90,7 @@
 								<span class="text-xs text-rose-600">Belum pernah</span>
 							{:else}
 								<div class="text-sm">{fmtDate(u.last_at)}</div>
-								<div class="text-xs {days >= 7 ? 'text-rose-600' : 'text-slate-400'}">{days === 0 ? 'hari ini' : `${days} hari lalu`}</div>
+								<div class="text-xs {days >= 7 ? 'text-rose-600' : 'text-slate-400'}">{daysAgoLabel(days)}</div>
 							{/if}
 						</td>
 						<td data-label="Status">

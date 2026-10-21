@@ -5,6 +5,7 @@
 	import { PLATFORMS, ACCOUNT_STATUS, USER_STATUS, fmtDate, fmtNum, adminUserHref } from '#lib/constants.js';
 	import { toastResult } from '#lib/toast.svelte.js';
 	import PlatformIcon from '#lib/components/PlatformIcon.svelte';
+	import ProfileLink from '#lib/components/ProfileLink.svelte';
 	import Badge from '#lib/components/Badge.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import Stat from '#lib/components/Stat.svelte';
@@ -77,6 +78,7 @@
 			{#if a.status_note}<p class="mt-2 text-sm text-rose-700"><b>Alasan:</b> {a.status_note}</p>{/if}
 		</div>
 		<div class="flex flex-wrap gap-2">
+			<ProfileLink platform={a.platform} username={a.username} small={false} />
 			<a href="/admin/recaps?q={encodeURIComponent(a.username)}&from=&to=" class="btn btn-soft-brand"><Images /> Semua rekap</a>
 			{#if a.status !== 'approved'}
 				<form method="POST" action="?/approveAccount" use:enhance={approved}>

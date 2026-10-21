@@ -4,6 +4,7 @@
 	import Badge from '#lib/components/Badge.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import PlatformTag from '#lib/components/PlatformTag.svelte';
+	import ProfileLink from '#lib/components/ProfileLink.svelte';
 	import Pagination from '#lib/components/Pagination.svelte';
 	import Flash from '#lib/components/Flash.svelte';
 	import PageHeader from '#lib/components/PageHeader.svelte';
@@ -60,7 +61,7 @@
 							<div class="flex flex-col gap-1">
 								{#each u.accounts ?? [] as a}
 									<span class="flex items-center gap-1.5 {a.status === 'rejected' ? 'line-through opacity-50' : ''}">
-										<PlatformTag platform={a.platform} username={a.username} size={18} />
+										<PlatformTag platform={a.platform} username={a.username} size={18} /><ProfileLink platform={a.platform} username={a.username} icon cls="-ml-1 size-6" />
 										<!-- label hanya bila status akun berbeda dari status pendaftaran user -->
 										{#if a.status === 'approved'}<Badge cls={ACCOUNT_STATUS.approved.cls}>{ACCOUNT_STATUS.approved.label}</Badge>{/if}
 									</span>

@@ -5,6 +5,7 @@
 	import { ShieldCheck, ShieldX, BadgeCheck, Check, X, Inbox, CalendarClock, Eye, UserRound, ArrowRight } from '@lucide/svelte';
 	import { fmtDate, adminUserHref } from '#lib/constants.js';
 	import PlatformTag from '#lib/components/PlatformTag.svelte';
+	import ProfileLink from '#lib/components/ProfileLink.svelte';
 	import Pagination from '#lib/components/Pagination.svelte';
 	import Flash from '#lib/components/Flash.svelte';
 	import PageHeader from '#lib/components/PageHeader.svelte';
@@ -69,7 +70,7 @@
 					{#each data.renames as a (a.id)}
 						<tr class="hover:bg-slate-50/70">
 							<td data-label=""><PlatformTag platform={a.platform} username={a.username} size={28} /><div class="mt-0.5 ml-9 text-xs text-slate-500">{a.recaps} rekap tetap terhubung</div></td>
-							<td data-label="Username baru"><span class="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 text-sm font-semibold break-all text-emerald-700"><ArrowRight class="size-3.5 shrink-0" />@{a.pending_username}</span></td>
+							<td data-label="Username baru"><div class="flex items-center gap-1"><span class="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 text-sm font-semibold break-all text-emerald-700"><ArrowRight class="size-3.5 shrink-0" />@{a.pending_username}</span><ProfileLink platform={a.platform} username={a.pending_username} icon /></div></td>
 							<td data-label="Pemilik">
 								<div class="flex items-center gap-2"><span class="font-medium">{a.nickname ?? a.email}</span><a href={adminUserHref(a.user_id, a.user_status)} class="btn btn-ghost btn-icon btn-sm size-7 text-slate-500 hover:text-brand-600" title="Detail user" aria-label="Detail user"><UserRound class="size-4" /></a></div>
 								<div class="text-xs text-slate-500">{a.email}</div>
@@ -182,7 +183,7 @@
 				{#each data.rows as a (a.id)}
 					<tr class="hover:bg-slate-50/70">
 						{#if pending}<td data-label="Pilih"><input type="checkbox" class="size-4 accent-brand-600" value={a.id} bind:group={selected} /></td>{/if}
-						<td data-label=""><PlatformTag platform={a.platform} username={a.username} size={28} /></td>
+						<td data-label=""><div class="flex items-center gap-1"><PlatformTag platform={a.platform} username={a.username} size={28} /><ProfileLink platform={a.platform} username={a.username} icon /></div></td>
 						<td data-label="Pemilik">
 							<div class="flex items-center gap-2"><span class="font-medium">{a.nickname ?? a.email}</span><a href={adminUserHref(a.user_id, a.user_status)} class="btn btn-ghost btn-icon btn-sm size-7 text-slate-500 hover:text-brand-600" title="Detail user" aria-label="Detail user"><UserRound class="size-4" /></a></div>
 							<div class="text-xs text-slate-500">{a.email}</div>

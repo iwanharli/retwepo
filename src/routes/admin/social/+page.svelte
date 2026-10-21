@@ -119,15 +119,15 @@
 				<!-- isi grup: akun-akun milik user -->
 				{#if expanded}
 					<div class="overflow-x-auto border-t border-slate-100 bg-slate-50/40">
-						<table class="table table-cards">
+						<table class="table table-cards md:min-w-[900px]">
 							<thead>
 								<tr>
 									<th>Akun</th>
-									<th class="text-right">Rekap 30 hari</th>
-									<th class="text-right">Total</th>
-									<th>Terakhir dipakai</th>
-									<th>Disetujui</th>
-									<th class="text-right">Aksi</th>
+									<th class="w-32 text-right">Rekap 30 hari</th>
+									<th class="w-24 text-right">Total</th>
+									<th class="w-40">Terakhir dipakai</th>
+									<th class="w-36">Disetujui</th>
+									<th class="w-80 text-right">Aksi</th>
 								</tr>
 							</thead>
 							<tbody>

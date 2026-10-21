@@ -123,11 +123,11 @@
 		<thead>
 			<tr>
 				<SortTh key="username" label="Akun" sort={accSort} onsort={sortAccounts} />
-				<SortTh key="status" label="Status" sort={accSort} onsort={sortAccounts} />
-				<SortTh key="in_range" label="Rekap (periode / total)" sort={accSort} onsort={sortAccounts} defaultDir="desc" align="right" />
-				<SortTh key="last_at" label="Terakhir" sort={accSort} onsort={sortAccounts} defaultDir="desc" />
-				<SortTh key="created_at" label="Diajukan" sort={accSort} onsort={sortAccounts} defaultDir="desc" />
-				<th></th>
+				<SortTh key="status" label="Status" sort={accSort} onsort={sortAccounts} class="w-36" />
+				<SortTh key="in_range" label="Rekap (periode / total)" sort={accSort} onsort={sortAccounts} defaultDir="desc" align="right" class="w-48" />
+				<SortTh key="last_at" label="Terakhir" sort={accSort} onsort={sortAccounts} defaultDir="desc" class="w-36" />
+				<SortTh key="created_at" label="Diajukan" sort={accSort} onsort={sortAccounts} defaultDir="desc" class="w-36" />
+				<th class="w-56"></th>
 			</tr>
 		</thead>
 		<tbody>

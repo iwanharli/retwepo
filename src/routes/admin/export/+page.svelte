@@ -348,7 +348,7 @@
 		{:else if preview}
 			{#if preview.rows.length}
 				<div class="overflow-x-auto transition {previewLoading ? 'opacity-50' : ''}">
-					<table class="w-full text-left text-xs">
+					<table class="w-full text-left text-xs tabular-nums">
 						<thead>
 							<tr class="bg-slate-800 text-white">
 								{#each preview.header as h}<th class="px-3 py-2.5 font-semibold whitespace-nowrap">{h}</th>{/each}

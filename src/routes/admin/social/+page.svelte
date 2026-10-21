@@ -140,7 +140,7 @@
 										<td class="whitespace-nowrap" data-label="Terakhir dipakai">{@render lastUsed(a.last_at)}</td>
 										<td class="whitespace-nowrap text-slate-500" data-label="Disetujui">{fmtDate(a.reviewed_at ?? a.created_at)}</td>
 										<td data-cell="actions">
-											<div class="flex justify-end gap-1.5">
+											<div class="flex flex-wrap justify-end gap-1.5">
 												<a href="/admin/social/{a.id}" class="btn btn-soft-brand btn-sm" title="Detail akun"><Eye /> Detail</a>
 												<a href="/admin/recaps?q={encodeURIComponent(a.username)}&from=&to=" class="btn btn-secondary btn-sm" title="Lihat rekap akun ini"><Images /> Rekap</a>
 												<ActionDialog

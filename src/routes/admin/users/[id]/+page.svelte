@@ -128,7 +128,7 @@
 				<SortTh key="in_range" label="Rekap (periode / total)" sort={accSort} onsort={sortAccounts} defaultDir="desc" align="right" class="w-48" />
 				<SortTh key="last_at" label="Terakhir" sort={accSort} onsort={sortAccounts} defaultDir="desc" class="w-36" />
 				<SortTh key="created_at" label="Diajukan" sort={accSort} onsort={sortAccounts} defaultDir="desc" class="w-36" />
-				<th class="w-72"></th>
+				<th class="w-80"></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -143,7 +143,7 @@
 					<td class="text-slate-500" data-label="Terakhir">{fmtDate(a.last_at)}</td>
 					<td class="text-slate-500" data-label="Diajukan">{fmtDate(a.created_at)}</td>
 					<td class="text-right" data-cell="actions">
-						<div class="flex justify-end gap-1.5">
+						<div class="flex flex-wrap justify-end gap-1.5">
 							<ProfileLink platform={a.platform} username={a.username} />
 							{#if a.status !== 'approved'}
 								<form method="POST" action="?/approveAccount" use:enhance={approved}>

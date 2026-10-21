@@ -60,7 +60,7 @@
 						{#if r.dupCount}<div class="mt-1"><DuplicateBadge count={r.dupCount} /></div>{/if}
 						{#if r.deletedAt}<div class="mt-1.5 max-w-60 whitespace-normal"><DeletedNotice {r} compact /></div>{/if}
 					</td>
-					{#if actions}<td data-cell="actions"><div class="flex items-center justify-end gap-1.5 whitespace-nowrap">{@render actions(r)}</div></td>{/if}
+					{#if actions}<td data-cell="actions"><div class="flex flex-wrap items-center justify-end gap-1.5">{@render actions(r)}</div></td>{/if}
 				</tr>
 			{/each}
 		</tbody>

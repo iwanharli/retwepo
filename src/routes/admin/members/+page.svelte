@@ -98,7 +98,7 @@
 							<Badge cls={USER_STATUS[u.status].cls} dot>{u.status === 'approved' ? 'Aktif' : USER_STATUS[u.status].label}</Badge>
 							{#if u.status_note}<div class="mt-1 max-w-48 text-xs text-slate-500">{u.status_note}</div>{/if}
 						</td>
-						<td data-cell="actions"><div class="flex justify-end gap-1.5"><a href="/admin/members/{u.id}" class="btn btn-soft-brand btn-sm" title="Lihat detail user"><Eye /> Detail</a><UserActions {u} compact /></div></td>
+						<td data-cell="actions"><div class="flex flex-wrap justify-end gap-1.5"><a href="/admin/members/{u.id}" class="btn btn-soft-brand btn-sm" title="Lihat detail user"><Eye /> Detail</a><UserActions {u} compact /></div></td>
 					</tr>
 				{/each}
 			</tbody>

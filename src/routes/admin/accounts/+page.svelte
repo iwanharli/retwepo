@@ -64,7 +64,7 @@
 		<div class="card overflow-x-auto p-0">
 			<table class="table table-cards md:min-w-[960px]">
 				<thead>
-					<tr><th>Akun</th><th class="w-48">Username baru</th><th class="w-52">Pemilik</th><th class="w-52">Alasan</th><th class="w-36">Diajukan</th><th class="w-72 text-right">Aksi</th></tr>
+					<tr><th>Akun</th><th class="w-48">Username baru</th><th class="w-52">Pemilik</th><th class="w-52">Alasan</th><th class="w-36">Diajukan</th><th class="w-[21rem] text-right">Aksi</th></tr>
 				</thead>
 				<tbody>
 					{#each data.renames as a (a.id)}
@@ -78,7 +78,7 @@
 							<td class="max-w-64 text-sm text-slate-600" data-label="Alasan">{a.rename_note ?? '—'}</td>
 							<td class="whitespace-nowrap text-slate-500" data-label="Diajukan"><span class="flex items-center gap-1.5"><CalendarClock class="size-3.5" />{fmtDate(a.rename_requested_at, true)}</span></td>
 							<td data-cell="actions">
-								<div class="flex justify-end gap-1.5">
+								<div class="flex flex-wrap justify-end gap-1.5">
 									<a href="/admin/social/{a.id}" class="btn btn-soft-brand btn-sm"><Eye /> Detail</a>
 									<ActionDialog
 										action="approveRename"
@@ -176,7 +176,7 @@
 					<SortTh key="account" label="Akun" sort={data.f.sort} />
 					<SortTh key="owner" label="Pemilik" sort={data.f.sort} class="w-60" />
 					<SortTh key="created" label="Diajukan" sort={data.f.sort} defaultDir="desc" class="w-40" />
-					{#if !pending}<th class="w-64">Alasan penolakan</th>{/if}<th class="w-56 text-right">Aksi</th>
+					{#if !pending}<th class="w-64">Alasan penolakan</th>{/if}<th class="{pending ? 'w-[21rem]' : 'w-56'} text-right">Aksi</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -191,7 +191,7 @@
 						<td class="whitespace-nowrap text-slate-500" data-label="Diajukan"><span class="flex items-center gap-1.5"><CalendarClock class="size-3.5" />{fmtDate(a.created_at, true)}</span></td>
 						{#if !pending}<td class="max-w-64 text-sm text-slate-600" data-label="Alasan penolakan">{a.status_note ?? '—'}</td>{/if}
 						<td data-cell="actions">
-							<div class="flex justify-end gap-1.5">
+							<div class="flex flex-wrap justify-end gap-1.5">
 								<a href="/admin/social/{a.id}" class="btn btn-soft-brand btn-sm" title="Detail akun"><Eye /> Detail</a>
 								<form method="POST" action="?/approveAccount" use:enhance={approved}>
 									<input type="hidden" name="id" value={a.id} /><button class="btn btn-success btn-sm"><Check /> Setujui</button>

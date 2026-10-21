@@ -35,7 +35,7 @@
 					<SortTh key="ewallet" label="E-wallet" sort={data.f.sort} class="w-40" />
 					<th class="w-64">Akun sosmed diajukan</th>
 					<SortTh key="registered" label="Mendaftar" sort={data.f.sort} defaultDir="desc" class="w-40" />
-					{#if data.f.status === 'rejected'}<th class="w-56">Alasan penolakan</th>{/if}<th class="w-52 text-right">Aksi</th></tr>
+					{#if data.f.status === 'rejected'}<th class="w-56">Alasan penolakan</th>{/if}<th class="{data.f.status === 'pending' ? 'w-[21rem]' : 'w-32'} text-right">Aksi</th></tr>
 			</thead>
 			<tbody>
 				{#each data.rows as u (u.id)}
@@ -72,7 +72,7 @@
 							<span class="flex items-center gap-1.5"><CalendarClock class="size-3.5" />{fmtDate(u.registered_at ?? u.created_at, true)}</span>
 						</td>
 						{#if data.f.status === 'rejected'}<td class="max-w-64 text-sm text-slate-600" data-label="Alasan penolakan">{u.status_note ?? '—'}</td>{/if}
-						<td data-cell="actions"><div class="flex justify-end gap-1.5"><a href="/admin/users/{u.id}" class="btn btn-soft-brand btn-sm" title="Lihat detail user"><Eye /> Detail</a>{#if data.f.status === 'pending'}<UserActions {u} compact />{/if}</div></td>
+						<td data-cell="actions"><div class="flex flex-wrap justify-end gap-1.5"><a href="/admin/users/{u.id}" class="btn btn-soft-brand btn-sm" title="Lihat detail user"><Eye /> Detail</a>{#if data.f.status === 'pending'}<UserActions {u} compact />{/if}</div></td>
 					</tr>
 				{/each}
 			</tbody>

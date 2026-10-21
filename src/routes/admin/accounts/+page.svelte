@@ -61,9 +61,9 @@
 	<!-- pengajuan ganti username dari user -->
 	{#if data.renames.length}
 		<div class="card overflow-x-auto p-0">
-			<table class="table table-cards">
+			<table class="table table-cards md:min-w-[960px]">
 				<thead>
-					<tr><th>Akun</th><th>Username baru</th><th>Pemilik</th><th>Alasan</th><th>Diajukan</th><th class="text-right">Aksi</th></tr>
+					<tr><th>Akun</th><th class="w-48">Username baru</th><th class="w-52">Pemilik</th><th class="w-52">Alasan</th><th class="w-36">Diajukan</th><th class="w-72 text-right">Aksi</th></tr>
 				</thead>
 				<tbody>
 					{#each data.renames as a (a.id)}
@@ -158,7 +158,7 @@
 	{/if}
 
 	<div class="card overflow-x-auto p-0">
-		<table class="table table-cards">
+		<table class="table table-cards md:min-w-[960px]">
 			<thead>
 				<tr>
 					{#if pending}
@@ -173,9 +173,9 @@
 						</th>
 					{/if}
 					<SortTh key="account" label="Akun" sort={data.f.sort} />
-					<SortTh key="owner" label="Pemilik" sort={data.f.sort} />
-					<SortTh key="created" label="Diajukan" sort={data.f.sort} defaultDir="desc" />
-					{#if !pending}<th>Alasan penolakan</th>{/if}<th class="text-right">Aksi</th>
+					<SortTh key="owner" label="Pemilik" sort={data.f.sort} class="w-60" />
+					<SortTh key="created" label="Diajukan" sort={data.f.sort} defaultDir="desc" class="w-40" />
+					{#if !pending}<th class="w-64">Alasan penolakan</th>{/if}<th class="w-56 text-right">Aksi</th>
 				</tr>
 			</thead>
 			<tbody>

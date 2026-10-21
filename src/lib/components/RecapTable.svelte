@@ -16,16 +16,16 @@
 </script>
 
 <div class="card overflow-x-auto p-0">
-	<table class="table table-cards">
+	<table class="table table-cards md:min-w-[900px]">
 		<thead>
 			<tr>
 				<th class="w-20">Bukti</th>
-				<SortTh key="account" label="Akun" {sort} />
-				{#if showOwner}<SortTh key="user" label="User" {sort} />{/if}
+				<SortTh key="account" label="Akun" {sort} class="w-56" />
+				{#if showOwner}<SortTh key="user" label="User" {sort} class="w-44" />{/if}
 				<SortTh key="url" label="URL" {sort} />
-				<SortTh key="note" label="Catatan" {sort} class="hidden 2xl:table-cell" />
-				<SortTh key="posted" label="Waktu posting" {sort} defaultDir="desc" />
-				{#if actions}<th class="text-right">Aksi</th>{/if}
+				<SortTh key="note" label="Catatan" {sort} class="hidden w-56 2xl:table-cell" />
+				<SortTh key="posted" label="Waktu posting" {sort} defaultDir="desc" class="w-40" />
+				{#if actions}<th class="w-44 text-right">Aksi</th>{/if}
 			</tr>
 		</thead>
 		<tbody>

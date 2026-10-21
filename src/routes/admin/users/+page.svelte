@@ -27,14 +27,14 @@
 
 {#if data.rows.length}
 	<div class="card overflow-x-auto p-0">
-		<table class="table table-cards">
+		<table class="table table-cards md:min-w-[860px]">
 			<thead>
 				<tr>
 					<SortTh key="name" label="User" sort={data.f.sort} />
-					<SortTh key="ewallet" label="E-wallet" sort={data.f.sort} />
-					<th>Akun sosmed diajukan</th>
-					<SortTh key="registered" label="Mendaftar" sort={data.f.sort} defaultDir="desc" />
-					{#if data.f.status === 'rejected'}<th>Alasan penolakan</th>{/if}<th class="text-right">Aksi</th></tr>
+					<SortTh key="ewallet" label="E-wallet" sort={data.f.sort} class="w-40" />
+					<th class="w-64">Akun sosmed diajukan</th>
+					<SortTh key="registered" label="Mendaftar" sort={data.f.sort} defaultDir="desc" class="w-40" />
+					{#if data.f.status === 'rejected'}<th class="w-56">Alasan penolakan</th>{/if}<th class="w-52 text-right">Aksi</th></tr>
 			</thead>
 			<tbody>
 				{#each data.rows as u (u.id)}

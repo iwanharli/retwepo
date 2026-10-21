@@ -3,7 +3,7 @@ import { and, eq, ne, sql } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
 import { socialAccounts } from '#lib/server/db/schema.js';
 import { parseAccounts, findTaken, takenMessage, isUniqueViolation, usernameTaken } from '#lib/server/accounts.js';
-import { normalizeUsername, PLATFORMS } from '#lib/constants.js';
+import { normalizeUsername, PLATFORMS, mismatchedUsername } from '#lib/constants.js';
 import { checkLimits, waitText } from '#lib/server/ratelimit.js';
 
 export async function load({ locals }) {
@@ -12,7 +12,22 @@ export async function load({ locals }) {
 		FROM social_accounts a LEFT JOIN active_recaps r ON r.social_account_id = a.id
 		WHERE a.user_id = ${locals.user.id}
 		GROUP BY a.id ORDER BY a.created_at`);
-	return { accounts: [...accounts] };
+
+	// saran ganti username: username yang paling sering dipakai di link rekap tapi berbeda dari akunnya
+	const recent = await db.execute(sql`
+		SELECT r.social_account_id, r.url FROM active_recaps r
+		WHERE r.user_id = ${locals.user.id} AND r.url IS NOT NULL AND r.posted_at >= now() - interval '60 days'`);
+	const list = [...accounts].map((a) => {
+		if (a.status !== 'approved' || a.pending_username) return a;
+		const tally = {};
+		for (const r of recent) if (r.social_account_id === a.id) {
+			const x = mismatchedUsername(r.url, a);
+			if (x) tally[x] = (tally[x] ?? 0) + 1;
+		}
+		const [suggested, count] = Object.entries(tally).sort((p, q) => q[1] - p[1])[0] ?? [];
+		return { ...a, suggested: suggested ?? null, suggested_count: count ?? 0 };
+	});
+	return { accounts: list };
 }
 
 export const actions = {

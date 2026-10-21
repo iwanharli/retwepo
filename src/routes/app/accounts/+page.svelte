@@ -1,4 +1,5 @@
 <script>
+	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
 	import { Link2, Plus, ExternalLink, Trash2, Clock, CircleCheck, CircleX, ShieldCheck, Send, Layers, CalendarClock, AtSign } from '@lucide/svelte';
 	import { ACCOUNT_STATUS, PLATFORMS, fmtDate, fmtNum } from '#lib/constants.js';
@@ -10,6 +11,8 @@
 	import ActionDialog from '#lib/components/ActionDialog.svelte';
 	import AccountSummary from '#lib/components/AccountSummary.svelte';
 	let { data, form } = $props();
+	// dari notifikasi saran (?saran=ID): sorot akun terkait
+	const highlight = $derived(Number(page.url.searchParams.get('saran')) || null);
 	let formKey = $state(0);
 
 	const STATUS_ICON = { approved: CircleCheck, pending: Clock, rejected: CircleX };
@@ -42,6 +45,34 @@
 
 					{#if a.status_note}
 						<p class="mx-5 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">Catatan admin: {a.status_note}</p>
+					{/if}
+					{#if a.suggested}
+						<!-- saran: link rekap memakai username lain -->
+						<div class="mx-5 rounded-lg bg-amber-50 px-3 py-2.5 text-xs text-amber-900 ring-1 ring-amber-200 {highlight === a.id ? 'ring-2 ring-amber-400' : ''}" id="akun-{a.id}">
+							<div class="flex items-start gap-2">
+								<AtSign class="mt-px size-4 shrink-0 text-amber-600" />
+								<div class="min-w-0 flex-1">
+									<div class="font-medium">Username di link rekap berbeda</div>
+									<div class="break-all">{a.suggested_count} link rekap memakai <b>@{a.suggested}</b>, sedangkan akun ini <b>@{a.username}</b>. Salah ketik saat mendaftar?</div>
+								</div>
+							</div>
+							<div class="mt-2 flex justify-end">
+								<ActionDialog
+									action="requestRename"
+									fields={{ id: a.id, username: a.suggested }}
+									tone="brand"
+									icon={AtSign}
+									title="Ajukan ganti ke @{a.suggested}?"
+									description="Username baru aktif setelah disetujui admin. Rekap lama tetap tersimpan."
+									confirmLabel="Ajukan"
+									note={{ label: 'Alasan', presets: ['Salah ketik saat mendaftar', 'Username diganti di aplikasi'], required: true }}
+									triggerClass="btn btn-sm bg-amber-500 text-white hover:bg-amber-600"
+								>
+									{#snippet trigger()}<AtSign /> Ajukan @{a.suggested}{/snippet}
+									<p class="text-sm break-all">@{a.username} <span class="text-slate-400">→</span> <b>@{a.suggested}</b></p>
+								</ActionDialog>
+							</div>
+						</div>
 					{/if}
 					{#if a.pending_username}
 						<!-- pengajuan ganti username menunggu admin -->

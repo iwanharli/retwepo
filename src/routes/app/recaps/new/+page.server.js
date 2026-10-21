@@ -8,6 +8,7 @@ import { parseRecapForm } from '#lib/server/recap-form.js';
 import { checkLimits, waitText } from '#lib/server/ratelimit.js';
 import { findDuplicates } from '#lib/server/duplicates.js';
 import { listCampaigns, lastCampaignId } from '#lib/server/campaigns.js';
+import { suggestUsernameUpdate } from '#lib/server/username-hint.js';
 
 export async function load({ locals, url }) {
 	const [campaignList, lastCampaign] = await Promise.all([listCampaigns({ activeOnly: true }), lastCampaignId(locals.user.id)]);
@@ -58,6 +59,7 @@ export const actions = {
 			throw e;
 		}
 
+		await suggestUsernameUpdate(parsed.account, parsed.values.url);
 		return { success: 'Rekap berhasil disimpan ✔', keep };
 	}
 };

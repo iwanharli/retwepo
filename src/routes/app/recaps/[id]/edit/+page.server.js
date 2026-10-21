@@ -7,6 +7,7 @@ import { parseRecapForm } from '#lib/server/recap-form.js';
 import { checkLimits, waitText } from '#lib/server/ratelimit.js';
 import { findDuplicates } from '#lib/server/duplicates.js';
 import { listCampaigns } from '#lib/server/campaigns.js';
+import { suggestUsernameUpdate } from '#lib/server/username-hint.js';
 
 async function ownRecap(id, userId) {
 	const [r] = await db
@@ -113,6 +114,7 @@ export const actions = {
 		}
 		// screenshot lama TIDAK dihapus: disimpan sebagai bukti di riwayat edit
 
+		await suggestUsernameUpdate(parsed.account, parsed.values.url);
 		return { success: 'Perubahan rekap disimpan ✔', keep };
 	}
 };

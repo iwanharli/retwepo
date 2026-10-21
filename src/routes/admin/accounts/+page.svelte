@@ -87,6 +87,7 @@
 										title="Setujui ganti username?"
 										description="Username akun langsung berganti. Semua rekap lama tetap terhubung ke akun ini."
 										confirmLabel="Setujui"
+										note={{ label: 'Catatan untuk user', placeholder: 'Opsional' }}
 										triggerClass="btn btn-success btn-sm"
 										onSuccess={done}
 									>
@@ -99,9 +100,9 @@
 										tone="danger"
 										icon={ShieldX}
 										title="Tolak ganti username?"
-										description="Username tetap @{a.username}. Alasan ditampilkan kepada user."
+										description="Username tetap @{a.username}. Alasan (bila diisi) ditampilkan kepada user."
 										confirmLabel="Tolak"
-										note={{ label: 'Alasan penolakan', presets: ['Username baru tidak ditemukan', 'Akun bukan milik user ini', 'Username sudah benar'], required: true }}
+										note={{ label: 'Alasan penolakan', placeholder: 'Opsional', presets: ['Username baru tidak ditemukan', 'Akun bukan milik user ini', 'Username sudah benar'] }}
 										triggerClass="btn btn-soft-danger btn-sm"
 										onSuccess={done}
 									>

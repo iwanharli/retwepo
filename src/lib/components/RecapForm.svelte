@@ -15,10 +15,12 @@
 		LoaderCircle,
 		Info,
 		Check,
-		Megaphone
+		Megaphone,
+		CircleAlert,
+		TriangleAlert
 	} from '@lucide/svelte';
 	import { untrack, tick } from 'svelte';
-	import { PLATFORMS } from '#lib/constants.js';
+	import { PLATFORMS, checkRecapUrl } from '#lib/constants.js';
 	import PlatformIcon from './PlatformIcon.svelte';
 	import DuplicateNotice from './DuplicateNotice.svelte';
 	import { Copy } from '@lucide/svelte';
@@ -41,6 +43,19 @@
 	let campaignId = $state(untrack(() => form?.keep?.campaignId ?? initial.campaignId ?? campaigns[0]?.id ?? ''));
 	let postedAt = $state(untrack(() => initial.postedAt ?? nowLocal()));
 	let url = $state(untrack(() => initial.url ?? ''));
+	let targetUrl = $state(untrack(() => initial.targetUrl ?? ''));
+	// cek link terhadap akun yang dipilih: error (ditolak) / warning (perlu dicek)
+	const selectedAccount = $derived(accounts.find((a) => String(a.id) === String(accountId)));
+	const urlCheck = $derived(checkRecapUrl(url, selectedAccount ?? {}));
+	const targetCheck = $derived(type === 'reply' ? checkRecapUrl(targetUrl) : {});
+	const URL_EXAMPLE = {
+		twitter: 'https://x.com/username/status/…',
+		instagram: 'https://www.instagram.com/reel/…',
+		threads: 'https://www.threads.net/@username/post/…',
+		youtube: 'https://youtube.com/watch?v=…',
+		facebook: 'https://facebook.com/…',
+		tiktok: 'https://www.tiktok.com/@username/video/… atau vt.tiktok.com/…'
+	};
 	let removeShot = $state(false); // edit: hapus screenshot lama
 	let editReason = $state(''); // edit: alasan perubahan (wajib)
 	const reasonOk = $derived(mode !== 'edit' || editReason.trim().length >= 5);
@@ -209,8 +224,24 @@
 					<label class="label" for="url">URL {type === 'reply' ? 'panel' : 'postingan'} <span class="font-normal text-slate-400">· opsional</span></label>
 					<div class="relative">
 						<Link2 class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
-						<input class="input pl-9" id="url" name="url" type="url" placeholder="https://x.com/username/status/…" bind:value={url} />
+						<input
+							class="input pl-9 {urlCheck.error ? 'border-rose-400 ring-2 ring-rose-500/15' : urlCheck.warning ? 'border-amber-400 ring-2 ring-amber-500/15' : ''}"
+							id="url"
+							name="url"
+							type="text"
+							inputmode="url"
+							autocomplete="off"
+							placeholder={URL_EXAMPLE[selectedAccount?.platform] ?? 'https://…'}
+							bind:value={url}
+						/>
 					</div>
+					{#if urlCheck.error}
+						<p class="mt-1.5 flex items-start gap-1.5 text-xs font-medium text-rose-600"><CircleAlert class="mt-px size-3.5 shrink-0" />{urlCheck.error}</p>
+					{:else if urlCheck.warning}
+						<p class="mt-1.5 flex items-start gap-1.5 text-xs text-amber-700"><TriangleAlert class="mt-px size-3.5 shrink-0" />{urlCheck.warning}</p>
+					{:else if url.trim() && selectedAccount}
+						<p class="mt-1.5 flex items-center gap-1.5 text-xs text-emerald-600"><Check class="size-3.5" />Link {PLATFORMS[selectedAccount.platform].label} valid</p>
+					{/if}
 						<DuplicateNotice {dup} />
 				</div>
 
@@ -219,8 +250,9 @@
 						<label class="label" for="turl">URL postingan target <span class="font-normal text-slate-400">· opsional</span></label>
 						<div class="relative">
 							<CornerDownRight class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
-							<input class="input pl-9" id="turl" name="targetUrl" type="url" placeholder="https://…" value={initial.targetUrl ?? ''} />
+							<input class="input pl-9" id="turl" name="targetUrl" type="text" inputmode="url" autocomplete="off" placeholder="https://…" bind:value={targetUrl} />
 						</div>
+						{#if targetCheck.error}<p class="mt-1.5 flex items-start gap-1.5 text-xs font-medium text-rose-600"><CircleAlert class="mt-px size-3.5 shrink-0" />{targetCheck.error}</p>{/if}
 					</div>
 				{/if}
 
@@ -333,7 +365,7 @@
 						<button type="button" class="btn btn-soft-warning btn-sm mt-2.5 w-full" onclick={saveAnyway}>Ya, tetap simpan</button>
 					</div>
 				{/if}
-				<button class="btn btn-primary btn-lg w-full" disabled={busy || !hasEvidence || !reasonOk}>
+				<button class="btn btn-primary btn-lg w-full" disabled={busy || !hasEvidence || !reasonOk || Boolean(urlCheck.error || targetCheck.error)}>
 					{#if busy}<LoaderCircle class="animate-spin" /> Menyimpan…{:else if mode === 'edit'}<Save /> Simpan Perubahan{:else}<Send /> Simpan Rekap{/if}
 				</button>
 			</div>

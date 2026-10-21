@@ -3,6 +3,7 @@
 	import { fmtDate, PLATFORMS } from '#lib/constants.js';
 	import PlatformIcon from './PlatformIcon.svelte';
 	import Thumb from './Thumb.svelte';
+	import UrlIssueBadge from './UrlIssueBadge.svelte';
 	import TypeBadge from './TypeBadge.svelte';
 	import CampaignBadge from './CampaignBadge.svelte';
 	import EditedBadge from './EditedBadge.svelte';
@@ -54,7 +55,7 @@
 			</div>
 		</div>
 		{#if r.deletedAt}<DeletedNotice {r} compact />{/if}
-		{#if r.dupCount}<div class="flex flex-wrap items-center gap-2 text-xs"><DuplicateBadge count={r.dupCount} /></div>{/if}
+		{#if r.dupCount || r.url}<div class="flex flex-wrap items-center gap-2 text-xs empty:hidden">{#if r.dupCount}<DuplicateBadge count={r.dupCount} />{/if}<UrlIssueBadge url={r.url} platform={r.platform} username={r.username} /></div>{/if}
 		{#if r.url}
 			<a href={r.url} target="_blank" rel="noopener noreferrer" class="flex items-start gap-1.5 rounded-lg bg-slate-50 px-2.5 py-2 text-xs text-brand-600 hover:bg-brand-50 hover:underline">
 				<Link2 class="mt-px size-3.5 shrink-0" /><span class="break-all">{host(r.url)}</span>

@@ -177,3 +177,79 @@ export function urlKey(raw) {
 export function parsePlatforms(searchParams) {
 	return [...new Set(searchParams.getAll('platform').flatMap((v) => v.split(',')))].filter((k) => PLATFORMS[k]);
 }
+
+// ---- Validasi link rekap terhadap akun yang dipilih (dipakai di form & server)
+
+/** Domain yang sah untuk tiap platform */
+export const PLATFORM_HOSTS = {
+	twitter: ['x.com', 'twitter.com', 't.co'],
+	instagram: ['instagram.com', 'instagr.am'],
+	threads: ['threads.net', 'threads.com'],
+	youtube: ['youtube.com', 'youtu.be'],
+	facebook: ['facebook.com', 'fb.com', 'fb.watch'],
+	tiktok: ['tiktok.com']
+};
+
+const hostOf = (u) => u.hostname.toLowerCase().replace(/^(www|m|mobile|mbasic|web|vt|vm)\./, '');
+export const platformOfUrl = (u) => Object.keys(PLATFORM_HOSTS).find((p) => PLATFORM_HOSTS[p].some((h) => hostOf(u) === h || hostOf(u).endsWith(`.${h}`))) ?? null;
+
+/** Username yang tertera di link (bila formatnya memuat username) */
+function usernameInUrl(u, platform) {
+	const parts = u.pathname.split('/').filter(Boolean);
+	if (platform === 'twitter' && parts[1] === 'status') return parts[0];
+	if ((platform === 'tiktok' || platform === 'threads' || platform === 'youtube') && parts[0]?.startsWith('@')) return parts[0].slice(1);
+	return null;
+}
+
+/**
+ * Periksa link rekap.
+ * Hasil: { error } — link pasti salah (ditolak) | { warning } — perlu dicek ulang | {} — aman.
+ * platform/username: akun sosmed yang dipilih (boleh kosong untuk link target panel)
+ */
+/** Lengkapi "instagram.com/reel/…" menjadi "https://instagram.com/reel/…" */
+export const withScheme = (raw) => {
+	const s = String(raw ?? '').trim();
+	return s && !/^[a-z][a-z0-9+.-]*:/i.test(s) && /^[\w-]+(\.[\w-]+)+(\/|$)/i.test(s) ? `https://${s}` : s;
+};
+
+export function checkRecapUrl(raw, { platform = null, username = null } = {}) {
+	const s = withScheme(raw);
+	if (!s) return {};
+	// dua link tertempel jadi satu, mis. "https://www.inshttps//www.threads.com/…"
+	if ((s.match(/https?:?\/\//gi) ?? []).length > 1 || /https?\/\//i.test(s.replace(/^https?:\/\//i, ''))) return { error: 'Link tidak valid — sepertinya dua link tertempel jadi satu. Hapus lalu tempel ulang.' };
+	if (/\s/.test(s)) return { error: 'Link tidak boleh mengandung spasi.' };
+	let u;
+	try {
+		u = new URL(s);
+	} catch {
+		return { error: 'Link tidak valid. Salin link langsung dari aplikasi (menu Bagikan → Salin link).' };
+	}
+	if (!['http:', 'https:'].includes(u.protocol) || !u.hostname.includes('.')) return { error: 'Link harus diawali https:// dan berupa alamat web.' };
+	if (!platform) return {};
+
+	const p = platformOfUrl(u);
+	if (!p) return { warning: `Link ini bukan dari ${PLATFORMS[platform].label}. Pastikan link yang ditempel benar.` };
+	if (p !== platform) return { error: `Link ini dari ${PLATFORMS[p].label}, tapi akun yang dipilih ${PLATFORMS[platform].label}. Pilih akun ${PLATFORMS[p].label} yang sesuai.` };
+	const inUrl = usernameInUrl(u, platform);
+	if (inUrl && username && inUrl.toLowerCase() !== username.toLowerCase())
+		return { warning: `Username di link (@${inUrl}) berbeda dengan akun yang dipilih (@${username}). Pastikan ini postingan dari akun tersebut.` };
+	return {};
+}
+
+/** Rapikan link: buang parameter pelacak (?igsh=, ?s=20, ?mdxt=, …) tanpa mengubah tujuan link */
+export function cleanRecapUrl(raw) {
+	let u;
+	try {
+		u = new URL(withScheme(raw));
+	} catch {
+		return raw;
+	}
+	const p = platformOfUrl(u);
+	if (p === 'youtube') {
+		for (const k of [...u.searchParams.keys()]) if (!['v', 'lc', 't'].includes(k)) u.searchParams.delete(k);
+	} else if (p === 'facebook') {
+		for (const k of [...u.searchParams.keys()]) if (!['story_fbid', 'fbid', 'id', 'v', 'comment_id'].includes(k)) u.searchParams.delete(k);
+	} else if (p) u.search = '';
+	u.hash = '';
+	return u.toString();
+}

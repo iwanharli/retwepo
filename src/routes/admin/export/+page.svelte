@@ -209,6 +209,22 @@
 						<div class="font-semibold text-brand-900">{rangeText}{#if rangeDays} <span class="text-sm font-normal text-brand-700/70">· {rangeDays} hari</span>{/if}</div>
 					</div>
 				</div>
+				{#if isRecap}
+					<div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
+						<div class="mb-2.5 flex flex-wrap items-baseline justify-between gap-1">
+							<span class="text-sm font-medium text-slate-800">Jam posting (WIB)</span>
+							<span class="text-xs text-slate-500">Boleh melewati tengah malam</span>
+						</div>
+						<div class="grid grid-cols-2 gap-2.5">
+							<label class="min-w-0 text-xs text-slate-500">Dari
+								<select class="input mt-1 w-full" name="hfrom" bind:value={hfrom}><option value="">00.00</option>{#each Array.from({ length: 24 }, (_, i) => i) as h}<option value={String(h)}>{String(h).padStart(2, '0')}.00</option>{/each}</select>
+							</label>
+							<label class="min-w-0 text-xs text-slate-500">Sampai
+								<select class="input mt-1 w-full" name="hto" bind:value={hto}><option value="">23.59</option>{#each Array.from({ length: 24 }, (_, i) => i) as h}<option value={String(h)}>{String(h).padStart(2, '0')}.59</option>{/each}</select>
+							</label>
+						</div>
+					</div>
+				{/if}
 			</div>
 		</div>
 	</section>
@@ -240,17 +256,6 @@
 									<input type="radio" name="type" value={v} bind:group={rtype} class="sr-only" />{lbl}
 								</label>
 							{/each}
-						</div>
-					</div>
-					<div class="grid gap-3 px-5 py-4 md:grid-cols-[11rem_1fr] md:items-center">
-						<div><div class="text-sm font-medium text-slate-800">Jam posting (WIB)</div><div class="text-xs text-slate-500">Boleh melewati tengah malam</div></div>
-						<div class="grid max-w-md grid-cols-2 gap-2">
-							<label class="text-xs text-slate-500">Dari
-								<select class="input mt-1 w-full" name="hfrom" bind:value={hfrom}><option value="">00.00</option>{#each Array.from({ length: 24 }, (_, i) => i) as h}<option value={String(h)}>{String(h).padStart(2, '0')}.00</option>{/each}</select>
-							</label>
-							<label class="text-xs text-slate-500">Sampai
-								<select class="input mt-1 w-full" name="hto" bind:value={hto}><option value="">23.59</option>{#each Array.from({ length: 24 }, (_, i) => i) as h}<option value={String(h)}>{String(h).padStart(2, '0')}.59</option>{/each}</select>
-							</label>
 						</div>
 					</div>
 				{/if}

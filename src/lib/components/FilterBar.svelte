@@ -16,7 +16,7 @@
 	 * children:  dropdown filter (FilterSelect) — tampil di drawer
 	 * Parameter lain di URL (tab, status, view, sort, …) otomatis ikut terbawa.
 	 */
-	let { dates = null, search = null, managed = [], uncounted = [], chips = null, children = null } = $props();
+	let { dates = null, search = null, managed = [], uncounted = [], chips = null, children = null, dateChildren = null } = $props();
 
 	// FilterSelect mendaftarkan diri (sinkron, saat dibuat) agar nilainya bisa tampil sebagai chip di bar.
 	// Drawer dirender lebih dulu di markup supaya pendaftaran selesai sebelum bar dirender (juga di server).
@@ -146,6 +146,9 @@
 							<label class="block"><span class="mb-1 block text-xs font-medium text-slate-500">Dari</span><input class="input {draftPreset === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="from" bind:value={fromV} /></label>
 							<label class="block"><span class="mb-1 block text-xs font-medium text-slate-500">Sampai</span><input class="input {draftPreset === null ? 'border-brand-400 ring-2 ring-brand-500/15' : ''}" type="date" name="to" bind:value={toV} /></label>
 						</div>
+						{#if dateChildren}
+							<div class="mt-4 border-t border-slate-100 pt-3">{@render dateChildren()}</div>
+						{/if}
 					</section>
 				{/if}
 				{#if children}

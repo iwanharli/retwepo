@@ -16,7 +16,7 @@ export async function load({ url }) {
 	]);
 	// nilai awal dari halaman asal (mis. tombol Export di Semua Rekap membawa filternya)
 	const p = url.searchParams;
-	const prefill = Object.fromEntries(['type', 'from', 'to', 'campaign', 'platform', 'q', 'user', 'account', 'evidence', 'rtype'].map((k) => [k, p.get(k) ?? '']));
+	const prefill = Object.fromEntries(['type', 'from', 'to', 'campaign', 'platform', 'q', 'user', 'account', 'evidence', 'rtype', 'hfrom', 'hto'].map((k) => [k, p.get(k) ?? '']));
 	prefill.status = p.getAll('status');
 	prefill.platform = p.getAll('platform').join(',');
 	return { campaigns: [...campaigns], counts, prefill };

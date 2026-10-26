@@ -37,6 +37,8 @@
 	let to = $state(pre.to);
 	let platforms = $state(pre.platform ? pre.platform.split(',').filter((k) => PLATFORMS[k]) : []);
 	let rtype = $state(pre.rtype);
+	let hfrom = $state(pre.hfrom);
+	let hto = $state(pre.hto);
 	let sep = $state('semicolon');
 	let format = $state('csv'); // csv | pdf
 
@@ -81,7 +83,7 @@
 	const canSubmit = $derived(!statusError && (!colList || cols[type].length > 0));
 	$effect(() => {
 		// dependensi: semua pengaturan yang memengaruhi isi data
-		void JSON.stringify([type, campaign, from, to, platforms, rtype, verifiedOwners, userStatuses, accountStatuses, cols[type] ?? [], carried]);
+		void JSON.stringify([type, campaign, from, to, platforms, rtype, hfrom, hto, verifiedOwners, userStatuses, accountStatuses, cols[type] ?? [], carried]);
 		if (!formEl || !canSubmit) return;
 		clearTimeout(previewTimer);
 		previewTimer = setTimeout(loadPreview, 350);
@@ -238,6 +240,17 @@
 									<input type="radio" name="type" value={v} bind:group={rtype} class="sr-only" />{lbl}
 								</label>
 							{/each}
+						</div>
+					</div>
+					<div class="grid gap-3 px-5 py-4 md:grid-cols-[11rem_1fr] md:items-center">
+						<div><div class="text-sm font-medium text-slate-800">Jam posting (WIB)</div><div class="text-xs text-slate-500">Boleh melewati tengah malam</div></div>
+						<div class="grid max-w-md grid-cols-2 gap-2">
+							<label class="text-xs text-slate-500">Dari
+								<select class="input mt-1 w-full" name="hfrom" bind:value={hfrom}><option value="">00.00</option>{#each Array.from({ length: 24 }, (_, i) => i) as h}<option value={String(h)}>{String(h).padStart(2, '0')}.00</option>{/each}</select>
+							</label>
+							<label class="text-xs text-slate-500">Sampai
+								<select class="input mt-1 w-full" name="hto" bind:value={hto}><option value="">23.59</option>{#each Array.from({ length: 24 }, (_, i) => i) as h}<option value={String(h)}>{String(h).padStart(2, '0')}.59</option>{/each}</select>
+							</label>
 						</div>
 					</div>
 				{/if}

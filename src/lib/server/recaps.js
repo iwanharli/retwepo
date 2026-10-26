@@ -27,6 +27,9 @@ export function recapFilters(url, { userId = null, defaultDays = null } = {}) {
 		user: userId ?? (Number(p.get('user')) || null),
 		platforms: parsePlatforms(p),
 		campaign: Number(p.get('campaign')) || null,
+		// jam posting WIB (UTC+7), inklusif: ?hfrom=8&hto=17 → 08.00–17.59; boleh melewati tengah malam (22 → 4)
+		hfrom: /^([01]?\d|2[0-3])$/.test(p.get('hfrom') ?? '') ? Number(p.get('hfrom')) : null,
+		hto: /^([01]?\d|2[0-3])$/.test(p.get('hto') ?? '') ? Number(p.get('hto')) : null,
 		type: ['post', 'reply'].includes(p.get('type')) ? p.get('type') : null,
 		evidence: ['url', 'shot', 'dup'].includes(p.get('evidence')) ? p.get('evidence') : null,
 		from: useDefault ? addDays(ymd(), -(defaultDays - 1)) : DATE_RE.test(p.get('from') ?? '') ? p.get('from') : null,
@@ -40,6 +43,12 @@ export function recapFilters(url, { userId = null, defaultDays = null } = {}) {
 	if (f.account) where.push(eq(recaps.socialAccountId, f.account));
 	if (f.platforms.length) where.push(inArray(socialAccounts.platform, f.platforms));
 	if (f.campaign) where.push(eq(recaps.campaignId, f.campaign));
+	if (f.hfrom !== null || f.hto !== null) {
+		const hour = sql`extract(hour from ${recaps.postedAt} AT TIME ZONE 'Asia/Jakarta')`;
+		const a = f.hfrom ?? 0;
+		const b = f.hto ?? 23;
+		where.push(a <= b ? sql`${hour} BETWEEN ${a} AND ${b}` : sql`(${hour} >= ${a} OR ${hour} <= ${b})`);
+	}
 	if (f.type) where.push(eq(recaps.type, f.type));
 	if (f.evidence === 'url') where.push(isNotNull(recaps.url));
 	if (f.evidence === 'shot') where.push(isNotNull(recaps.screenshotPath));

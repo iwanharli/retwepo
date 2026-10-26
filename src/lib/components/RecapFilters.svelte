@@ -19,13 +19,15 @@
 		u.delete('page');
 		return '?' + u;
 	}
+	const HOURS = Array.from({ length: 24 }, (_, i) => i);
+	const pad = (h) => String(h).padStart(2, '0');
 	const chipCls = 'inline-flex h-7 items-center gap-1.5 rounded-full bg-brand-50 pr-2 text-xs font-medium text-brand-700 hover:bg-brand-100';
 </script>
 
 <FilterBar
 	dates={{ from: f.from, to: f.to, allowAll: true }}
 	search={{ value: f.q, placeholder }}
-	managed={[accounts ? 'account' : 'platform', 'campaign', 'type', 'evidence']}
+	managed={[accounts ? 'account' : 'platform', 'campaign', 'type', 'evidence', 'hfrom', 'hto']}
 	chips={filterUser || filterAccount ? chips : null}
 >
 	{#if accounts}
@@ -36,6 +38,11 @@
 	<FilterSelect name="campaign" value={f.campaign ?? ''} all="Semua kampanye" options={campaigns.map((c) => [c.id, `#${c.name}`])} />
 	<FilterSelect name="type" value={f.type ?? ''} all="Semua tipe" options={[['post', 'Postingan'], ['reply', 'Panel']]} />
 	<FilterSelect name="evidence" value={f.evidence ?? ''} all="Semua bukti" options={[['url', 'Ada URL'], ['shot', 'Ada screenshot'], ['dup', 'URL duplikat']]} />
+	<!-- jam posting WIB (UTC+7) -->
+	<div class="grid grid-cols-2 gap-2">
+		<FilterSelect variant="select" name="hfrom" value={f.hfrom ?? ''} all="Dari 00.00" label="Jam posting dari (WIB)" options={HOURS.map((h) => [h, `Dari ${pad(h)}.00`])} />
+		<FilterSelect variant="select" name="hto" value={f.hto ?? ''} all="s/d 23.59" label="Sampai (WIB)" options={HOURS.map((h) => [h, `s/d ${pad(h)}.59`])} />
+	</div>
 </FilterBar>
 
 {#snippet chips()}

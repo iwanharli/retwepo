@@ -63,6 +63,8 @@ export async function describeFilters(url) {
 	if (p.get('type') === 'post') out.push('Tipe: postingan');
 	if (p.get('type') === 'reply') out.push('Tipe: panel');
 	if (p.getAll('status').length) out.push(`Status: ${p.getAll('status').join(', ')}`);
+	const hf = p.get('hfrom'), ht = p.get('hto');
+	if (hf || ht) out.push(`Jam: ${String(hf || 0).padStart(2, '0')}.00–${String(ht || 23).padStart(2, '0')}.59 WIB`);
 	if (p.get('q')) out.push(`Cari: "${p.get('q')}"`);
 	return out;
 }

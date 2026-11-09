@@ -1,5 +1,5 @@
 <script>
-	import { enhance } from '$app/forms';
+	import { enhance, applyAction } from '$app/forms';
 	import {
 		FileText,
 		Reply,
@@ -142,6 +142,12 @@
 	use:enhance={() => {
 		busy = true;
 		return async ({ result, update }) => {
+			// gagal di sisi browser (koneksi putus / ditolak proxy): error dari server selalu membawa status.
+			// Jangan ke halaman 500 — tampilkan pesan, isi form tetap utuh agar bisa kirim ulang
+			if (result.type === 'error' && !result.status) {
+				busy = false;
+				return applyAction({ type: 'failure', status: 0, data: { error: 'Gagal mengirim — koneksi terputus atau tidak stabil. Periksa internet Anda lalu tekan kirim lagi.' } });
+			}
 			await update({ reset: false });
 			if (result.type === 'success' && mode === 'new') {
 				formEl.querySelectorAll('input[type=url], textarea').forEach((el) => (el.value = ''));

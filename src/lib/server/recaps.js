@@ -10,7 +10,7 @@ export const PER_PAGE = 24;
 /** Rentang default halaman Riwayat Rekap (user) */
 export const RECAP_DEFAULT_DAYS = 7;
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
 /**
  * Bangun kondisi filter rekap dari query string.

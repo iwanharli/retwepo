@@ -5,7 +5,7 @@ import { db } from './db/index.js';
 import { csvResponse } from './csv.js';
 import { campaigns } from './db/schema.js';
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
 export const wib = (d) =>
 	d ? new Intl.DateTimeFormat('sv-SE', { timeZone: TZ, dateStyle: 'short', timeStyle: 'short' }).format(new Date(d)) : '';

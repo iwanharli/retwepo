@@ -21,7 +21,7 @@ export function addDays(s, n) {
  * Hasil: { from, to, start, end (eksklusif), days, prevStart, prevEnd }
  */
 export function parseRange(url, defaultDays = 30) {
-	const re = /^\d{4}-\d{2}-\d{2}$/;
+	const re = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 	let to = url.searchParams.get('to');
 	let from = url.searchParams.get('from');
 	if (!re.test(to ?? '')) to = ymd();
